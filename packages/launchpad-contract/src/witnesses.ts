@@ -3,10 +3,9 @@ import { WitnessContext } from "@midnight-ntwrk/compact-runtime";
 
 export type LaunchPadPrivateState = {
   readonly secretKey: Uint8Array;
-  readonly convertOpaquesToBytes: Uint8Array;
 };
 
-export const createLaunchPadrivateState = (secretKey: Uint8Array) => ({
+export const createLaunchPadPrivateState = (secretKey: Uint8Array) => ({
   secretKey,
 });
 

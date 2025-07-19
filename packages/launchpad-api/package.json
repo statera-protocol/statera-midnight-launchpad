@@ -1,5 +1,5 @@
 {
-  "name": "@repo/midnight-lp-api",
+  "name": "@repo/launchpad-api",
   "version": "0.1.0",
   "author": "IOG",
   "license": "MIT",
@@ -16,7 +16,7 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "@repo/midnight-lp-contract": "*",
+    "@repo/launchpad-contract": "*",
     "pino": "^8.16.1",
     "ws": "8.17.1"
   },
