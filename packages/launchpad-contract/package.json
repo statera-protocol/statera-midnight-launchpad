@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "name": "@repo/votera-contract",
+  "name": "@repo/midnight-lp-contract",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -14,8 +14,8 @@
     }
   },
   "scripts": {
-    "compact": "run-compactc src/votera.compact ./src/managed/votera",
-    "build": "rm -rf dist && tsc --project tsconfig.build.json && cp -Rf ./src/managed ./dist/managed && cp ./src/votera.compact ./dist",
+    "compact": "run-compactc src/launchpad.compact ./src/managed/launchpad",
+    "build": "rm -rf dist && tsc --project tsconfig.build.json && cp -Rf ./src/managed ./dist/managed && cp ./src/launchpad.compact ./dist",
     "lint": "eslint src",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
