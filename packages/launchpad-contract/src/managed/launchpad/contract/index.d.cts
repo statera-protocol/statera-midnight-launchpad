@@ -10,7 +10,10 @@ export type ImpureCircuits<T> = {
   mintYourToken(context: __compactRuntime.CircuitContext<T>,
                 _name_0: string,
                 _amount_0: bigint,
-                _ticker_0: string): __compactRuntime.CircuitResults<T, []>;
+                _ticker_0: string): __compactRuntime.CircuitResults<T, { nonce: Uint8Array,
+                                                                         color: Uint8Array,
+                                                                         value: bigint
+                                                                       }>;
 }
 
 export type PureCircuits = {
@@ -21,7 +24,10 @@ export type Circuits<T> = {
   mintYourToken(context: __compactRuntime.CircuitContext<T>,
                 _name_0: string,
                 _amount_0: bigint,
-                _ticker_0: string): __compactRuntime.CircuitResults<T, []>;
+                _ticker_0: string): __compactRuntime.CircuitResults<T, { nonce: Uint8Array,
+                                                                         color: Uint8Array,
+                                                                         value: bigint
+                                                                       }>;
   public_key(context: __compactRuntime.CircuitContext<T>, sk_0: Uint8Array): __compactRuntime.CircuitResults<T, Uint8Array>;
 }
 

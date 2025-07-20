@@ -53,6 +53,6 @@ export type DeployedLaunchpadContract =
 export type derivedLedgerState = {
   mintedTokenAmount: number;
   isMember: (sep: Uint8Array) => boolean;
-  getToken: (tokenSeo: Uint8Array) => tokenType;
+  getToken: (tokenSep: Uint8Array) => tokenType | string;
   getTokens: () => tokensType;
 };

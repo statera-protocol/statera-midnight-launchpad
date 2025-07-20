@@ -6,6 +6,20 @@ export const generateRandomBytes32 = (): Uint8Array => {
   return newBytes;
 };
 
+export const stringToBytes32 = (input: string) => {
+  const bytes = new Uint8Array(32);
+  const encoder = new TextEncoder();
+  const inputBytes = encoder.encode(input);
+
+  if (inputBytes.length >= 32) {
+    bytes.set(inputBytes.slice(0, 32));
+  } else {
+    bytes.set(inputBytes);
+  }
+
+  return bytes;
+};
+
 export const refinedStates = (tokens: {
   isEmpty(): boolean;
   size(): bigint;
@@ -31,8 +45,12 @@ export const refinedStates = (tokens: {
   return {
     mintedTokenAmount: Number(tokens.size()),
     isMember: (sep: Uint8Array) => tokens.member(sep),
-    getToken: (tokenSeo: Uint8Array) => {
-      return tokens.lookup(tokenSeo);
+    getToken: (sep: Uint8Array) => {
+      if (tokens.isEmpty().valueOf()) {
+        return "is empty";
+      } else {
+        return tokens.lookup(sep);
+      }
     },
     getTokens: () => {
       const allTokens: Array<

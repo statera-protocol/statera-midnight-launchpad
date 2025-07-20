@@ -23,27 +23,22 @@ witness local_secret_key(): Bytes<32>;
 witness convertOpaqueToBytes(name: Opaque<"string">): Bytes<32>;
 
 
-export circuit mintYourToken(_name: Opaque<"string">, _amount: Uint<64>, _ticker: Opaque<"string"> ) :[] {
+export circuit mintYourToken(_name: Opaque<"string">, _amount: Uint<64>, _ticker: Opaque<"string"> ) : CoinInfo {
     assert (_amount >= 100, "token must be atleast 100");
     //helper function that helps us convert Opaque<"string"> to bytes
     const nameBytes = disclose(convertOpaqueToBytes(disclose(_name)));
     assert(!tokens.member(nameBytes), "Token with this name already exist!.");
     
-    const domainName = domainSeperatorGenerator(nameBytes);
     // unique nonce for token generation
     const nonce = evolveNonce(uniqueIndex, prevNonce);
 
     //mints new type of token as specified by user
-    mintToken(domainName, disclose(_amount), nonce, left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()));
+    const coinInfo = mintToken(nameBytes, disclose(_amount), nonce, left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()));
     uniqueIndex.increment(1);
 
     const minter = disclose(public_key(local_secret_key()));
-    tokens.insert(disclose(nameBytes), TokenDetails{minter, disclose(_amount), domainName, disclose(_ticker)});
-}
-
-//returns a unique domain seperator
-circuit domainSeperatorGenerator(_tokenNameBytes: Bytes<32>): Bytes<32> {
-    return persistentHash<Vector<2, Bytes<32>>>([pad(32, "midnight-lp:token"), _tokenNameBytes]);
+    tokens.insert(disclose(nameBytes), TokenDetails{minter, disclose(_amount), nameBytes, disclose(_ticker)});
+    return coinInfo;
 }
 
 export circuit public_key(sk: Bytes<32>): Bytes<32> {

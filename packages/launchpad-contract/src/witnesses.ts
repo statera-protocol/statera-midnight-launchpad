@@ -20,7 +20,14 @@ export const witnesses = {
     { privateState }: WitnessContext<Ledger, LaunchPadPrivateState>,
     tokenName: string
   ): [LaunchPadPrivateState, Uint8Array] => {
-    const bytes = new TextEncoder().encode(tokenName);
+    const bytes = new Uint8Array(32);
+    const encoder = new TextEncoder();
+    const inputBytes = encoder.encode(tokenName);
+    if (inputBytes.length >= 32) {
+      bytes.set(inputBytes.slice(0, 32));
+    } else {
+      bytes.set(inputBytes);
+    }
     return [privateState, bytes];
   },
 };

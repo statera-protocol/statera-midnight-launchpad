@@ -189,7 +189,7 @@ class Contract {
                                                 _name_0,
                                                 _amount_0,
                                                 _ticker_0);
-        partialProofData.output = { value: [], alignment: [] };
+        partialProofData.output = { value: _descriptor_7.toValue(result_0), alignment: _descriptor_7.alignment() };
         return { result: result_0, context: context, proofData: partialProofData };
       },
       public_key: (...args_1) => {
@@ -200,13 +200,13 @@ class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.originalState != undefined && contextOrig_0.transactionContext != undefined))
           __compactRuntime.type_error('public_key',
                                       'argument 1 (as invoked from Typescript)',
-                                      'launchpad.compact line 49 char 1',
+                                      'launchpad.compact line 44 char 1',
                                       'CircuitContext',
                                       contextOrig_0)
         if (!(sk_0.buffer instanceof ArrayBuffer && sk_0.BYTES_PER_ELEMENT === 1 && sk_0.length === 32))
           __compactRuntime.type_error('public_key',
                                       'argument 1 (argument 2 as invoked from Typescript)',
-                                      'launchpad.compact line 49 char 1',
+                                      'launchpad.compact line 44 char 1',
                                       'Bytes<32>',
                                       sk_0)
         const context = { ...contextOrig_0 };
@@ -537,9 +537,6 @@ class Contract {
                                                                       { popeq: { cached: true,
                                                                                  result: undefined } }]).value),
                             'Token with this name already exist!.');
-    const domainName_0 = this.#_domainSeperatorGenerator_0(context,
-                                                           partialProofData,
-                                                           nameBytes_0);
     const nonce_0 = this.#_evolveNonce_0(context,
                                          partialProofData,
                                          _descriptor_1.fromValue(Contract._query(context,
@@ -566,15 +563,15 @@ class Contract {
                                                                                                              alignment: _descriptor_16.alignment() } }] } },
                                                                                   { popeq: { cached: false,
                                                                                              result: undefined } }]).value));
-    this.#_mintToken_0(context,
-                       partialProofData,
-                       domainName_0,
-                       _amount_0,
-                       nonce_0,
-                       this.#_left_0(context,
-                                     partialProofData,
-                                     this.#_ownPublicKey_0(context,
-                                                           partialProofData)));
+    const coinInfo_0 = this.#_mintToken_0(context,
+                                          partialProofData,
+                                          nameBytes_0,
+                                          _amount_0,
+                                          nonce_0,
+                                          this.#_left_0(context,
+                                                        partialProofData,
+                                                        this.#_ownPublicKey_0(context,
+                                                                              partialProofData)));
     const tmp_0 = 1n;
     Contract._query(context,
                     partialProofData,
@@ -597,7 +594,7 @@ class Contract {
                                                                    partialProofData));
     const tmp_1 = { minter: minter_0,
                     amount: _amount_0,
-                    domainSepName: domainName_0,
+                    domainSepName: nameBytes_0,
                     ticker: _ticker_0 };
     Contract._query(context,
                     partialProofData,
@@ -616,13 +613,7 @@ class Contract {
                                                                             alignment: _descriptor_3.alignment() }).encode() } },
                      { ins: { cached: false, n: 1 } },
                      { ins: { cached: true, n: 1 } }]);
-    return [];
-  }
-  #_domainSeperatorGenerator_0(context, partialProofData, _tokenNameBytes_0) {
-    return this.#_persistentHash_1(context,
-                                   partialProofData,
-                                   [new Uint8Array([109, 105, 100, 110, 105, 103, 104, 116, 45, 108, 112, 58, 116, 111, 107, 101, 110, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-                                    _tokenNameBytes_0]);
+    return coinInfo_0;
   }
   #_public_key_0(context, partialProofData, sk_0) {
     return this.#_persistentHash_1(context,

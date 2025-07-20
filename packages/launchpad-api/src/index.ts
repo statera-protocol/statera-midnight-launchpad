@@ -52,7 +52,6 @@ export class LaunchPadAPI {
       ],
       // ...and combine them to produce the required derived state.
       (ledgerState, privateState) => {
-        const hashedPublicKey = pureCircuits.public_key(privateState.secretKey);
         return {
           mintedTokenAmount: refinedStates(ledgerState.tokens)
             .mintedTokenAmount,
@@ -95,11 +94,11 @@ export class LaunchPadAPI {
             contractAddress,
             contract: LaunchPadContractInstance,
             privateStateId: LaunchPadPrivateStateKey,
-            initialPrivateState: await LaunchPadAPI.getPrivateState(providers),
+            initialPrivateState: await this.getPrivateState(providers),
           });
         console.log("Contract found successfully");
         console.log("Contract joined succesfully!");
-        return new LaunchPadAPI(deployedLaunchPadContract, providers);
+        return new this(deployedLaunchPadContract, providers);
       } catch (error) {
         console.error("Error at joining contract:", error);
         throw error;
