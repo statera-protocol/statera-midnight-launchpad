@@ -2,9 +2,10 @@ import { levelPrivateStateProvider } from "@midnight-ntwrk/midnight-js-level-pri
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface, Interface } from "node:readline/promises";
 import {
-  derivedLedgerState,
+  derivedState,
   LaunchPadAPI,
   stringToBytes32,
+  stringToUint64,
 } from "@repo/launchpad-api";
 import { toHex } from "@midnight-ntwrk/midnight-js-utils";
 import { type Config } from "./config.js";
@@ -56,12 +57,13 @@ Which would you like to do? `;
 const CIRCUIT_MAIN_LOOP_QUESTION = `
 You can do one of the following:
   1. Generate a token
-  2. See all generated tokens
+  2. Check contract state
   3. Get token information by name
   4. See total amount of token minted
   5. Check if a token name has been used
-  6. Check Wallet Balance to see tokens
-  7. Exit
+  6. Check list of token infos
+  7. Check list of qualified coin info
+  8. Exit
 Which would you like to do?`;
 
 const resolve = async (
@@ -108,9 +110,9 @@ const circuit_main_loop = async (
   if (deployedAPI === undefined) {
     return;
   }
-  let currentState: derivedLedgerState | undefined;
+  let currentState: derivedState | undefined;
   const stateObserver = {
-    next: (state: derivedLedgerState) => {
+    next: (state: derivedState) => {
       currentState = state;
     },
   };
@@ -123,21 +125,13 @@ const circuit_main_loop = async (
       switch (choice) {
         case "1": {
           try {
-            const name = await rli.question("enter token name ");
-            const amount = BigInt(
+            console.log("Generating your token. Please wait...");
+            await deployedAPI.deployedContract.callTx.mintYourToken(
+              await rli.question("enter token name "),
+              BigInt(await rli.question("enter token amount to generate ")),
               await rli.question("enter token amount to generate ")
             );
-            const ticker = await rli.question("enter token ticker ");
-
-            console.log("Generating your token. Please wait...");
-            const coinInfo =
-              await deployedAPI.deployedContract.callTx.mintYourToken(
-                name,
-                amount,
-                ticker
-              );
-            console.log(`Token generated successfully! ${coinInfo}`);
-            console.log("generating your token...");
+            console.log("Token generated successfully");
           } catch (error) {
             console.log(`An error occured: ${error}`);
           }
@@ -146,7 +140,7 @@ const circuit_main_loop = async (
         case "2": {
           console.log("getting contract state");
           try {
-            console.log(currentState?.getTokens());
+            console.log({ currentState });
           } catch (error) {
             console.log(
               `An error occured while getting list of generated token ${error}`
@@ -158,9 +152,18 @@ const circuit_main_loop = async (
           console.log("getting token information by name");
           try {
             const name = await rli.question("Enter token name ");
-            const tokenNameByte = await stringToBytes32(name);
+            const tokenNameByte = stringToBytes32(name);
 
-            console.log(currentState?.getToken(tokenNameByte));
+            const token = (
+              await LaunchPadAPI.getLaunchPadLedgerState(
+                providers,
+                deployedAPI.deployedContractAddress
+              )
+            )?.tokensList.lookup(tokenNameByte);
+
+            token
+              ? console.log({ token })
+              : console.log(`Token with ${tokenNameByte}, does not exist!`);
           } catch (error) {
             console.log(
               `An error occured while getting list of generated token ${error}`
@@ -171,7 +174,11 @@ const circuit_main_loop = async (
         case "4": {
           console.log("see total amount of token minted");
           try {
-            console.log(currentState?.mintedTokenAmount);
+            const result = await LaunchPadAPI.getLaunchPadLedgerState(
+              providers,
+              deployedAPI.deployedContractAddress
+            );
+            console.log(Number(result?.tokensList.size()));
           } catch (error) {
             console.log(
               `An error occureed while getting total minted token: ${error}`
@@ -180,11 +187,17 @@ const circuit_main_loop = async (
           break;
         }
         case "5": {
-          console.log("checking if token name is available or not");
           try {
-            const name = await rli.question("Enter token name ");
-            const tokenNameByte = await stringToBytes32(name);
-            console.log(currentState?.isMember(tokenNameByte));
+            const tokenNameByte = stringToBytes32(
+              await rli.question("Enter token name ")
+            );
+            const result = await LaunchPadAPI.getLaunchPadLedgerState(
+              providers,
+              deployedAPI.deployedContractAddress
+            );
+            result?.tokensList.member(tokenNameByte)
+              ? console.log("Token name already exist!")
+              : console.log("Token name is available");
           } catch (error) {
             console.log(
               `An error occured while cheking name availability ${error}`
@@ -193,10 +206,14 @@ const circuit_main_loop = async (
           break;
         }
         case "6": {
-          console.log("checking wallet balance...");
+          console.log(currentState?.bank);
           break;
         }
         case "7": {
+          console.log(currentState?.tokens);
+          break;
+        }
+        case "8": {
           rli.addListener("close", () => console.log("CLI Exiting"));
           rli.close();
           break;

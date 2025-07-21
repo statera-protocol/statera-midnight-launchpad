@@ -27,30 +27,8 @@
         }
       ],
       "result-type": {
-        "type-name": "Struct",
-        "name": "CoinInfo",
-        "elements": [
-          {
-            "name": "nonce",
-            "type": {
-              "type-name": "Bytes",
-              "length": 32
-            }
-          },
-          {
-            "name": "color",
-            "type": {
-              "type-name": "Bytes",
-              "length": 32
-            }
-          },
-          {
-            "name": "value",
-            "type": {
-              "type-name": "Uint",
-              "maxval": 340282366920938463463374607431768211455
-            }
-          }
+        "type-name": "Tuple",
+        "types": [
         ]
       }
     },

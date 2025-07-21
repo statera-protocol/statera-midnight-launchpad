@@ -50,9 +50,26 @@ export type DeployedLaunchpadContract =
   | DeployedContract<LaunchPadContract>
   | FoundContract<LaunchPadContract>;
 
-export type derivedLedgerState = {
-  mintedTokenAmount: number;
-  isMember: (sep: Uint8Array) => boolean;
-  getToken: (tokenSep: Uint8Array) => tokenType | string;
-  getTokens: () => tokensType;
+export type derivedState = {
+  tokens: tokenListArray;
+  bank: tokenBankArray;
 };
+
+export type tokenListArray = Array<
+  [
+    string,
+    {
+      minter: string;
+      amount: number;
+      domainSepName: string;
+      ticker: string;
+    },
+  ]
+>;
+
+export type tokenBankArray = Array<{
+  nonce: Uint8Array;
+  color: Uint8Array;
+  value: number;
+  mt_index: number;
+}>;

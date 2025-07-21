@@ -11,7 +11,7 @@ import {
 } from "@repo/launchpad-contract";
 import {
   DeployedLaunchpadContract,
-  derivedLedgerState,
+  derivedState,
   LaunchPadContract,
   LaunchPadContractProvider,
   LaunchPadPrivateStateKey,
@@ -22,13 +22,17 @@ import {
   deployContract,
   findDeployedContract,
 } from "@midnight-ntwrk/midnight-js-contracts";
-import { generateRandomBytes32, refinedStates } from "./utils.js";
+import {
+  generateRandomBytes32,
+  refinedTokenBank,
+  refinedTokenList,
+} from "./utils.js";
 
 const LaunchPadContractInstance: LaunchPadContract = new Contract(witnesses);
 
 export class LaunchPadAPI {
   public readonly deployedContractAddress: ContractAddress;
-  readonly state$: Observable<derivedLedgerState>;
+  readonly state$: Observable<derivedState>;
 
   private constructor(
     public readonly deployedContract: DeployedLaunchpadContract,
@@ -52,12 +56,10 @@ export class LaunchPadAPI {
       ],
       // ...and combine them to produce the required derived state.
       (ledgerState, privateState) => {
+        pureCircuits.public_key(privateState.secretKey);
         return {
-          mintedTokenAmount: refinedStates(ledgerState.tokens)
-            .mintedTokenAmount,
-          isMember: refinedStates(ledgerState.tokens).isMember,
-          getToken: refinedStates(ledgerState.tokens).getToken,
-          getTokens: refinedStates(ledgerState.tokens).getTokens,
+          tokens: refinedTokenList(ledgerState.tokensList),
+          bank: refinedTokenBank(ledgerState.tokensBank),
         };
       }
     );

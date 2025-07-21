@@ -10,10 +10,7 @@ export type ImpureCircuits<T> = {
   mintYourToken(context: __compactRuntime.CircuitContext<T>,
                 _name_0: string,
                 _amount_0: bigint,
-                _ticker_0: string): __compactRuntime.CircuitResults<T, { nonce: Uint8Array,
-                                                                         color: Uint8Array,
-                                                                         value: bigint
-                                                                       }>;
+                _ticker_0: string): __compactRuntime.CircuitResults<T, []>;
 }
 
 export type PureCircuits = {
@@ -24,17 +21,14 @@ export type Circuits<T> = {
   mintYourToken(context: __compactRuntime.CircuitContext<T>,
                 _name_0: string,
                 _amount_0: bigint,
-                _ticker_0: string): __compactRuntime.CircuitResults<T, { nonce: Uint8Array,
-                                                                         color: Uint8Array,
-                                                                         value: bigint
-                                                                       }>;
+                _ticker_0: string): __compactRuntime.CircuitResults<T, []>;
   public_key(context: __compactRuntime.CircuitContext<T>, sk_0: Uint8Array): __compactRuntime.CircuitResults<T, Uint8Array>;
 }
 
 export type Ledger = {
   readonly uniqueIndex: bigint;
   readonly prevNonce: Uint8Array;
-  tokens: {
+  tokensList: {
     isEmpty(): boolean;
     size(): bigint;
     member(key_0: Uint8Array): boolean;
@@ -45,6 +39,18 @@ export type Ledger = {
                                };
     [Symbol.iterator](): Iterator<[Uint8Array, { minter: Uint8Array, amount: bigint, domainSepName: Uint8Array, ticker: string
 }]>
+  };
+  tokensBank: {
+    isEmpty(): boolean;
+    length(): bigint;
+    head(): { is_some: boolean,
+              value: { nonce: Uint8Array,
+                       color: Uint8Array,
+                       value: bigint,
+                       mt_index: bigint
+                     }
+            };
+    [Symbol.iterator](): Iterator<{ nonce: Uint8Array, color: Uint8Array, value: bigint, mt_index: bigint }>
   };
 }
 

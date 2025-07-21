@@ -4,7 +4,10 @@ import CompactStandardLibrary;
 
 export ledger uniqueIndex: Counter;
 export ledger prevNonce: Bytes<32>;
-export ledger tokens: Map<Bytes<32>, TokenDetails>;
+//contains all generated tokens infprmations
+export ledger tokensList: Map<Bytes<32>, TokenDetails>;
+//keeps track of each spendable token
+export ledger tokensBank: List<QualifiedCoinInfo>;
 
 struct TokenDetails {
     minter: Bytes<32>;
@@ -22,23 +25,21 @@ witness local_secret_key(): Bytes<32>;
 
 witness convertOpaqueToBytes(name: Opaque<"string">): Bytes<32>;
 
-
-export circuit mintYourToken(_name: Opaque<"string">, _amount: Uint<64>, _ticker: Opaque<"string"> ) : CoinInfo {
+export circuit mintYourToken(_name: Opaque<"string">, _amount: Uint<64>, _ticker: Opaque<"string"> ) : [] {
     assert (_amount >= 100, "token must be atleast 100");
     //helper function that helps us convert Opaque<"string"> to bytes
     const nameBytes = disclose(convertOpaqueToBytes(disclose(_name)));
-    assert(!tokens.member(nameBytes), "Token with this name already exist!.");
-    
+    assert(!tokensList.member(nameBytes), "Token with this name already exist!.");
     // unique nonce for token generation
     const nonce = evolveNonce(uniqueIndex, prevNonce);
-
-    //mints new type of token as specified by user
-    const coinInfo = mintToken(nameBytes, disclose(_amount), nonce, left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()));
-    uniqueIndex.increment(1);
-
+    // public address of token creator
     const minter = disclose(public_key(local_secret_key()));
-    tokens.insert(disclose(nameBytes), TokenDetails{minter, disclose(_amount), nameBytes, disclose(_ticker)});
-    return coinInfo;
+    //mints new type of token as specified by user
+    const coin = mintToken(nameBytes, disclose(_amount), nonce, right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
+    //turn the minted coin into a spendable qualified coin
+    tokensBank.pushFrontCoin(coin, right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
+    tokensList.insert(nameBytes, TokenDetails{minter, disclose(_amount), nameBytes, disclose(_ticker)});
+    uniqueIndex.increment(1);
 }
 
 export circuit public_key(sk: Bytes<32>): Bytes<32> {
