@@ -5,7 +5,6 @@ import {
   derivedState,
   LaunchPadAPI,
   stringToBytes32,
-  stringToUint64,
 } from "@repo/launchpad-api";
 import { toHex } from "@midnight-ntwrk/midnight-js-utils";
 import { type Config } from "./config.js";
@@ -127,9 +126,9 @@ const circuit_main_loop = async (
           try {
             console.log("Generating your token. Please wait...");
             await deployedAPI.deployedContract.callTx.mintYourToken(
-              await rli.question("enter token name "),
+              await stringToBytes32(await rli.question("enter token name ")),
               BigInt(await rli.question("enter token amount to generate ")),
-              await rli.question("enter token amount to generate ")
+              await rli.question("enter token ticker ")
             );
             console.log("Token generated successfully");
           } catch (error) {
@@ -140,7 +139,7 @@ const circuit_main_loop = async (
         case "2": {
           console.log("getting contract state");
           try {
-            console.log({ currentState });
+            console.log(currentState);
           } catch (error) {
             console.log(
               `An error occured while getting list of generated token ${error}`
@@ -152,7 +151,7 @@ const circuit_main_loop = async (
           console.log("getting token information by name");
           try {
             const name = await rli.question("Enter token name ");
-            const tokenNameByte = stringToBytes32(name);
+            const tokenNameByte = await stringToBytes32(name);
 
             const token = (
               await LaunchPadAPI.getLaunchPadLedgerState(
@@ -188,7 +187,7 @@ const circuit_main_loop = async (
         }
         case "5": {
           try {
-            const tokenNameByte = stringToBytes32(
+            const tokenNameByte = await stringToBytes32(
               await rli.question("Enter token name ")
             );
             const result = await LaunchPadAPI.getLaunchPadLedgerState(
@@ -203,14 +202,6 @@ const circuit_main_loop = async (
               `An error occured while cheking name availability ${error}`
             );
           }
-          break;
-        }
-        case "6": {
-          console.log(currentState?.bank);
-          break;
-        }
-        case "7": {
-          console.log(currentState?.tokens);
           break;
         }
         case "8": {
