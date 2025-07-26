@@ -52,16 +52,15 @@ export type DeployedLaunchpadContract =
 
 export type derivedState = {
   tokens: tokenListArray;
-  bank: tokenBankArray;
 };
 
 export type tokenListArray = Array<
   [
-    string,
+    Uint8Array,
     {
-      minter: string;
+      minter: Uint8Array;
       amount: number;
-      domainSepName: string;
+      name: Uint8Array;
       ticker: string;
     },
   ]

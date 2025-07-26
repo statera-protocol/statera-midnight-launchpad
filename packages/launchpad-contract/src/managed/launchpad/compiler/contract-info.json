@@ -7,8 +7,8 @@
         {
           "name": "_name",
           "type": {
-            "type-name": "Opaque",
-            "tsType": "string"
+            "type-name": "Bytes",
+            "length": 32
           }
         },
         {

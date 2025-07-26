@@ -18,60 +18,40 @@ export const stringToUint64 = (input: string): bigint => {
   return num;
 };
 
-export const revertToString = (bytes: Uint8Array): string => {
-  const decoder = new TextDecoder();
-  // Find the first null byte (0) to determine the actual string length
-  const nullIndex = bytes.indexOf(0);
-  const actualBytes = nullIndex === -1 ? bytes : bytes.slice(0, nullIndex);
-  return decoder.decode(actualBytes);
-};
-
-export const stringToBytes32 = (input: string) => {
-  const bytes = new Uint8Array(32);
+export const stringToBytes32 = async (str: string) => {
   const encoder = new TextEncoder();
-  const inputBytes = encoder.encode(input);
+  const data = encoder.encode(str);
 
-  if (inputBytes.length >= 32) {
-    bytes.set(inputBytes.slice(0, 32));
-  } else {
-    bytes.set(inputBytes);
-  }
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
 
-  return bytes;
+  return new Uint8Array(hashBuffer);
 };
-
-// gives a refined state of the tokenList ledger variable
 
 export const refinedTokenList = (tokensList: {
   isEmpty(): boolean;
   size(): bigint;
   member(key_0: Uint8Array): boolean;
   lookup(key_0: Uint8Array): {
+    name: Uint8Array;
     minter: Uint8Array;
     amount: bigint;
-    domainSepName: Uint8Array;
     ticker: string;
   };
   [Symbol.iterator](): Iterator<
     [
       Uint8Array,
-      {
-        minter: Uint8Array;
-        amount: bigint;
-        domainSepName: Uint8Array;
-        ticker: string;
-      },
+      { name: Uint8Array; minter: Uint8Array; amount: bigint; ticker: string },
     ]
   >;
 }) => {
   const allTokens: tokenListArray = [];
   for (const tokenEntry of tokensList) {
     allTokens.push([
-      revertToString(tokenEntry[0]),
+      tokenEntry[0],
       {
-        minter: revertToString(tokenEntry[1].minter),
+        minter: tokenEntry[1].minter,
         amount: Number(tokenEntry[1].amount),
-        domainSepName: revertToString(tokenEntry[1].domainSepName),
+        name: tokenEntry[1].name,
         ticker: tokenEntry[1].ticker,
       },
     ]);

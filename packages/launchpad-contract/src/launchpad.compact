@@ -3,42 +3,31 @@ pragma language_version >= 0.16.0;
 import CompactStandardLibrary;
 
 export ledger uniqueIndex: Counter;
-export ledger prevNonce: Bytes<32>;
-//contains all generated tokens infprmations
+export ledger nonce: Bytes<32>;
 export ledger tokensList: Map<Bytes<32>, TokenDetails>;
-//keeps track of each spendable token
-export ledger tokensBank: List<QualifiedCoinInfo>;
 
 struct TokenDetails {
+    name: Bytes<32>;
     minter: Bytes<32>;
     amount: Uint<64>;
-    domainSepName: Bytes<32>;
     ticker: Opaque<"string">;
 }
 
-constructor() {
-    prevNonce = default<Bytes<32>>;
+constructor(initialNonce: Bytes<32>) {
+    nonce = disclose(initialNonce);
     uniqueIndex.increment(1);
 }
 
 witness local_secret_key(): Bytes<32>;
 
-witness convertOpaqueToBytes(name: Opaque<"string">): Bytes<32>;
-
-export circuit mintYourToken(_name: Opaque<"string">, _amount: Uint<64>, _ticker: Opaque<"string"> ) : [] {
+export circuit mintYourToken(_name: Bytes<32>, _amount: Uint<64>, _ticker: Opaque<"string"> ) : [] {
     assert (_amount >= 100, "token must be atleast 100");
-    //helper function that helps us convert Opaque<"string"> to bytes
-    const nameBytes = disclose(convertOpaqueToBytes(disclose(_name)));
-    assert(!tokensList.member(nameBytes), "Token with this name already exist!.");
-    // unique nonce for token generation
-    const nonce = evolveNonce(uniqueIndex, prevNonce);
-    // public address of token creator
+    const disclosedName = disclose(_name);
+    assert(!tokensList.member(disclosedName), "Token with this name already exist!.");
+    const new_nonce = evolveNonce(uniqueIndex, nonce);
     const minter = disclose(public_key(local_secret_key()));
-    //mints new type of token as specified by user
-    const coin = mintToken(nameBytes, disclose(_amount), nonce, right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
-    //turn the minted coin into a spendable qualified coin
-    tokensBank.pushFrontCoin(coin, right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
-    tokensList.insert(nameBytes, TokenDetails{minter, disclose(_amount), nameBytes, disclose(_ticker)});
+    const coin = mintToken(pad(32, "midnight_lp_token"), disclose(_amount), new_nonce, left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()));
+    tokensList.insert(disclosedName, TokenDetails{disclosedName, minter, disclose(_amount), disclose(_ticker)});
     uniqueIndex.increment(1);
 }
 

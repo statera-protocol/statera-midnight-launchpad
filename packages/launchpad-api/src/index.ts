@@ -59,7 +59,6 @@ export class LaunchPadAPI {
         pureCircuits.public_key(privateState.secretKey);
         return {
           tokens: refinedTokenList(ledgerState.tokensList),
-          bank: refinedTokenBank(ledgerState.tokensBank),
         };
       }
     );
@@ -80,6 +79,7 @@ export class LaunchPadAPI {
             contract: LaunchPadContractInstance,
             initialPrivateState: await LaunchPadAPI.getPrivateState(providers),
             privateStateId: LaunchPadPrivateStateKey,
+            args: [generateRandomBytes32()],
           }
         );
         console.log("Contract deployed succesfully!");
@@ -132,13 +132,13 @@ export class LaunchPadAPI {
 
   static createToken = (
     deployedContract: DeployedLaunchpadContract,
-    name: string,
-    amount: number,
+    name: Uint8Array,
+    amount: bigint,
     ticker: string
   ) => {
     try {
       console.log("creating token...");
-      deployedContract.callTx.mintYourToken(name, BigInt(amount), ticker);
+      deployedContract.callTx.mintYourToken(name, amount, ticker);
       console.log("Token created succesfully");
     } catch (error) {
       console.log(`error occured while creating token ${error}`);
