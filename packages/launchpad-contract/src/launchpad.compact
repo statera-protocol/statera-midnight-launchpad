@@ -1,36 +1,184 @@
 pragma language_version >= 0.16.0;
 
+/**
+USER ACTIONS:
+- USERS CAN GENERATE TOKEN BY PROVIDING AN IMAGE, NAME, TICKER, TOTAL AMOUNT WHICH WILL BE SENT TO THE GENERATOR'S WALLET
+- USERS CAN CHOOSE TO SELL THEIR GENERATED TOKENS IN THEIR PREFFERRED PATTERN: FIXED PRICE, BATCH SALE, OVERFLOW, BONDING CURVE SALE, HYBRID SALE, WHITELIST
+*/
+
+
+/**
+REQUIREMENTS FOR TOKEN GENERATION:
+- KEEP TRACK OF EVERY GENERATED TOKEN: TOTAL AMOUNT, INITIAL AMOUNT, AND TOKEN CREATOR, TICKER, TOKEN ICON 
+**/
+
+/**
+MY CONTRACT IS INNOCENT. IT DOESN'T KNOW WHO IS WHO. IT RELIES ON THE FRONT END TO DETERMINE THE COIN color AND FILTER THE ACCEPTABLE TO TOKEN SELECTED BY ORGANIZERS
+**/
+// MY CONTRACT CAN ACCEPT LIST OF COIN COLORS,      
+
 import CompactStandardLibrary;
 
-export ledger uniqueIndex: Counter;
+export ledger unique_index: Counter;
 export ledger nonce: Bytes<32>;
-export ledger tokensList: Map<Bytes<32>, TokenDetails>;
+export ledger open_fixed_token_sales: Map<Uint<8>, FixedSalesData>;
+export ledger fixed_sales_bank: Map<Uint<8>, QualifiedCoinInfo>;
+export ledger fixed_sales_received_bank: Map<Uint<8>, QualifiedCoinInfo>;
 
-struct TokenDetails {
-    name: Bytes<32>;
-    minter: Bytes<32>;
-    amount: Uint<64>;
-    ticker: Opaque<"string">;
+struct FixedSalesData{
+    organizer: Bytes<32>;
+    total_amount_for_sale: Uint<128>;
+    total_amount_sold: Uint<128>;
+    total_amount_left: Uint<128>;
+    token_sale_ratio: Uint<32>;
+    acceptable_exchange_token: Bytes<32>;
 }
+
+// struct BatchSalesData{
+//     token_for_sale: Bytes<32>;
+//     total_amount_for_sale: Uint<64>;
+//     start_time: Opaque<"string">;
+//     duration: Opaque<"string">;
+//     open: Boolean;
+// }
 
 constructor(initialNonce: Bytes<32>) {
     nonce = disclose(initialNonce);
-    uniqueIndex.increment(1);
+    unique_index.increment(1);
 }
 
 witness local_secret_key(): Bytes<32>;
+witness generate_sale_id(): Uint<8>;
+witness calculate_amount_to_buy(received_amount :Uint<128>, sale_ratio: Uint<32>): Uint<64>;
 
-export circuit mintYourToken(_name: Bytes<32>, _amount: Uint<64>, _ticker: Opaque<"string"> ) : [] {
-    assert (_amount >= 100, "token must be atleast 100");
-    const disclosedName = disclose(_name);
-    assert(!tokensList.member(disclosedName), "Token with this name already exist!.");
-    const new_nonce = evolveNonce(uniqueIndex, nonce);
-    const minter = disclose(public_key(local_secret_key()));
-    const coin = mintToken(pad(32, "midnight_lp_token"), disclose(_amount), new_nonce, left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()));
-    tokensList.insert(disclosedName, TokenDetails{disclosedName, minter, disclose(_amount), disclose(_ticker)});
-    uniqueIndex.increment(1);
+export circuit create_token(token_name: Bytes<32>, total_amount: Uint<64>, token_ticker: Opaque<"string">, token_icon: Opaque<"string"> ) : [] {
+    assert (total_amount >= 10, "token must be atleast 10");
+
+    const new_nonce = evolveNonce(unique_index, nonce);
+    // const domain_seperator = persistentHash<Vector<2, Bytes<32>>>([pad(32, "midnight-lp:token"), disclose(token_name)]);
+    mintToken(disclose(token_name), disclose(total_amount), new_nonce, left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()));
+    unique_index.increment(1);
+    return; 
+}
+
+export circuit open_a_fixed_price_token_sale(coin: CoinInfo, sale_ratio: Uint<32>, acceptable_exchange_token: Bytes<32>) :[] {
+    assert(coin.value > 0, "Can't send the 0 token!");
+    receive(disclose(coin));
+    const organizer = public_key(disclose(local_secret_key()));
+    const sale_id = disclose(generate_sale_id());
+
+    fixed_sales_bank.insertCoin(disclose(sale_id), disclose(coin), right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
+
+    open_fixed_token_sales.insert(disclose(sale_id), FixedSalesData {
+        organizer,
+        disclose(coin.value),
+        0,
+        disclose(coin.value),
+        disclose(sale_ratio),
+        disclose(acceptable_exchange_token),
+    });
+}
+
+export circuit buy_token_at_fixed_price(coin: CoinInfo, sale_id: Uint<8>, sale_amount: Uint<128>) : [] {
+    const disclosed_coin = disclose(coin);
+    const disclosed_id = disclose(sale_id);
+    const disclosed_amount = disclose(sale_amount);
+    assert(open_fixed_token_sales.member(disclosed_id), "There's currently no fixed sale for this token!");
+    const sale_token_info = open_fixed_token_sales.lookup(disclosed_id);
+    assert(coin.color == open_fixed_token_sales.lookup(disclosed_id).acceptable_exchange_token, "This token color is not acceptable by organizer");
+
+    receive(disclosed_coin);
+
+    const account_exist = fixed_sales_received_bank.member(disclosed_id);
+    if (account_exist) {
+        const merged_coin = mergeCoinImmediate(fixed_sales_received_bank.lookup(disclosed_id), disclosed_coin);
+        fixed_sales_received_bank.insertCoin(disclosed_id, merged_coin, right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
+    } else {
+        fixed_sales_received_bank.insertCoin(disclosed_id, disclosed_coin, right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
+    }
+
+    const amount_to_buy = disclose(calculate_amount_to_buy(disclosed_coin.value, sale_token_info.token_sale_ratio));
+
+    const is_sufficient = open_fixed_token_sales.lookup(disclosed_id).total_amount_left >= amount_to_buy;
+    const store_account = fixed_sales_bank.lookup(disclosed_id);
+    if (is_sufficient) {        
+        const change_coin_info = send(store_account, left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()), disclosed_amount);
+        const return_amount = sale_token_info.total_amount_for_sale - disclosed_amount;
+        if (change_coin_info.change.is_some) {
+            fixed_sales_bank.insertCoin(disclosed_id, change_coin_info.change.value, right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
+            // send(change_coin_info.change.value, right<ZswapCoinPublicKey, ContractAddress>(kernel.self()), return_amount);
+        } else {}
+    } else { //is amount is insufficient 
+        const amount_to_return = amount_to_buy - sale_token_info.total_amount_left;
+        send(store_account, left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()), sale_token_info.total_amount_left);
+
+        const return_coin_info = fixed_sales_received_bank.lookup(disclosed_id);
+
+        const return_amount = disclose(calculate_amount_to_buy(amount_to_return, sale_token_info.token_sale_ratio)); 
+        const balance = send(return_coin_info, left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()), return_amount);
+
+        if (balance.change.is_some) {
+            fixed_sales_received_bank.insertCoin(disclosed_id, balance.change.value, left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()));
+        } else {}
+    }
 }
 
 export circuit public_key(sk: Bytes<32>): Bytes<32> {
     return persistentHash<Vector<2, Bytes<32>>>([pad(32, "midnight-lp:user"), sk]);
 }
+
+// export circuit open_a_fix_batch_token_sale(sale_amount:Uint<64>, token_to_sell: Bytes<32>, start_time: Uint<32>, duration: Uint<32>): [] {
+//     const token_exist = tokens.member(disclose(token_to_sell));
+//     assert(token_exist, "Token does not exist!");
+
+//     const organizer = public_key(disclose(local_secret_key()));
+//     const token_for_sale_metadata = tokens.lookup(disclose(token_to_sell));
+//     assert(organizer == token_for_sale_metadata.token_creator, "Access Denied: You're not the owner!");
+
+//         //Sale ID tracks every created sale
+//     const sale_id = disclose(generate_sale_id());
+
+//     open_batch_token_sales.insert(disclose(sale_id), BatchSalesData {
+//         disclose(token_to_selltoken_sale_to_join),
+//         disclose(sale_amount),
+//         disclose(start_time),
+//         disclose(duration),
+//         open: true,
+//     });
+
+//     tokens.insert(disclose(token_to_sell), MetaData {
+//         ...token_for_sale_metadata,
+//         amount_left: token_for_sale_metadata.amount_left - disclose(sale_amount),
+//         spent_amount: token_for_sale_metadata.total_amount - token_for_sale_metadata.amount_left,
+//     });
+// };
+
+// export circuit join_token_batch_buy(coin: CoinInfo, sale_id: Uint<8>) :[] {
+//     assert(open_batch_token_sales.member(disclose(sale_id)), "There's currently no batch sale for this token!");
+//     assert(!open_batch_token_sales.lookup(disclose(sale_id)).open, "The batch sale of this token has ended!");
+
+//     const sale_token_info = open_batch_token_sales.lookup(disclose(sale_id));
+
+//     // RECEIVE TOKEN FROM CONTRIBUTOR 
+//     receive(disclose(coin));
+//     const exist = received_tokens_from_batch_sales.member(disclose(sale_id));
+
+//     if (exist) {
+//         //merge the qualified coin info to the received coin info
+//         const initially_received_tokens = received_tokens_from_batch_sales.lookup(disclose(sale_id));
+//         const newly_received_coin_info = mergeCoinImmediate(initially_received_tokens, disclose(coin));
+//         received_tokens_from_batch_sales.insertCoin(disclose(sale_id), newly_received_coin_info, right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
+//     } else {
+//         received_tokens_from_batch_sales.insertCoin(disclose(sale_id), disclose(coin), right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
+//     }
+
+//     // ADD BUYER TO THE LIST OF CONTRIBUTORS: PUBLICKEY AND AMOUNT WE RECEIVED FROM THEM
+// }
+
+// export circuit distribute_token_from_bacth_sale(sale_id: Uint<8>, ) : [] {
+//     //DEDUCT THE AMOUNT STATISTICS OF TOKEN TO BE SOLD FROM TOKEN LEDGER VARIABLE
+
+
+
+// }
+//     // DISTRIBUTE THE TOKEN TO CONTRIBUTORS
