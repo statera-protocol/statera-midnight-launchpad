@@ -1,14 +1,13 @@
 import {
   createLaunchPadPrivateState,
   LaunchPadPrivateState,
-  witnesses,
-} from "@repo/launchpad-contract";
-import {
   Contract,
   ledger,
   Ledger,
   pureCircuits,
+  CoinInfo,
 } from "@repo/launchpad-contract";
+import { witnesses } from "@repo/launchpad-contract";
 import {
   DeployedLaunchpadContract,
   derivedState,
@@ -16,17 +15,23 @@ import {
   LaunchPadContractProvider,
   LaunchPadPrivateStateKey,
 } from "./common-types.js";
-import { ContractAddress } from "@midnight-ntwrk/compact-runtime";
+import {
+  ContractAddress,
+  QualifiedCoinInfo,
+} from "@midnight-ntwrk/compact-runtime";
 import { combineLatest, from, map, Observable } from "rxjs";
 import {
   deployContract,
   findDeployedContract,
 } from "@midnight-ntwrk/midnight-js-contracts";
 import {
-  generateRandomBytes32,
-  refinedTokenBank,
-  refinedTokenList,
+  get_fixed_sale_bank,
+  get_fixed_sales_received_bank,
+  get_open_fixed_token_sales,
+  randomNonceBytes,
+  stringTo32ByteArray,
 } from "./utils.js";
+import { encodeTokenType, nativeToken } from "@midnight-ntwrk/ledger";
 
 const LaunchPadContractInstance: LaunchPadContract = new Contract(witnesses);
 
@@ -58,7 +63,13 @@ export class LaunchPadAPI {
       (ledgerState, privateState) => {
         pureCircuits.public_key(privateState.secretKey);
         return {
-          tokens: refinedTokenList(ledgerState.tokensList),
+          receival_bank: get_fixed_sales_received_bank(
+            ledgerState.fixed_sales_received_bank
+          ),
+          sale_bank: get_fixed_sale_bank(ledgerState.fixed_sales_bank),
+          fixed_sales: get_open_fixed_token_sales(
+            ledgerState.open_fixed_token_sales
+          ),
         };
       }
     );
@@ -79,7 +90,7 @@ export class LaunchPadAPI {
             contract: LaunchPadContractInstance,
             initialPrivateState: await LaunchPadAPI.getPrivateState(providers),
             privateStateId: LaunchPadPrivateStateKey,
-            args: [generateRandomBytes32()],
+            args: [randomNonceBytes(32)],
           }
         );
         console.log("Contract deployed succesfully!");
@@ -115,8 +126,7 @@ export class LaunchPadAPI {
       LaunchPadPrivateStateKey
     );
     return (
-      existingPrivateState ??
-      createLaunchPadPrivateState(generateRandomBytes32())
+      existingPrivateState ?? createLaunchPadPrivateState(randomNonceBytes(32))
     );
   }
 
@@ -130,18 +140,68 @@ export class LaunchPadAPI {
         contractState != null ? ledger(contractState.data) : null
       );
 
-  static createToken = (
+  static createToken = async (
     deployedContract: DeployedLaunchpadContract,
     name: Uint8Array,
     amount: bigint,
-    ticker: string
+    ticker: string,
+    icon: string
   ) => {
     try {
       console.log("creating token...");
-      deployedContract.callTx.mintYourToken(name, amount, ticker);
+      await deployedContract.callTx.create_token(name, amount, ticker, icon);
       console.log("Token created succesfully");
     } catch (error) {
       console.log(`error occured while creating token ${error}`);
+    }
+  };
+
+  static open_fixed_sale = async (
+    amount: bigint,
+    color: string,
+    acceptable_color: string,
+    deployedContract: DeployedLaunchpadContract
+  ) => {
+    const coin: CoinInfo = {
+      nonce: randomNonceBytes(32),
+      color: encodeTokenType(color),
+      value: amount,
+    };
+    try {
+      const data = await deployedContract.callTx.open_a_fixed_price_token_sale(
+        coin,
+        BigInt(1),
+        encodeTokenType(acceptable_color)
+      );
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  static buy_fixed_token = async (
+    deployedContract: DeployedLaunchpadContract,
+    amount: bigint,
+    color: string
+  ) => {
+    const sale_id = new Uint8Array([
+      5, 7, 9, 7, 3, 0, 0, 0, 0, 1, 2, 1, 4, 9, 5, 4, 0, 9, 0, 0, 0, 7, 0, 0, 6,
+      7, 9, 7, 5, 0, 0, 0,
+    ]);
+
+    const coin: CoinInfo = {
+      nonce: randomNonceBytes(32),
+      color: encodeTokenType(color),
+      value: amount,
+    };
+    try {
+      await deployedContract.callTx.buy_token_at_fixed_price(
+        coin,
+        sale_id,
+        amount
+      );
+    } catch (error) {
+      console.log(error);
     }
   };
 }

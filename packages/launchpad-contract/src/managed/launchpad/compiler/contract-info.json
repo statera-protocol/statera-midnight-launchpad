@@ -86,6 +86,76 @@
             "type-name": "Bytes",
             "length": 32
           }
+        },
+        {
+          "name": "time",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "duration",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 4294967295
+          }
+        },
+        {
+          "name": "title",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "desc",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "logo",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "banner",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "token_name",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "symbol",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "min",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        },
+        {
+          "name": "max",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
         }
       ],
       "result-type": {
@@ -131,8 +201,8 @@
         {
           "name": "sale_id",
           "type": {
-            "type-name": "Uint",
-            "maxval": 255
+            "type-name": "Bytes",
+            "length": 32
           }
         },
         {
@@ -140,6 +210,24 @@
           "type": {
             "type-name": "Uint",
             "maxval": 340282366920938463463374607431768211455
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "closeSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
           }
         }
       ],

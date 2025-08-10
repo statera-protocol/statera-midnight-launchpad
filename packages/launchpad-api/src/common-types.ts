@@ -29,46 +29,26 @@ export type LaunchPadContractProvider = MidnightProviders<
   LaunchPadPrivateState
 >;
 
-type tokenType = {
-  minter: Uint8Array<ArrayBufferLike>;
-  amount: bigint;
-  domainSepName: Uint8Array;
-  ticker: string;
-};
-
-type tokensType = [
-  Uint8Array<ArrayBufferLike>,
-  {
-    minter: Uint8Array;
-    amount: bigint;
-    domainSepName: Uint8Array;
-    ticker: string;
-  },
-][];
-
 export type DeployedLaunchpadContract =
   | DeployedContract<LaunchPadContract>
   | FoundContract<LaunchPadContract>;
 
 export type derivedState = {
-  tokens: tokenListArray;
+  receival_bank: sale_bank_type;
+  sale_bank: sale_bank_type;
+  fixed_sales: open_sales_type;
 };
 
-export type tokenListArray = Array<
+export type open_sales_type = Array<[Uint8Array, (BigInt | Uint8Array)[]]>;
+
+export type sale_bank_type = Array<
   [
     Uint8Array,
     {
-      minter: Uint8Array;
-      amount: number;
-      name: Uint8Array;
-      ticker: string;
+      nonce: Uint8Array;
+      color: Uint8Array;
+      value: bigint;
+      mt_index: bigint;
     },
   ]
 >;
-
-export type tokenBankArray = Array<{
-  nonce: Uint8Array;
-  color: Uint8Array;
-  value: number;
-  mt_index: number;
-}>;

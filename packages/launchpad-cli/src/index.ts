@@ -1,11 +1,7 @@
 import { levelPrivateStateProvider } from "@midnight-ntwrk/midnight-js-level-private-state-provider";
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface, Interface } from "node:readline/promises";
-import {
-  derivedState,
-  LaunchPadAPI,
-  stringToBytes32,
-} from "@repo/launchpad-api";
+import { derivedState, LaunchPadAPI, stringToBytes } from "@repo/launchpad-api";
 import { toHex } from "@midnight-ntwrk/midnight-js-utils";
 import { type Config } from "./config.js";
 import {
@@ -37,10 +33,11 @@ import * as fs from "node:fs";
 import { streamToString } from "testcontainers/build/common/streams.js";
 import { webcrypto } from "node:crypto";
 import { LaunchPadContractProvider } from "@repo/launchpad-api";
+import { QualifiedCoinInfo } from "@midnight-ntwrk/compact-runtime";
 
 const DEPLOY_OR_JOIN_QUESTION = `
     You can do one of the following:
-    1. Deploy a Votera contract
+    1. Deploy a new launchpad contract
     2. Join an existing one
     3. Exit
 `;
@@ -55,13 +52,13 @@ Which would you like to do? `;
 // Updated menu with new option
 const CIRCUIT_MAIN_LOOP_QUESTION = `
 You can do one of the following:
-  1. Generate a token
-  2. Check contract state
-  3. Get token information by name
-  4. See total amount of token minted
-  5. Check if a token name has been used
-  6. Check list of token infos
-  7. Check list of qualified coin info
+  1. Generate a New Token
+  2. Open a Fixed Token Sale
+  3. Join a Fixed Token Sale
+  4. See Store Token Bank
+  5. See Received Token Bank
+  6. See All Fixed Open Sales
+  7. See Wallet Balances
   8. Exit
 Which would you like to do?`;
 
@@ -102,6 +99,7 @@ const resolve = async (
 };
 
 const circuit_main_loop = async (
+  wallet: Wallet & Resource,
   providers: LaunchPadContractProvider,
   rli: Interface
 ): Promise<void> => {
@@ -109,110 +107,101 @@ const circuit_main_loop = async (
   if (deployedAPI === undefined) {
     return;
   }
-  let currentState: derivedState | undefined;
-  const stateObserver = {
-    next: (state: derivedState) => {
-      currentState = state;
-    },
-  };
-
-  const subscription = deployedAPI.state$.subscribe(stateObserver);
-
   try {
-    while (true) {
-      const choice = await rli.question(CIRCUIT_MAIN_LOOP_QUESTION);
-      switch (choice) {
-        case "1": {
-          try {
-            console.log("Generating your token. Please wait...");
-            await deployedAPI.deployedContract.callTx.mintYourToken(
-              await stringToBytes32(await rli.question("enter token name ")),
-              BigInt(await rli.question("enter token amount to generate ")),
-              await rli.question("enter token ticker ")
-            );
-            console.log("Token generated successfully");
-          } catch (error) {
-            console.log(`An error occured: ${error}`);
-          }
-          break;
-        }
-        case "2": {
-          console.log("getting contract state");
-          try {
-            console.log(currentState);
-          } catch (error) {
-            console.log(
-              `An error occured while getting list of generated token ${error}`
-            );
-          }
-          break;
-        }
-        case "3": {
-          console.log("getting token information by name");
-          try {
-            const name = await rli.question("Enter token name ");
-            const tokenNameByte = await stringToBytes32(name);
+    let currentState: derivedState | undefined;
+    const stateObserver = {
+      next: (state: derivedState) => {
+        currentState = state;
+      },
+    };
 
-            const token = (
-              await LaunchPadAPI.getLaunchPadLedgerState(
-                providers,
-                deployedAPI.deployedContractAddress
-              )
-            )?.tokensList.lookup(tokenNameByte);
+    let balances: Record<string, bigint> | undefined;
+    let availableCoins: QualifiedCoinInfo[] | undefined;
+    let coins: QualifiedCoinInfo[] | undefined;
 
-            token
-              ? console.log({ token })
-              : console.log(`Token with ${tokenNameByte}, does not exist!`);
-          } catch (error) {
-            console.log(
-              `An error occured while getting list of generated token ${error}`
-            );
+    const subscription = deployedAPI.state$.subscribe(stateObserver);
+    const wallet_sub = wallet.state().subscribe((state) => {
+      balances = state.balances;
+      availableCoins = state.availableCoins;
+      coins = state.coins;
+    });
+
+    try {
+      while (true) {
+        const choice = await rli.question(CIRCUIT_MAIN_LOOP_QUESTION);
+        switch (choice) {
+          case "1": {
+            try {
+              LaunchPadAPI.createToken(
+                deployedAPI.deployedContract,
+                await stringToBytes(await rli.question("Enter a name ")),
+                BigInt(await rli.question("Enter token amount ")),
+                await rli.question("Enter token ticker "),
+                await rli.question("Enter token icon ")
+              );
+            } catch (error) {
+              console.log(error);
+            }
+            break;
           }
-          break;
-        }
-        case "4": {
-          console.log("see total amount of token minted");
-          try {
-            const result = await LaunchPadAPI.getLaunchPadLedgerState(
-              providers,
-              deployedAPI.deployedContractAddress
-            );
-            console.log(Number(result?.tokensList.size()));
-          } catch (error) {
-            console.log(
-              `An error occureed while getting total minted token: ${error}`
-            );
+          case "2": {
+            try {
+              const data = await LaunchPadAPI.open_fixed_sale(
+                BigInt(await rli.question("How much would you like to sell? ")),
+                await rli.question("Enter token to debit "),
+                await rli.question("Enter acceptable token color "),
+                deployedAPI.deployedContract
+              );
+              console.log(data);
+            } catch (error) {
+              console.log(error);
+            }
+            break;
           }
-          break;
-        }
-        case "5": {
-          try {
-            const tokenNameByte = await stringToBytes32(
-              await rli.question("Enter token name ")
-            );
-            const result = await LaunchPadAPI.getLaunchPadLedgerState(
-              providers,
-              deployedAPI.deployedContractAddress
-            );
-            result?.tokensList.member(tokenNameByte)
-              ? console.log("Token name already exist!")
-              : console.log("Token name is available");
-          } catch (error) {
-            console.log(
-              `An error occured while cheking name availability ${error}`
-            );
+          case "3": {
+            try {
+              const amount = BigInt(
+                await rli.question("How much would you like to buy? ")
+              );
+              const tx_data = await LaunchPadAPI.buy_fixed_token(
+                deployedAPI.deployedContract,
+                amount,
+                await rli.question("Enter payment token color: ")
+              );
+              console.log(tx_data);
+            } catch (error) {
+              console.log(error);
+            }
+            break;
           }
-          break;
-        }
-        case "8": {
-          rli.addListener("close", () => console.log("CLI Exiting"));
-          rli.close();
-          break;
+          case "4": {
+            console.log(currentState?.sale_bank);
+            break;
+          }
+          case "5": {
+            console.log(currentState?.receival_bank);
+            break;
+          }
+          case "6": {
+            console.log(currentState?.fixed_sales);
+            break;
+          }
+          case "7": {
+            console.log(balances);
+            break;
+          }
+          case "8": {
+            console.log("Exiting...");
+            return;
+          }
         }
       }
+    } finally {
+      subscription.unsubscribe();
+      wallet_sub.unsubscribe();
     }
-  } finally {
-    subscription.unsubscribe();
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -557,7 +546,7 @@ export const randomBytes = (length: number): Uint8Array => {
 export const buildFreshWallet = async (
   config: Config
 ): Promise<Wallet & Resource> =>
-  await buildWalletAndWaitForFunds(config, toHex(randomBytes(32)), "");
+  await buildWalletAndWaitForFunds(config, toHex(randomBytes(32)), "cache");
 
 /**
  * Prompt for a seed and create the wallet with that.
@@ -567,7 +556,7 @@ const buildWalletFromSeed = async (
   rli: Interface
 ): Promise<Wallet & Resource> => {
   const seed = await rli.question("Enter your wallet seed: ");
-  return await buildWalletAndWaitForFunds(config, seed, "");
+  return await buildWalletAndWaitForFunds(config, seed, "cache");
 };
 
 const buildWallet = async (
@@ -610,7 +599,7 @@ export const run = async (config: Config): Promise<void> => {
         walletProvider: walletAndMidnightProvider,
         midnightProvider: walletAndMidnightProvider,
       };
-      await circuit_main_loop(providers, rli);
+      await circuit_main_loop(wallet, providers, rli);
     }
   } catch (e) {
     if (e instanceof Error) {
@@ -618,7 +607,7 @@ export const run = async (config: Config): Promise<void> => {
       console.log("Exiting...");
       console.debug(`${e.stack}`);
     } else {
-      throw e;
+      console.log("Aborted with Ctrl+C");
     }
   } finally {
     try {
