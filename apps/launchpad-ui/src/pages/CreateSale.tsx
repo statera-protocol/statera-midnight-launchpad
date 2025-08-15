@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { type SaleType, saleTypes } from "../lib/assets";
+import { saleTypes } from "../lib/assets";
 import {
   Card,
   CardContent,
@@ -36,6 +35,7 @@ import { Footer } from "../components/footer";
 
 import { type SaleDataType } from "../lib/assets";
 import { useApp } from "../hooks/useApp";
+import { useState } from "react";
 
 interface Step {
   number: number;
@@ -84,7 +84,7 @@ export default function CreateSale() {
     <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col !text-left">
       {/* Header */}
       <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50 ">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Link to="/">
               <Button variant="ghost" size="icon">
@@ -104,7 +104,7 @@ export default function CreateSale() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
+      <main className="flex-1 container mx-auto px-6 py-8 max-w-6xl">
         {/* Progress Steps */}
         <div className="mb-8">
           <div className="flex items-center justify-center space-x-4 mb-8">
@@ -116,7 +116,7 @@ export default function CreateSale() {
               return (
                 <div key={step.number} className="flex items-center">
                   <div
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                    className={`flex items-center space-x-2 px-6 py-2 rounded-lg transition-all ${
                       isActive
                         ? "bg-gradient-to-r from-blue-600 to-purple-600"
                         : isCompleted

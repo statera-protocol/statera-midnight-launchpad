@@ -61,7 +61,7 @@ export default function TokenGenerator() {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col text-left">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50 px-12">
+      <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50 px-6">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Link to="/">
@@ -81,7 +81,7 @@ export default function TokenGenerator() {
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl min-h-screen flex flex-col justify-center">
+      <main className="flex-1 container mx-auto px-6 py-8 max-w-4xl min-h-screen flex flex-col justify-center">
         {!generationComplete ? (
           <>
             {/* Hero Section */}
@@ -365,7 +365,7 @@ export default function TokenGenerator() {
 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Contract Address:</span>
+                    <span className="text-gray-400">Token ID:</span>
                   </div>
                   <div className="bg-gray-700 p-2 rounded font-mono text-xs text-green-400 break-all">
                     0x1234567890abcdef1234567890abcdef12345678

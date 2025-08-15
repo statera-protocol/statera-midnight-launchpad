@@ -217,6 +217,24 @@
       }
     },
     {
+      "name": "withdraw_token",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
       "name": "public_key",
       "pure": true,
       "arguments": [

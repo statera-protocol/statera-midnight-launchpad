@@ -12,12 +12,10 @@ export const randomNonceBytes = (length: number): Uint8Array => {
   return newBytes;
 };
 
-export const stringToBytes = async (hexString: string) => {
-  const matches = hexString.match(/.{1,2}/g);
-  if (!matches) {
-    throw new Error("Invalid hex string");
-  }
-  const bytes = new Uint8Array(matches.map((byte) => parseInt(byte, 16)));
+export const stringToBytes = async (name: string) => {
+  const random_string = crypto.randomUUID().replace(/-/g, "");
+  const combine = Array.from(random_string + name);
+  const bytes = new Uint8Array(combine.map((byte) => parseInt(byte, 16)));
   const hashBuffer = await crypto.subtle.digest("SHA-256", bytes);
   const hashArray = new Uint8Array(hashBuffer);
   return hashArray;
@@ -60,6 +58,7 @@ export const get_open_fixed_token_sales = (
       min: Number(sale.min),
       max: Number(sale.max),
       sale_type: "Fixed",
+      isWithdrawn: sale.withdrawn,
     });
   }
 

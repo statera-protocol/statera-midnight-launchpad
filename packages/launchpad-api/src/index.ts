@@ -11,6 +11,7 @@ import { witnesses } from "@repo/launchpad-contract";
 import {
   DeployedLaunchpadContract,
   derivedState,
+  FixedSaleData,
   LaunchPadContract,
   LaunchPadContractProvider,
   LaunchPadPrivateStateKey,
@@ -228,6 +229,17 @@ export class LaunchPadAPI {
       console.log("Sale closed successfully!");
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  static withdraw_funds = async (
+    deployedContract: DeployedLaunchpadContract,
+    sale_id: Uint8Array
+  ) => {
+    try {
+      await deployedContract.callTx.withdraw_token(sale_id);
+    } catch (error) {
+      console.log("error: " + error);
     }
   };
 }

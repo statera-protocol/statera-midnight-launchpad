@@ -32,6 +32,8 @@ export type ImpureCircuits<T> = {
                            sale_id_0: Uint8Array,
                            sale_amount_0: bigint): __compactRuntime.CircuitResults<T, []>;
   closeSale(context: __compactRuntime.CircuitContext<T>, sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  withdraw_token(context: __compactRuntime.CircuitContext<T>,
+                 sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
 }
 
 export type PureCircuits = {
@@ -60,6 +62,8 @@ export type Circuits<T> = {
                            sale_id_0: Uint8Array,
                            sale_amount_0: bigint): __compactRuntime.CircuitResults<T, []>;
   closeSale(context: __compactRuntime.CircuitContext<T>, sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  withdraw_token(context: __compactRuntime.CircuitContext<T>,
+                 sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
   public_key(context: __compactRuntime.CircuitContext<T>, sk_0: Uint8Array): __compactRuntime.CircuitResults<T, Uint8Array>;
 }
 
@@ -84,7 +88,8 @@ export type Ledger = {
                                  token_symbol: string,
                                  acceptable_token_symbol: string,
                                  min: bigint,
-                                 max: bigint
+                                 max: bigint,
+                                 withdrawn: boolean
                                };
     [Symbol.iterator](): Iterator<[Uint8Array, { organizer: Uint8Array,
   total_amount_for_sale: bigint,
@@ -100,7 +105,8 @@ export type Ledger = {
   token_symbol: string,
   acceptable_token_symbol: string,
   min: bigint,
-  max: bigint
+  max: bigint,
+  withdrawn: boolean
 }]>
   };
   fixed_sales_bank: {

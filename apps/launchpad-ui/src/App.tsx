@@ -13,22 +13,24 @@ function App() {
   const { error, success } = useApp();
 
   return (
-    <div className="relative w-full h-full">
-      {error ||
+    <div className="relative w-full min-h-screen">
+      {/* {error ||
         (success && (
           <div className="absolute top-16 right-16">
             {error && <Error />}
             {success && <Success />}
           </div>
-        ))}
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/token-generator" element={<TokenGenerator />} />
-        <Route path="/create-sale" element={<CreateSale />} />
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/projects/:id" element={<ProjectDetail />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+        ))} */}
+      <div className="w-full">
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/token-generator" element={<TokenGenerator />} />
+          <Route path="/create-sale" element={<CreateSale />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/projects/:id" element={<ProjectDetail />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
     </div>
   );
 }

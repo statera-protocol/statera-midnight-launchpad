@@ -30,6 +30,7 @@ import {
   AlertCircle,
   Zap,
   X,
+  BanknoteArrowDown,
 } from "lucide-react";
 import { Footer } from "../components/footer";
 import { useApp } from "../hooks/useApp";
@@ -153,7 +154,15 @@ const project = {
 
 const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { contractState, closeSale, buyFixedToken, isContributing } = useApp();
+  const {
+    contractState,
+    closeSale,
+    buyFixedToken,
+    isContributing,
+    isWithdrawing,
+    WithdrawFunds,
+    isClosing,
+  } = useApp();
   const projectDetail = contractState?.fixed_sales.find(
     (sale) => sale.key === id
   );
@@ -224,7 +233,7 @@ const ProjectDetail: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50 px-12">
+      <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50 px-6">
         <div className="container mx-auto py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Link to="/projects">
@@ -260,24 +269,57 @@ const ProjectDetail: React.FC = () => {
           className="w-full h-64 md:h-80 object-cover"
         />
 
-        <div className="flex right-0 top-0 justify-end w-full relative z-10 px-12">
+        <div className="flex right-8 top-8 justify-end w-full absolute z-10 px-6">
           {contractState?.user_pk === projectDetail.organizer &&
           projectDetail.status === "live" ? (
             <Button
               onClick={() => closeSale(projectDetail)}
               variant="outline"
               size="default"
-              className="border-gray-600 hover:bg-gray-800 hover:text-white bg-transparent"
+              disabled={isClosing}
+              className="border-gray-600 hover:bg-gray-200 bg-white text-black flex gap-2"
             >
-              <X /> Close Sale
+              {!isClosing ? (
+                <span className="flex gap-2">
+                  <X /> Close Sale
+                </span>
+              ) : (
+                <span className="flex gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>{" "}
+                  Closing Sale
+                </span>
+              )}
             </Button>
           ) : (
-            ""
+            <Button
+              onClick={() => WithdrawFunds(projectDetail)}
+              variant="outline"
+              size="default"
+              disabled={isWithdrawing || projectDetail.isWithdrawn}
+              className={`border-gray-600 hover:bg-gray-200 text-black flex gap-2 ${projectDetail.isWithdrawn ? "bg-gray-200 cursor-not-allowed" : "bg-white"}`}
+            >
+              {!isWithdrawing ? (
+                <span>
+                  {!projectDetail.isWithdrawn ? (
+                    <span className="flex gap-2">
+                      <BanknoteArrowDown /> Withdraw Funds
+                    </span>
+                  ) : (
+                    "Withdrawn"
+                  )}
+                </span>
+              ) : (
+                <span className="flex gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>{" "}
+                  Withdrawing Funds...
+                </span>
+              )}
+            </Button>
           )}
         </div>
 
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent" />
-        <div className="absolute bottom-6 left-6 right-6 px-12 text-left">
+        <div className="absolute bottom-6 left-6 right-6 px-6 text-left">
           <div className="container mx-auto">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between">
               <div className="mb-4 md:mb-0">
@@ -328,7 +370,7 @@ const ProjectDetail: React.FC = () => {
       </section>
 
       {/* Main Content */}
-      <main className="flex-1 container mx-auto py-8 px-12 text-left">
+      <main className="flex-1 container mx-auto py-8 px-6 text-left">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">

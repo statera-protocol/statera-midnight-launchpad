@@ -43,11 +43,16 @@ export type AppContextType = {
   buyFixedToken: (projectDetail: FixedSaleData, amount: number) => void;
   isContributing: boolean;
   setIsContributing: (b: boolean) => void;
+  isWithdrawing: boolean;
+  setIsWithdrawing: (b: boolean) => void;
+  WithdrawFunds: (d: FixedSaleData) => void;
+  isClosing: boolean;
+  setIsClosing: (b: boolean) => void;
 };
 
 export const AppContext = createContext<AppContextType | null>(null);
 
-// Custom hook for RxJS observable state management
+// CUSTOM HOOK FOR RxJS OBSERVABLE STATE MANAGEMENT
 function useObservableState<T>(
   observable$: any,
   initialState: T | null = null,
@@ -76,7 +81,7 @@ function useObservableState<T>(
   return state;
 }
 
-// Initial state constants
+// DUMMY INITIAL STATE DATA
 const INITIAL_SALE_DATA: SaleDataType = {
   // Project Info
   projectName: "",
@@ -88,14 +93,14 @@ const INITIAL_SALE_DATA: SaleDataType = {
   telegram: "",
   discord: "",
 
-  // Token Info
+  // TOKEN INFO
   tokenID: "",
   tokenName: "",
   tokenSymbol: "",
   softCap: 0,
   hardCap: 0,
 
-  // Sale Parameters
+  // SALE PARAMETERS
   saleType: "",
   exchangeTokenID: "",
   exchangeTokenSymbol: "",
@@ -117,7 +122,7 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
 }) => {
   const context = useDeployedLaunchpadContext();
 
-  // State management
+  //STATE MANAGEMENT
   const [api, setApi] = useState<LaunchPadAPI>();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -128,8 +133,10 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
   const [saleData, setSaleData] = useState<SaleDataType>(INITIAL_SALE_DATA);
   const [tokenData, setTokenData] = useState<TokenData>(INITIAL_TOKEN_DATA);
   const [isContributing, setIsContributing] = useState<boolean>(false);
+  const [isWithdrawing, setIsWithdrawing] = useState<boolean>(false);
+  const [isClosing, setIsClosing] = useState<boolean>(false);
 
-  // RxJS observable state management
+  // RxJS OBSERVABLE STATE MANAGEMENT
   const deploymentState =
     useObservableState<status>(
       context.status$,
@@ -137,14 +144,13 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
       "Deployment State"
     ) ?? "no-action";
 
-  // Fixed: Access state$ from the LaunchPadAPI instance, not the deployed contract
   const contractState = useObservableState<derivedState>(
-    api?.state$, // Changed from api?.deployedContract?.state$ to api?.state$
+    api?.state$,
     undefined,
     "Contract State"
   );
 
-  // Auto-clear messages after 3 seconds
+  //AUTO CLEAR ERROR/SUCCES MESSAGES AFTER FEW SECONDS
   useEffect(() => {
     if (!success || !error) return;
 
@@ -172,7 +178,7 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
     setSuccess(successMessage);
   }, []);
 
-  // Wallet connection
+  //CONNECTS WALLET
   const connectWallet = useCallback(async (): Promise<void> => {
     try {
       clearMessages();
@@ -204,7 +210,7 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
     }
   }, [context, clearMessages, handleError, handleSuccess]);
 
-  // Wallet disconnection
+  //WALLET DISCONNECTION
   const disconnectWallet = useCallback(() => {
     setApi(undefined);
     setWalletAddress("");
@@ -213,7 +219,7 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
     console.log("Wallet disconnected");
   }, [clearMessages]);
 
-  // Token generation
+  //GENERATES TOKEN AND SENDS TO USER
   const generateToken = useCallback(async (): Promise<void> => {
     if (!api) {
       handleError("API not available. Please connect wallet first.");
@@ -242,7 +248,7 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
     }
   }, [api, tokenData, handleError, handleSuccess]);
 
-  // Fixed sale creation
+  //CREATES TOKEN FIXED SALE
   const createFixedSale = useCallback(async (): Promise<void> => {
     if (!api) {
       handleError("Connect Wallet to create sale");
@@ -276,6 +282,7 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
     }
   }, [api, saleData, handleError, handleSuccess]);
 
+  //CLOSES TOKEN FIXED SALE
   const closeSale = async (projectDetail: FixedSaleData) => {
     try {
       const is_owner = contractState?.user_pk === projectDetail.organizer;
@@ -283,7 +290,9 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
         return;
       }
       const sale_id = projectDetail.key_uint;
+      setIsClosing(true);
       await LaunchPadAPI.close_fixed_sale(api.deployedContract, sale_id);
+      setIsClosing(false);
     } catch (error) {
       console.log("Error while closing " + error);
     }
@@ -309,6 +318,17 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
     } catch (error) {
       console.log("an error occured: " + error);
     }
+  };
+
+  const WithdrawFunds = async (details: FixedSaleData) => {
+    const sale_id = details.key_uint;
+    if (!api) {
+      return;
+    }
+
+    setIsWithdrawing(true);
+    await LaunchPadAPI.withdraw_funds(api.deployedContract, sale_id);
+    setIsWithdrawing(false);
   };
 
   // Memoized context value to prevent unnecessary re-renders
@@ -339,6 +359,11 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
       isContributing,
       setIsContributing,
       setGenerationComplete,
+      isWithdrawing,
+      setIsWithdrawing,
+      WithdrawFunds,
+      isClosing,
+      setIsClosing,
     }),
     [
       deploymentState,
@@ -364,8 +389,8 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
       closeSale,
       buyFixedToken,
       isContributing,
-      setIsContributing,
-      setGenerationComplete,
+      isWithdrawing,
+      isClosing,
     ]
   );
 

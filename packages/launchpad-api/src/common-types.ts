@@ -65,6 +65,7 @@ export type FixedSaleData = {
   min: number;
   max: number;
   sale_type: string;
+  isWithdrawn: boolean;
 };
 
 export type YourOriginalType = {
@@ -87,6 +88,7 @@ export type YourOriginalType = {
     acceptable_token_symbol: string;
     min: bigint;
     max: bigint;
+    withdrawn: boolean;
   };
   [Symbol.iterator](): Iterator<
     [
@@ -107,6 +109,7 @@ export type YourOriginalType = {
         acceptable_token_symbol: string;
         min: bigint;
         max: bigint;
+        withdrawn: boolean;
       },
     ]
   >;

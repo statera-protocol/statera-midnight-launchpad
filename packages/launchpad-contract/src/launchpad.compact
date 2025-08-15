@@ -26,7 +26,8 @@ struct FixedSalesData{
     token_symbol: Opaque<"string">;
     acceptable_token_symbol: Opaque<"string">;
     min: Uint<64>;
-    max: Uint<64>
+    max: Uint<64>;
+    withdrawn: Boolean;
 }
 
 constructor(initialNonce: Bytes<32>) {
@@ -89,6 +90,7 @@ export circuit open_a_fixed_price_token_sale(
         disclose(acceptable_token_symbol),
         disclose(min),
         disclose(max),
+        false
     });
 }
 
@@ -125,7 +127,7 @@ export circuit buy_token_at_fixed_price(coin: CoinInfo, sale_id: Bytes<32>, sale
         ...sale_token_info,
         total_amount_sold: new_total_sold as Uint<128>,
         total_amount_left: new_total_left,
-        status: sale_token_info.total_amount_left == 0 ? SaleStatus.completed : SaleStatus.live,
+        status: sale_token_info.total_amount_sold == sale_token_info.total_amount_for_sale ? SaleStatus.completed : SaleStatus.live,
         participant: participant_amount as Uint<16>
     });
 }
@@ -144,7 +146,26 @@ export circuit closeSale(sale_id: Bytes<32>):[] {
     });
 }
 
-export
+export circuit withdraw_token(sale_id: Bytes<32>): [] {
+    const organizer = public_key(disclose(local_secret_key()));
+    const sale_token_info = open_fixed_token_sales.lookup(disclose(sale_id));
+    assert(open_fixed_token_sales.member(disclose(sale_id)), "Sale with this id never existed!");
+    assert(sale_token_info.organizer == organizer, "Unauthorized!. You are not the organizer");
+    assert(sale_token_info.status == SaleStatus.closed || sale_token_info.status == SaleStatus.completed, "Sale has ended already" );
+    assert(sale_token_info.withdrawn == false, "Funds from this sale has already been withdrawn!");
+    assert(fixed_sales_received_bank.member(disclose(sale_id)), "This sale has not received any funds");
+
+    const account = fixed_sales_received_bank.lookup(disclose(sale_id));
+
+    send(account, left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()), account.value);
+
+    fixed_sales_received_bank.remove(disclose(sale_id));
+
+    open_fixed_token_sales.insert(disclose(sale_id), FixedSalesData {
+        ...sale_token_info,
+        withdrawn: true
+    });
+}
 
 export circuit public_key(sk: Bytes<32>): Bytes<32> {
     return persistentHash<Vector<2, Bytes<32>>>([pad(32, "midnight-lp:user"), sk]);

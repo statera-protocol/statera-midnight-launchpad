@@ -38,7 +38,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 text-left">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50 px-12">
+      <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50 px-6">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -146,9 +146,9 @@ export default function Dashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="flex flex-col px-12">
+      <main className="flex flex-col px-6">
         {/* Hero Section - Full Screen */}
-        <section className="min-h-screen flex flex-col justify-center container mx-auto px-4 py-8">
+        <section className="min-h-screen flex flex-col justify-center container mx-auto px-6 py-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               Launch Your Project on Midnight
@@ -212,7 +212,7 @@ export default function Dashboard() {
         </section>
 
         {/* Sale Models Section - Full Screen */}
-        <section className="min-h-screen flex flex-col justify-center container mx-auto px-4 py-8">
+        <section className="min-h-screen flex flex-col justify-center container mx-auto px-6 py-8">
           <div className="mb-8">
             <h3 className="text-2xl font-bold mb-6 text-center">
               Choose Your Sale Model
@@ -260,7 +260,7 @@ export default function Dashboard() {
 
         {/* Recent Projects Section - Full Screen */}
         {deploymentState === "deployed" && (
-          <section className="min-h-screen flex flex-col justify-center container mx-auto px-4 py-8">
+          <section className="min-h-screen flex flex-col justify-center container mx-auto px-6 py-8">
             <div>
               <h3 className="text-2xl font-bold mb-6 text-center">
                 Recent Projects

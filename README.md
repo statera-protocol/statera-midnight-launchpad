@@ -26,11 +26,15 @@ a3a9170fe532c3724c979121324e74dbf3e004af8ab59a1517573cb2aa90ff9a
 > debug create fixed token sale @DONE
 > implement fixed sale participation @DONE
 > implement fixed sale closure by organizer @DONE
-> implement sale token withdrawal by generator
-> implement check expiry action
-> change token seperator generation format to make it unique
-> handling float ratio
+> implement sale token withdrawal by generator @DONE
+> change token seperator generation format to make it unique @DONE
+> fix UI width overflow @DONE
+> fix reload caused by RxJS subscription
+> fixed build and compile action to make easier for others to use
+> understand and fix http-server error on load
 > error handling
+> implement check expiry action
+> handling float ratio
 
 # Turborepo starter
 

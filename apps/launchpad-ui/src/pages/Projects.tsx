@@ -60,8 +60,6 @@ export default function Projects() {
     return matchesSearch && matchesStatus && matchesSaleType;
   });
 
-  const image = Math.floor(Math.random() * 2);
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "live":
@@ -82,7 +80,7 @@ export default function Projects() {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50 px-12">
+      <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50 px-6">
         <div className="container mx-auto py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Link to="/">
@@ -103,7 +101,7 @@ export default function Projects() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-6 py-8">
         {/* Hero Section */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -198,7 +196,7 @@ export default function Projects() {
                   setSelectedSaleType("All");
                 }}
                 variant="outline"
-                className="border-gray-600 hover:bg-gray-800"
+                className="bg-gray-600 !text-white border-gray-600 hover:bg-gray-800"
               >
                 Clear Filters
               </Button>
@@ -389,34 +387,8 @@ export default function Projects() {
           </div>
         )}
 
-        {/* Empty State */}
-        {filteredProjects?.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-gray-400" />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-300 mb-2">
-              No projects found
-            </h3>
-            <p className="text-gray-400 mb-6">
-              Try adjusting your search criteria or filters
-            </p>
-            <Button
-              onClick={() => {
-                setSearchTerm("");
-                setSelectedStatus("All");
-                setSelectedSaleType("All");
-              }}
-              variant="outline"
-              className="border-gray-600 hover:bg-gray-800"
-            >
-              Clear Filters
-            </Button>
-          </div>
-        )}
+        <Footer />
       </main>
-
-      <Footer />
     </div>
   );
 }
