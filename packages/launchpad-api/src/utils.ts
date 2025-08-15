@@ -1,4 +1,10 @@
-import { open_sales_type, sale_bank_type } from "./common-types";
+import { toHex } from "@midnight-ntwrk/midnight-js-utils";
+import {
+  FixedSaleData,
+  sale_bank_type,
+  SaleStatus,
+  YourOriginalType,
+} from "./common-types.js";
 
 export const randomNonceBytes = (length: number): Uint8Array => {
   const newBytes = new Uint8Array(length);
@@ -11,75 +17,56 @@ export const stringToBytes = async (hexString: string) => {
   if (!matches) {
     throw new Error("Invalid hex string");
   }
-
   const bytes = new Uint8Array(matches.map((byte) => parseInt(byte, 16)));
-
   const hashBuffer = await crypto.subtle.digest("SHA-256", bytes);
-
   const hashArray = new Uint8Array(hashBuffer);
-
   return hashArray;
 };
 
 export function stringTo32ByteArray(input: string): Uint8Array {
   // Create a new 32-byte array filled with zeros
   const result = new Uint8Array(32);
-
   // Convert string to UTF-8 bytes
   const encoder = new TextEncoder();
   const encoded = encoder.encode(input);
-
-  // Copy the encoded bytes to our result array
-  // If the string is longer than 32 bytes, it will be truncated
-  // If shorter, the remaining bytes will stay as zeros
   const copyLength = Math.min(encoded.length, 32);
   result.set(encoded.subarray(0, copyLength));
 
   return result;
 }
 
-export const get_open_fixed_token_sales = (open_fixed_token_sales: {
-  isEmpty(): boolean;
-  size(): bigint;
-  member(key_0: Uint8Array): boolean;
-  lookup(key_0: Uint8Array): {
-    organizer: Uint8Array;
-    total_amount_for_sale: bigint;
-    total_amount_sold: bigint;
-    total_amount_left: bigint;
-    token_sale_ratio: bigint;
-    acceptable_exchange_token: Uint8Array;
-  };
-  [Symbol.iterator](): Iterator<
-    [
-      Uint8Array,
-      {
-        organizer: Uint8Array;
-        total_amount_for_sale: bigint;
-        total_amount_sold: bigint;
-        total_amount_left: bigint;
-        token_sale_ratio: bigint;
-        acceptable_exchange_token: Uint8Array;
-      },
-    ]
-  >;
-}): open_sales_type => {
-  let open_sales: open_sales_type = [];
-  for (const sales_entry of open_fixed_token_sales) {
-    open_sales.push([
-      sales_entry[0],
-      [
-        sales_entry[1].acceptable_exchange_token,
-        sales_entry[1].total_amount_for_sale,
-        sales_entry[1].organizer,
-        sales_entry[1].token_sale_ratio,
-        sales_entry[1].total_amount_left,
-        sales_entry[1].total_amount_sold,
-      ],
-    ]);
+export const get_open_fixed_token_sales = (
+  open_fixed_token_sales: YourOriginalType
+): FixedSaleData[] => {
+  const sales: FixedSaleData[] = [];
+
+  for (const [key, sale] of open_fixed_token_sales) {
+    sales.push({
+      key_uint: key,
+      key: toHex(key),
+      organizer: toHex(sale.organizer),
+      total_amount_for_sale: Number(sale.total_amount_for_sale),
+      total_amount_sold: Number(sale.total_amount_sold),
+      total_amount_left: Number(sale.total_amount_left),
+      token_sale_ratio: sale.token_sale_ratio.toString(),
+      hard_cap: Number(sale.hard_cap),
+      acceptable_exchange_token: sale.acceptable_exchange_token,
+      status: SaleStatus[sale.status],
+      participants: sale.participant.toString(),
+      start_time: sale.start_time.toString(),
+      duration: sale.duration.toString(),
+      token_symbol: sale.token_symbol,
+      acceptable_token_symbol: sale.acceptable_token_symbol,
+      min: Number(sale.min),
+      max: Number(sale.max),
+      sale_type: "Fixed",
+    });
   }
-  return open_sales;
+
+  return sales;
 };
+
+// Helper to make Uint8Array into a hex string
 
 export const get_fixed_sale_bank = (fixed_sales_bank: {
   isEmpty(): boolean;

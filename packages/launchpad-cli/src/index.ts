@@ -59,6 +59,7 @@ You can do one of the following:
   5. See Received Token Bank
   6. See All Fixed Open Sales
   7. See Wallet Balances
+  8. Close a Sale
   8. Exit
 Which would you like to do?`;
 
@@ -145,14 +146,36 @@ const circuit_main_loop = async (
             break;
           }
           case "2": {
+            const amount = BigInt(await rli.question("Enter Amount to sell "));
+            const color = await rli.question("Enter Token to sell color ");
+            const acceptable_color = await rli.question(
+              "Enter Acceptable Token to sell color "
+            );
+            const ratio = BigInt(await rli.question("Enter exchange ratio "));
+            const duration = BigInt(await rli.question("Enter sale duration "));
+            const token_symbol = await rli.question("Enter token symbol ");
+            const acceptable_token_symbol = await rli.question(
+              "Enter aceeptable token symbol "
+            );
+            const min = BigInt(await rli.question("Enter min buy "));
+            const max = BigInt(await rli.question("Enter max buy "));
+            const hardcap = BigInt(await rli.question("Enter hard cap "));
+
             try {
               const data = await LaunchPadAPI.open_fixed_sale(
-                BigInt(await rli.question("How much would you like to sell? ")),
-                await rli.question("Enter token to debit "),
-                await rli.question("Enter acceptable token color "),
-                deployedAPI.deployedContract
+                deployedAPI.deployedContract,
+                amount,
+                color,
+                acceptable_color,
+                ratio,
+                duration,
+                token_symbol,
+                acceptable_token_symbol,
+                min,
+                max,
+                hardcap
               );
-              console.log(data);
+              console.log("Sale created successfully!");
             } catch (error) {
               console.log(error);
             }
@@ -160,15 +183,21 @@ const circuit_main_loop = async (
           }
           case "3": {
             try {
+              const sale_id = new Uint8Array([
+                1, 5, 9, 6, 0, 9, 0, 0, 3, 0, 1, 3, 4, 0, 0, 6, 9, 0, 6, 3, 1,
+                9, 9, 8, 9, 0, 0, 3, 0, 8, 4, 0,
+              ]);
+
               const amount = BigInt(
                 await rli.question("How much would you like to buy? ")
               );
-              const tx_data = await LaunchPadAPI.buy_fixed_token(
-                deployedAPI.deployedContract,
-                amount,
-                await rli.question("Enter payment token color: ")
-              );
-              console.log(tx_data);
+              // const tx_data = await LaunchPadAPI.buy_fixed_token(
+              //   deployedAPI.deployedContract,
+              //   amount,
+              //   new Uint8Array (await rli.question("Enter payment token color: ")),
+              //   sale_id
+              // );
+              // console.log(tx_data);
             } catch (error) {
               console.log(error);
             }
@@ -183,7 +212,9 @@ const circuit_main_loop = async (
             break;
           }
           case "6": {
-            console.log(currentState?.fixed_sales);
+            console.log(
+              currentState ? currentState?.fixed_sales : "no data to present"
+            );
             break;
           }
           case "7": {
@@ -191,6 +222,24 @@ const circuit_main_loop = async (
             break;
           }
           case "8": {
+            try {
+              const sale_id = new Uint8Array([
+                0, 0, 7, 9, 0, 7, 4, 5, 9, 6, 0, 8, 4, 0, 0, 8, 0, 0, 9, 2, 0,
+                1, 0, 2, 0, 0, 0, 0, 0, 2, 2, 0,
+              ]);
+
+              console.log("closing sale...");
+              await LaunchPadAPI.close_fixed_sale(
+                deployedAPI.deployedContract,
+                sale_id
+              );
+              console.log("sale is closed");
+            } catch (error) {
+              console.log(error);
+            }
+            break;
+          }
+          case "9": {
             console.log("Exiting...");
             return;
           }

@@ -3,8 +3,6 @@ import { WitnessContext } from "@midnight-ntwrk/compact-runtime";
 
 export type LaunchPadPrivateState = {
   readonly secretKey: Uint8Array;
-  // readonly calculate_amount_to_buy: BigInt;
-  // readonly generate_sale_id: Uint16Array
 };
 
 export const createLaunchPadPrivateState = (secretKey: Uint8Array) => ({
@@ -36,7 +34,7 @@ export const witnesses = {
     const bytes_id = Uint8Array.from(random_string);
     return [privateState, bytes_id];
   },
-  confirm_campaign_expiration: (
+  calculate_time: (
     { privateState }: WitnessContext<Ledger, LaunchPadPrivateState>,
     duration: bigint,
     start_time: bigint
@@ -45,7 +43,8 @@ export const witnesses = {
     const durationInMilliseconds = millisecondsPerHour * Number(duration);
     const expiryDate = Number(start_time) + durationInMilliseconds;
     const currentDate = Date.now();
+    const notExpired = expiryDate >= currentDate;
 
-    return [privateState, expiryDate >= currentDate];
+    return [privateState, notExpired];
   },
 };

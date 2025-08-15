@@ -77,7 +77,7 @@
           "name": "sale_ratio",
           "type": {
             "type-name": "Uint",
-            "maxval": 4294967295
+            "maxval": 18446744073709551615
           }
         },
         {
@@ -88,56 +88,28 @@
           }
         },
         {
-          "name": "time",
+          "name": "creation_time",
           "type": {
-            "type-name": "Bytes",
-            "length": 32
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
           }
         },
         {
-          "name": "duration",
+          "name": "sale_duration",
           "type": {
             "type-name": "Uint",
             "maxval": 4294967295
           }
         },
         {
-          "name": "title",
+          "name": "token_symbol",
           "type": {
             "type-name": "Opaque",
             "tsType": "string"
           }
         },
         {
-          "name": "desc",
-          "type": {
-            "type-name": "Opaque",
-            "tsType": "string"
-          }
-        },
-        {
-          "name": "logo",
-          "type": {
-            "type-name": "Opaque",
-            "tsType": "string"
-          }
-        },
-        {
-          "name": "banner",
-          "type": {
-            "type-name": "Opaque",
-            "tsType": "string"
-          }
-        },
-        {
-          "name": "token_name",
-          "type": {
-            "type-name": "Opaque",
-            "tsType": "string"
-          }
-        },
-        {
-          "name": "symbol",
+          "name": "acceptable_token_symbol",
           "type": {
             "type-name": "Opaque",
             "tsType": "string"
@@ -152,6 +124,13 @@
         },
         {
           "name": "max",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        },
+        {
+          "name": "token_hard_cap",
           "type": {
             "type-name": "Uint",
             "maxval": 18446744073709551615

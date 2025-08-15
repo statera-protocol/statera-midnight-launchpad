@@ -17,21 +17,19 @@ const _descriptor_0 = new __compactRuntime.CompactTypeBytes(32);
 
 const _descriptor_1 = new __compactRuntime.CompactTypeUnsignedInteger(340282366920938463463374607431768211455n, 16);
 
-const _descriptor_2 = new __compactRuntime.CompactTypeUnsignedInteger(4294967295n, 4);
+const _descriptor_2 = new __compactRuntime.CompactTypeUnsignedInteger(18446744073709551615n, 8);
 
 const _descriptor_3 = new __compactRuntime.CompactTypeEnum(2, 1);
 
 const _descriptor_4 = new __compactRuntime.CompactTypeUnsignedInteger(65535n, 2);
 
-const _descriptor_5 = new __compactRuntime.CompactTypeUnsignedInteger(18446744073709551615n, 8);
+const _descriptor_5 = new __compactRuntime.CompactTypeUnsignedInteger(4294967295n, 4);
 
-const _descriptor_6 = new __compactRuntime.CompactTypeBoolean();
-
-const _descriptor_7 = new __compactRuntime.CompactTypeOpaqueString();
+const _descriptor_6 = new __compactRuntime.CompactTypeOpaqueString();
 
 class _FixedSalesData_0 {
   alignment() {
-    return _descriptor_0.alignment().concat(_descriptor_1.alignment().concat(_descriptor_1.alignment().concat(_descriptor_1.alignment().concat(_descriptor_2.alignment().concat(_descriptor_0.alignment().concat(_descriptor_3.alignment().concat(_descriptor_4.alignment().concat(_descriptor_0.alignment().concat(_descriptor_5.alignment().concat(_descriptor_6.alignment().concat(_descriptor_7.alignment().concat(_descriptor_7.alignment().concat(_descriptor_7.alignment().concat(_descriptor_7.alignment().concat(_descriptor_7.alignment().concat(_descriptor_7.alignment().concat(_descriptor_5.alignment().concat(_descriptor_5.alignment()))))))))))))))))));
+    return _descriptor_0.alignment().concat(_descriptor_1.alignment().concat(_descriptor_1.alignment().concat(_descriptor_1.alignment().concat(_descriptor_2.alignment().concat(_descriptor_1.alignment().concat(_descriptor_0.alignment().concat(_descriptor_3.alignment().concat(_descriptor_4.alignment().concat(_descriptor_2.alignment().concat(_descriptor_5.alignment().concat(_descriptor_6.alignment().concat(_descriptor_6.alignment().concat(_descriptor_2.alignment().concat(_descriptor_2.alignment()))))))))))))));
   }
   fromValue(value_0) {
     return {
@@ -40,43 +38,41 @@ class _FixedSalesData_0 {
       total_amount_sold: _descriptor_1.fromValue(value_0),
       total_amount_left: _descriptor_1.fromValue(value_0),
       token_sale_ratio: _descriptor_2.fromValue(value_0),
+      hard_cap: _descriptor_1.fromValue(value_0),
       acceptable_exchange_token: _descriptor_0.fromValue(value_0),
       status: _descriptor_3.fromValue(value_0),
       participant: _descriptor_4.fromValue(value_0),
-      start_time: _descriptor_0.fromValue(value_0),
+      start_time: _descriptor_2.fromValue(value_0),
       duration: _descriptor_5.fromValue(value_0),
-      time_up: _descriptor_6.fromValue(value_0),
-      title: _descriptor_7.fromValue(value_0),
-      desc: _descriptor_7.fromValue(value_0),
-      project_logo: _descriptor_7.fromValue(value_0),
-      project_banner: _descriptor_7.fromValue(value_0),
-      token_name: _descriptor_7.fromValue(value_0),
-      token_symbol: _descriptor_7.fromValue(value_0),
-      min: _descriptor_5.fromValue(value_0),
-      max: _descriptor_5.fromValue(value_0)
+      token_symbol: _descriptor_6.fromValue(value_0),
+      acceptable_token_symbol: _descriptor_6.fromValue(value_0),
+      min: _descriptor_2.fromValue(value_0),
+      max: _descriptor_2.fromValue(value_0)
     }
   }
   toValue(value_0) {
-    return _descriptor_0.toValue(value_0.organizer).concat(_descriptor_1.toValue(value_0.total_amount_for_sale).concat(_descriptor_1.toValue(value_0.total_amount_sold).concat(_descriptor_1.toValue(value_0.total_amount_left).concat(_descriptor_2.toValue(value_0.token_sale_ratio).concat(_descriptor_0.toValue(value_0.acceptable_exchange_token).concat(_descriptor_3.toValue(value_0.status).concat(_descriptor_4.toValue(value_0.participant).concat(_descriptor_0.toValue(value_0.start_time).concat(_descriptor_5.toValue(value_0.duration).concat(_descriptor_6.toValue(value_0.time_up).concat(_descriptor_7.toValue(value_0.title).concat(_descriptor_7.toValue(value_0.desc).concat(_descriptor_7.toValue(value_0.project_logo).concat(_descriptor_7.toValue(value_0.project_banner).concat(_descriptor_7.toValue(value_0.token_name).concat(_descriptor_7.toValue(value_0.token_symbol).concat(_descriptor_5.toValue(value_0.min).concat(_descriptor_5.toValue(value_0.max)))))))))))))))))));
+    return _descriptor_0.toValue(value_0.organizer).concat(_descriptor_1.toValue(value_0.total_amount_for_sale).concat(_descriptor_1.toValue(value_0.total_amount_sold).concat(_descriptor_1.toValue(value_0.total_amount_left).concat(_descriptor_2.toValue(value_0.token_sale_ratio).concat(_descriptor_1.toValue(value_0.hard_cap).concat(_descriptor_0.toValue(value_0.acceptable_exchange_token).concat(_descriptor_3.toValue(value_0.status).concat(_descriptor_4.toValue(value_0.participant).concat(_descriptor_2.toValue(value_0.start_time).concat(_descriptor_5.toValue(value_0.duration).concat(_descriptor_6.toValue(value_0.token_symbol).concat(_descriptor_6.toValue(value_0.acceptable_token_symbol).concat(_descriptor_2.toValue(value_0.min).concat(_descriptor_2.toValue(value_0.max)))))))))))))));
   }
 }
 
-const _descriptor_8 = new _FixedSalesData_0();
+const _descriptor_7 = new _FixedSalesData_0();
+
+const _descriptor_8 = new __compactRuntime.CompactTypeBoolean();
 
 class _QualifiedCoinInfo_0 {
   alignment() {
-    return _descriptor_0.alignment().concat(_descriptor_0.alignment().concat(_descriptor_1.alignment().concat(_descriptor_5.alignment())));
+    return _descriptor_0.alignment().concat(_descriptor_0.alignment().concat(_descriptor_1.alignment().concat(_descriptor_2.alignment())));
   }
   fromValue(value_0) {
     return {
       nonce: _descriptor_0.fromValue(value_0),
       color: _descriptor_0.fromValue(value_0),
       value: _descriptor_1.fromValue(value_0),
-      mt_index: _descriptor_5.fromValue(value_0)
+      mt_index: _descriptor_2.fromValue(value_0)
     }
   }
   toValue(value_0) {
-    return _descriptor_0.toValue(value_0.nonce).concat(_descriptor_0.toValue(value_0.color).concat(_descriptor_1.toValue(value_0.value).concat(_descriptor_5.toValue(value_0.mt_index))));
+    return _descriptor_0.toValue(value_0.nonce).concat(_descriptor_0.toValue(value_0.color).concat(_descriptor_1.toValue(value_0.value).concat(_descriptor_2.toValue(value_0.mt_index))));
   }
 }
 
@@ -134,17 +130,17 @@ const _descriptor_12 = new _ContractAddress_0();
 
 class _Either_0 {
   alignment() {
-    return _descriptor_6.alignment().concat(_descriptor_11.alignment().concat(_descriptor_12.alignment()));
+    return _descriptor_8.alignment().concat(_descriptor_11.alignment().concat(_descriptor_12.alignment()));
   }
   fromValue(value_0) {
     return {
-      is_left: _descriptor_6.fromValue(value_0),
+      is_left: _descriptor_8.fromValue(value_0),
       left: _descriptor_11.fromValue(value_0),
       right: _descriptor_12.fromValue(value_0)
     }
   }
   toValue(value_0) {
-    return _descriptor_6.toValue(value_0.is_left).concat(_descriptor_11.toValue(value_0.left).concat(_descriptor_12.toValue(value_0.right)));
+    return _descriptor_8.toValue(value_0.is_left).concat(_descriptor_11.toValue(value_0.left).concat(_descriptor_12.toValue(value_0.right)));
   }
 }
 
@@ -152,16 +148,16 @@ const _descriptor_13 = new _Either_0();
 
 class _Maybe_0 {
   alignment() {
-    return _descriptor_6.alignment().concat(_descriptor_10.alignment());
+    return _descriptor_8.alignment().concat(_descriptor_10.alignment());
   }
   fromValue(value_0) {
     return {
-      is_some: _descriptor_6.fromValue(value_0),
+      is_some: _descriptor_8.fromValue(value_0),
       value: _descriptor_10.fromValue(value_0)
     }
   }
   toValue(value_0) {
-    return _descriptor_6.toValue(value_0.is_some).concat(_descriptor_10.toValue(value_0.value));
+    return _descriptor_8.toValue(value_0.is_some).concat(_descriptor_10.toValue(value_0.value));
   }
 }
 
@@ -194,18 +190,18 @@ const _descriptor_19 = new __compactRuntime.CompactTypeBytes(6);
 
 class _CoinPreimage_0 {
   alignment() {
-    return _descriptor_10.alignment().concat(_descriptor_6.alignment().concat(_descriptor_0.alignment().concat(_descriptor_19.alignment())));
+    return _descriptor_10.alignment().concat(_descriptor_8.alignment().concat(_descriptor_0.alignment().concat(_descriptor_19.alignment())));
   }
   fromValue(value_0) {
     return {
       info: _descriptor_10.fromValue(value_0),
-      dataType: _descriptor_6.fromValue(value_0),
+      dataType: _descriptor_8.fromValue(value_0),
       data: _descriptor_0.fromValue(value_0),
       domain_sep: _descriptor_19.fromValue(value_0)
     }
   }
   toValue(value_0) {
-    return _descriptor_10.toValue(value_0.info).concat(_descriptor_6.toValue(value_0.dataType).concat(_descriptor_0.toValue(value_0.data).concat(_descriptor_19.toValue(value_0.domain_sep))));
+    return _descriptor_10.toValue(value_0.info).concat(_descriptor_8.toValue(value_0.dataType).concat(_descriptor_0.toValue(value_0.data).concat(_descriptor_19.toValue(value_0.domain_sep))));
   }
 }
 
@@ -229,8 +225,6 @@ class Contract {
       throw new __compactRuntime.CompactError('first (witnesses) argument to Contract constructor does not contain a function-valued field named generate_sale_id');
     if (typeof(witnesses_0.calculate_amount_to_buy) !== 'function')
       throw new __compactRuntime.CompactError('first (witnesses) argument to Contract constructor does not contain a function-valued field named calculate_amount_to_buy');
-    if (typeof(witnesses_0.calculate_time) !== 'function')
-      throw new __compactRuntime.CompactError('first (witnesses) argument to Contract constructor does not contain a function-valued field named calculate_time');
     this.witnesses = witnesses_0;
     this.circuits = {
       create_token: (...args_1) => {
@@ -244,26 +238,26 @@ class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.originalState != undefined && contextOrig_0.transactionContext != undefined))
           __compactRuntime.type_error('create_token',
                                       'argument 1 (as invoked from Typescript)',
-                                      'launchpad.compact line 46 char 1',
+                                      'launchpad.compact line 42 char 1',
                                       'CircuitContext',
                                       contextOrig_0)
         if (!(token_name_0.buffer instanceof ArrayBuffer && token_name_0.BYTES_PER_ELEMENT === 1 && token_name_0.length === 32))
           __compactRuntime.type_error('create_token',
                                       'argument 1 (argument 2 as invoked from Typescript)',
-                                      'launchpad.compact line 46 char 1',
+                                      'launchpad.compact line 42 char 1',
                                       'Bytes<32>',
                                       token_name_0)
         if (!(typeof(total_amount_0) === 'bigint' && total_amount_0 >= 0 && total_amount_0 <= 18446744073709551615n))
           __compactRuntime.type_error('create_token',
                                       'argument 2 (argument 3 as invoked from Typescript)',
-                                      'launchpad.compact line 46 char 1',
+                                      'launchpad.compact line 42 char 1',
                                       'Uint<0..18446744073709551615>',
                                       total_amount_0)
         const context = { ...contextOrig_0 };
         const partialProofData = {
           input: {
-            value: _descriptor_0.toValue(token_name_0).concat(_descriptor_5.toValue(total_amount_0).concat(_descriptor_7.toValue(token_ticker_0).concat(_descriptor_7.toValue(token_icon_0)))),
-            alignment: _descriptor_0.alignment().concat(_descriptor_5.alignment().concat(_descriptor_7.alignment().concat(_descriptor_7.alignment())))
+            value: _descriptor_0.toValue(token_name_0).concat(_descriptor_2.toValue(total_amount_0).concat(_descriptor_6.toValue(token_ticker_0).concat(_descriptor_6.toValue(token_icon_0)))),
+            alignment: _descriptor_0.alignment().concat(_descriptor_2.alignment().concat(_descriptor_6.alignment().concat(_descriptor_6.alignment())))
           },
           output: undefined,
           publicTranscript: [],
@@ -279,75 +273,78 @@ class Contract {
         return { result: result_0, context: context, proofData: partialProofData };
       },
       open_a_fixed_price_token_sale: (...args_1) => {
-        if (args_1.length !== 14)
-          throw new __compactRuntime.CompactError(`open_a_fixed_price_token_sale: expected 14 arguments (as invoked from Typescript), received ${args_1.length}`);
+        if (args_1.length !== 11)
+          throw new __compactRuntime.CompactError(`open_a_fixed_price_token_sale: expected 11 arguments (as invoked from Typescript), received ${args_1.length}`);
         const contextOrig_0 = args_1[0];
         const coin_0 = args_1[1];
         const sale_ratio_0 = args_1[2];
         const acceptable_exchange_token_0 = args_1[3];
-        const time_0 = args_1[4];
-        const duration_0 = args_1[5];
-        const title_0 = args_1[6];
-        const desc_0 = args_1[7];
-        const logo_0 = args_1[8];
-        const banner_0 = args_1[9];
-        const token_name_0 = args_1[10];
-        const symbol_0 = args_1[11];
-        const min_0 = args_1[12];
-        const max_0 = args_1[13];
+        const creation_time_0 = args_1[4];
+        const sale_duration_0 = args_1[5];
+        const token_symbol_0 = args_1[6];
+        const acceptable_token_symbol_0 = args_1[7];
+        const min_0 = args_1[8];
+        const max_0 = args_1[9];
+        const token_hard_cap_0 = args_1[10];
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.originalState != undefined && contextOrig_0.transactionContext != undefined))
           __compactRuntime.type_error('open_a_fixed_price_token_sale',
                                       'argument 1 (as invoked from Typescript)',
-                                      'launchpad.compact line 60 char 1',
+                                      'launchpad.compact line 56 char 1',
                                       'CircuitContext',
                                       contextOrig_0)
         if (!(typeof(coin_0) === 'object' && coin_0.nonce.buffer instanceof ArrayBuffer && coin_0.nonce.BYTES_PER_ELEMENT === 1 && coin_0.nonce.length === 32 && coin_0.color.buffer instanceof ArrayBuffer && coin_0.color.BYTES_PER_ELEMENT === 1 && coin_0.color.length === 32 && typeof(coin_0.value) === 'bigint' && coin_0.value >= 0 && coin_0.value <= 340282366920938463463374607431768211455n))
           __compactRuntime.type_error('open_a_fixed_price_token_sale',
                                       'argument 1 (argument 2 as invoked from Typescript)',
-                                      'launchpad.compact line 60 char 1',
+                                      'launchpad.compact line 56 char 1',
                                       'struct CoinInfo<nonce: Bytes<32>, color: Bytes<32>, value: Uint<0..340282366920938463463374607431768211455>>',
                                       coin_0)
-        if (!(typeof(sale_ratio_0) === 'bigint' && sale_ratio_0 >= 0 && sale_ratio_0 <= 4294967295n))
+        if (!(typeof(sale_ratio_0) === 'bigint' && sale_ratio_0 >= 0 && sale_ratio_0 <= 18446744073709551615n))
           __compactRuntime.type_error('open_a_fixed_price_token_sale',
                                       'argument 2 (argument 3 as invoked from Typescript)',
-                                      'launchpad.compact line 60 char 1',
-                                      'Uint<0..4294967295>',
+                                      'launchpad.compact line 56 char 1',
+                                      'Uint<0..18446744073709551615>',
                                       sale_ratio_0)
         if (!(acceptable_exchange_token_0.buffer instanceof ArrayBuffer && acceptable_exchange_token_0.BYTES_PER_ELEMENT === 1 && acceptable_exchange_token_0.length === 32))
           __compactRuntime.type_error('open_a_fixed_price_token_sale',
                                       'argument 3 (argument 4 as invoked from Typescript)',
-                                      'launchpad.compact line 60 char 1',
+                                      'launchpad.compact line 56 char 1',
                                       'Bytes<32>',
                                       acceptable_exchange_token_0)
-        if (!(time_0.buffer instanceof ArrayBuffer && time_0.BYTES_PER_ELEMENT === 1 && time_0.length === 32))
+        if (!(typeof(creation_time_0) === 'bigint' && creation_time_0 >= 0 && creation_time_0 <= 18446744073709551615n))
           __compactRuntime.type_error('open_a_fixed_price_token_sale',
                                       'argument 4 (argument 5 as invoked from Typescript)',
-                                      'launchpad.compact line 60 char 1',
-                                      'Bytes<32>',
-                                      time_0)
-        if (!(typeof(duration_0) === 'bigint' && duration_0 >= 0 && duration_0 <= 4294967295n))
+                                      'launchpad.compact line 56 char 1',
+                                      'Uint<0..18446744073709551615>',
+                                      creation_time_0)
+        if (!(typeof(sale_duration_0) === 'bigint' && sale_duration_0 >= 0 && sale_duration_0 <= 4294967295n))
           __compactRuntime.type_error('open_a_fixed_price_token_sale',
                                       'argument 5 (argument 6 as invoked from Typescript)',
-                                      'launchpad.compact line 60 char 1',
+                                      'launchpad.compact line 56 char 1',
                                       'Uint<0..4294967295>',
-                                      duration_0)
+                                      sale_duration_0)
         if (!(typeof(min_0) === 'bigint' && min_0 >= 0 && min_0 <= 18446744073709551615n))
           __compactRuntime.type_error('open_a_fixed_price_token_sale',
-                                      'argument 12 (argument 13 as invoked from Typescript)',
-                                      'launchpad.compact line 60 char 1',
+                                      'argument 8 (argument 9 as invoked from Typescript)',
+                                      'launchpad.compact line 56 char 1',
                                       'Uint<0..18446744073709551615>',
                                       min_0)
         if (!(typeof(max_0) === 'bigint' && max_0 >= 0 && max_0 <= 18446744073709551615n))
           __compactRuntime.type_error('open_a_fixed_price_token_sale',
-                                      'argument 13 (argument 14 as invoked from Typescript)',
-                                      'launchpad.compact line 60 char 1',
+                                      'argument 9 (argument 10 as invoked from Typescript)',
+                                      'launchpad.compact line 56 char 1',
                                       'Uint<0..18446744073709551615>',
                                       max_0)
+        if (!(typeof(token_hard_cap_0) === 'bigint' && token_hard_cap_0 >= 0 && token_hard_cap_0 <= 18446744073709551615n))
+          __compactRuntime.type_error('open_a_fixed_price_token_sale',
+                                      'argument 10 (argument 11 as invoked from Typescript)',
+                                      'launchpad.compact line 56 char 1',
+                                      'Uint<0..18446744073709551615>',
+                                      token_hard_cap_0)
         const context = { ...contextOrig_0 };
         const partialProofData = {
           input: {
-            value: _descriptor_10.toValue(coin_0).concat(_descriptor_2.toValue(sale_ratio_0).concat(_descriptor_0.toValue(acceptable_exchange_token_0).concat(_descriptor_0.toValue(time_0).concat(_descriptor_2.toValue(duration_0).concat(_descriptor_7.toValue(title_0).concat(_descriptor_7.toValue(desc_0).concat(_descriptor_7.toValue(logo_0).concat(_descriptor_7.toValue(banner_0).concat(_descriptor_7.toValue(token_name_0).concat(_descriptor_7.toValue(symbol_0).concat(_descriptor_5.toValue(min_0).concat(_descriptor_5.toValue(max_0))))))))))))),
-            alignment: _descriptor_10.alignment().concat(_descriptor_2.alignment().concat(_descriptor_0.alignment().concat(_descriptor_0.alignment().concat(_descriptor_2.alignment().concat(_descriptor_7.alignment().concat(_descriptor_7.alignment().concat(_descriptor_7.alignment().concat(_descriptor_7.alignment().concat(_descriptor_7.alignment().concat(_descriptor_7.alignment().concat(_descriptor_5.alignment().concat(_descriptor_5.alignment()))))))))))))
+            value: _descriptor_10.toValue(coin_0).concat(_descriptor_2.toValue(sale_ratio_0).concat(_descriptor_0.toValue(acceptable_exchange_token_0).concat(_descriptor_2.toValue(creation_time_0).concat(_descriptor_5.toValue(sale_duration_0).concat(_descriptor_6.toValue(token_symbol_0).concat(_descriptor_6.toValue(acceptable_token_symbol_0).concat(_descriptor_2.toValue(min_0).concat(_descriptor_2.toValue(max_0).concat(_descriptor_2.toValue(token_hard_cap_0)))))))))),
+            alignment: _descriptor_10.alignment().concat(_descriptor_2.alignment().concat(_descriptor_0.alignment().concat(_descriptor_2.alignment().concat(_descriptor_5.alignment().concat(_descriptor_6.alignment().concat(_descriptor_6.alignment().concat(_descriptor_2.alignment().concat(_descriptor_2.alignment().concat(_descriptor_2.alignment())))))))))
           },
           output: undefined,
           publicTranscript: [],
@@ -358,16 +355,13 @@ class Contract {
                                                                 coin_0,
                                                                 sale_ratio_0,
                                                                 acceptable_exchange_token_0,
-                                                                time_0,
-                                                                duration_0,
-                                                                title_0,
-                                                                desc_0,
-                                                                logo_0,
-                                                                banner_0,
-                                                                token_name_0,
-                                                                symbol_0,
+                                                                creation_time_0,
+                                                                sale_duration_0,
+                                                                token_symbol_0,
+                                                                acceptable_token_symbol_0,
                                                                 min_0,
-                                                                max_0);
+                                                                max_0,
+                                                                token_hard_cap_0);
         partialProofData.output = { value: [], alignment: [] };
         return { result: result_0, context: context, proofData: partialProofData };
       },
@@ -381,25 +375,25 @@ class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.originalState != undefined && contextOrig_0.transactionContext != undefined))
           __compactRuntime.type_error('buy_token_at_fixed_price',
                                       'argument 1 (as invoked from Typescript)',
-                                      'launchpad.compact line 106 char 1',
+                                      'launchpad.compact line 95 char 1',
                                       'CircuitContext',
                                       contextOrig_0)
         if (!(typeof(coin_0) === 'object' && coin_0.nonce.buffer instanceof ArrayBuffer && coin_0.nonce.BYTES_PER_ELEMENT === 1 && coin_0.nonce.length === 32 && coin_0.color.buffer instanceof ArrayBuffer && coin_0.color.BYTES_PER_ELEMENT === 1 && coin_0.color.length === 32 && typeof(coin_0.value) === 'bigint' && coin_0.value >= 0 && coin_0.value <= 340282366920938463463374607431768211455n))
           __compactRuntime.type_error('buy_token_at_fixed_price',
                                       'argument 1 (argument 2 as invoked from Typescript)',
-                                      'launchpad.compact line 106 char 1',
+                                      'launchpad.compact line 95 char 1',
                                       'struct CoinInfo<nonce: Bytes<32>, color: Bytes<32>, value: Uint<0..340282366920938463463374607431768211455>>',
                                       coin_0)
         if (!(sale_id_0.buffer instanceof ArrayBuffer && sale_id_0.BYTES_PER_ELEMENT === 1 && sale_id_0.length === 32))
           __compactRuntime.type_error('buy_token_at_fixed_price',
                                       'argument 2 (argument 3 as invoked from Typescript)',
-                                      'launchpad.compact line 106 char 1',
+                                      'launchpad.compact line 95 char 1',
                                       'Bytes<32>',
                                       sale_id_0)
         if (!(typeof(sale_amount_0) === 'bigint' && sale_amount_0 >= 0 && sale_amount_0 <= 340282366920938463463374607431768211455n))
           __compactRuntime.type_error('buy_token_at_fixed_price',
                                       'argument 3 (argument 4 as invoked from Typescript)',
-                                      'launchpad.compact line 106 char 1',
+                                      'launchpad.compact line 95 char 1',
                                       'Uint<0..340282366920938463463374607431768211455>',
                                       sale_amount_0)
         const context = { ...contextOrig_0 };
@@ -428,13 +422,13 @@ class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.originalState != undefined && contextOrig_0.transactionContext != undefined))
           __compactRuntime.type_error('closeSale',
                                       'argument 1 (as invoked from Typescript)',
-                                      'launchpad.compact line 147 char 1',
+                                      'launchpad.compact line 134 char 1',
                                       'CircuitContext',
                                       contextOrig_0)
         if (!(sale_id_0.buffer instanceof ArrayBuffer && sale_id_0.BYTES_PER_ELEMENT === 1 && sale_id_0.length === 32))
           __compactRuntime.type_error('closeSale',
                                       'argument 1 (argument 2 as invoked from Typescript)',
-                                      'launchpad.compact line 147 char 1',
+                                      'launchpad.compact line 134 char 1',
                                       'Bytes<32>',
                                       sale_id_0)
         const context = { ...contextOrig_0 };
@@ -459,13 +453,13 @@ class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.originalState != undefined && contextOrig_0.transactionContext != undefined))
           __compactRuntime.type_error('public_key',
                                       'argument 1 (as invoked from Typescript)',
-                                      'launchpad.compact line 160 char 1',
+                                      'launchpad.compact line 147 char 1',
                                       'CircuitContext',
                                       contextOrig_0)
         if (!(sk_0.buffer instanceof ArrayBuffer && sk_0.BYTES_PER_ELEMENT === 1 && sk_0.length === 32))
           __compactRuntime.type_error('public_key',
                                       'argument 1 (argument 2 as invoked from Typescript)',
-                                      'launchpad.compact line 160 char 1',
+                                      'launchpad.compact line 147 char 1',
                                       'Bytes<32>',
                                       sk_0)
         const context = { ...contextOrig_0 };
@@ -510,7 +504,7 @@ class Contract {
     if (!(initialNonce_0.buffer instanceof ArrayBuffer && initialNonce_0.BYTES_PER_ELEMENT === 1 && initialNonce_0.length === 32))
       __compactRuntime.type_error('Contract state constructor',
                                   'argument 1 (argument 2 as invoked from Typescript)',
-                                  'launchpad.compact line 36 char 1',
+                                  'launchpad.compact line 32 char 1',
                                   'Bytes<32>',
                                   initialNonce_0)
     const state_0 = new __compactRuntime.ContractState();
@@ -544,8 +538,8 @@ class Contract {
                                value: __compactRuntime.StateValue.newCell({ value: _descriptor_22.toValue(0n),
                                                                             alignment: _descriptor_22.alignment() }).encode() } },
                      { push: { storage: true,
-                               value: __compactRuntime.StateValue.newCell({ value: _descriptor_5.toValue(0n),
-                                                                            alignment: _descriptor_5.alignment() }).encode() } },
+                               value: __compactRuntime.StateValue.newCell({ value: _descriptor_2.toValue(0n),
+                                                                            alignment: _descriptor_2.alignment() }).encode() } },
                      { ins: { cached: false, n: 1 } }]);
     Contract._query(context,
                     partialProofData,
@@ -741,8 +735,8 @@ class Contract {
                      { dup: { n: 1 } },
                      'member',
                      { push: { storage: false,
-                               value: __compactRuntime.StateValue.newCell({ value: _descriptor_5.toValue(value_0),
-                                                                            alignment: _descriptor_5.alignment() }).encode() } },
+                               value: __compactRuntime.StateValue.newCell({ value: _descriptor_2.toValue(value_0),
+                                                                            alignment: _descriptor_2.alignment() }).encode() } },
                      { swap: { n: 0 } },
                      'neg',
                      { branch: { skip: 4 } },
@@ -1143,7 +1137,7 @@ class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32))
       __compactRuntime.type_error('local_secret_key',
                                   'return value',
-                                  'launchpad.compact line 41 char 1',
+                                  'launchpad.compact line 37 char 1',
                                   'Bytes<32>',
                                   result_0)
     partialProofData.privateTranscriptOutputs.push({
@@ -1159,7 +1153,7 @@ class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32))
       __compactRuntime.type_error('generate_sale_id',
                                   'return value',
-                                  'launchpad.compact line 42 char 1',
+                                  'launchpad.compact line 38 char 1',
                                   'Bytes<32>',
                                   result_0)
     partialProofData.privateTranscriptOutputs.push({
@@ -1181,30 +1175,12 @@ class Contract {
     if (!(typeof(result_0) === 'bigint' && result_0 >= 0 && result_0 <= 340282366920938463463374607431768211455n))
       __compactRuntime.type_error('calculate_amount_to_buy',
                                   'return value',
-                                  'launchpad.compact line 43 char 1',
+                                  'launchpad.compact line 39 char 1',
                                   'Uint<0..340282366920938463463374607431768211455>',
                                   result_0)
     partialProofData.privateTranscriptOutputs.push({
       value: _descriptor_1.toValue(result_0),
       alignment: _descriptor_1.alignment()
-    });
-    return result_0;
-  }
-  #_calculate_time_0(context, partialProofData, start_time_0, duration_0) {
-    const witnessContext_0 = __compactRuntime.witnessContext(ledger(context.transactionContext.state), context.currentPrivateState, context.transactionContext.address);
-    const [nextPrivateState_0, result_0] = this.witnesses.calculate_time(witnessContext_0,
-                                                                         start_time_0,
-                                                                         duration_0);
-    context.currentPrivateState = nextPrivateState_0;
-    if (!(typeof(result_0) === 'boolean'))
-      __compactRuntime.type_error('calculate_time',
-                                  'return value',
-                                  'launchpad.compact line 44 char 1',
-                                  'Boolean',
-                                  result_0)
-    partialProofData.privateTranscriptOutputs.push({
-      value: _descriptor_6.toValue(result_0),
-      alignment: _descriptor_6.alignment()
     });
     return result_0;
   }
@@ -1218,7 +1194,7 @@ class Contract {
     __compactRuntime.assert(total_amount_0 >= 10n, 'token must be atleast 10');
     const new_nonce_0 = this.#_evolveNonce_0(context,
                                              partialProofData,
-                                             _descriptor_5.fromValue(Contract._query(context,
+                                             _descriptor_2.fromValue(Contract._query(context,
                                                                                      partialProofData,
                                                                                      [
                                                                                       { dup: { n: 0 } },
@@ -1274,16 +1250,13 @@ class Contract {
                                     coin_0,
                                     sale_ratio_0,
                                     acceptable_exchange_token_0,
-                                    time_0,
-                                    duration_0,
-                                    title_0,
-                                    desc_0,
-                                    logo_0,
-                                    banner_0,
-                                    token_name_0,
-                                    symbol_0,
+                                    creation_time_0,
+                                    sale_duration_0,
+                                    token_symbol_0,
+                                    acceptable_token_symbol_0,
                                     min_0,
-                                    max_0)
+                                    max_0,
+                                    token_hard_cap_0)
   {
     __compactRuntime.assert(sale_ratio_0 > 0n,
                             'Sale ratio must be greater than 0!');
@@ -1348,18 +1321,14 @@ class Contract {
                     total_amount_sold: 0n,
                     total_amount_left: coin_0.value,
                     token_sale_ratio: sale_ratio_0,
+                    hard_cap: token_hard_cap_0,
                     acceptable_exchange_token: acceptable_exchange_token_0,
                     status: 0,
                     participant: 0n,
-                    start_time: time_0,
-                    duration: duration_0,
-                    time_up: false,
-                    title: title_0,
-                    desc: desc_0,
-                    project_logo: logo_0,
-                    project_banner: banner_0,
-                    token_name: token_name_0,
-                    token_symbol: symbol_0,
+                    start_time: creation_time_0,
+                    duration: sale_duration_0,
+                    token_symbol: token_symbol_0,
+                    acceptable_token_symbol: acceptable_token_symbol_0,
                     min: min_0,
                     max: max_0 };
     Contract._query(context,
@@ -1375,8 +1344,8 @@ class Contract {
                                value: __compactRuntime.StateValue.newCell({ value: _descriptor_0.toValue(sale_id_0),
                                                                             alignment: _descriptor_0.alignment() }).encode() } },
                      { push: { storage: true,
-                               value: __compactRuntime.StateValue.newCell({ value: _descriptor_8.toValue(tmp_1),
-                                                                            alignment: _descriptor_8.alignment() }).encode() } },
+                               value: __compactRuntime.StateValue.newCell({ value: _descriptor_7.toValue(tmp_1),
+                                                                            alignment: _descriptor_7.alignment() }).encode() } },
                      { ins: { cached: false, n: 1 } },
                      { ins: { cached: true, n: 1 } }]);
     return [];
@@ -1389,7 +1358,7 @@ class Contract {
   {
     __compactRuntime.assert(sale_amount_0 > 0n,
                             'Amount to buy must be greater than 0!');
-    __compactRuntime.assert(_descriptor_6.fromValue(Contract._query(context,
+    __compactRuntime.assert(_descriptor_8.fromValue(Contract._query(context,
                                                                     partialProofData,
                                                                     [
                                                                      { dup: { n: 0 } },
@@ -1406,7 +1375,7 @@ class Contract {
                                                                      { popeq: { cached: true,
                                                                                 result: undefined } }]).value),
                             "There's currently no fixed sale for this token!");
-    const sale_token_info_0 = _descriptor_8.fromValue(Contract._query(context,
+    const sale_token_info_0 = _descriptor_7.fromValue(Contract._query(context,
                                                                       partialProofData,
                                                                       [
                                                                        { dup: { n: 0 } },
@@ -1435,29 +1404,22 @@ class Contract {
     __compactRuntime.assert(this.#_equal_2(coin_0.color,
                                            sale_token_info_0.acceptable_exchange_token),
                             'This token color is not acceptable by organizer');
-    const is_open_0 = this.#_calculate_time_0(context,
-                                              partialProofData,
-                                              sale_token_info_0.start_time,
-                                              sale_token_info_0.duration);
     const tmp_0 = { organizer: sale_token_info_0.organizer,
                     total_amount_for_sale:
                       sale_token_info_0.total_amount_for_sale,
                     total_amount_sold: sale_token_info_0.total_amount_sold,
                     total_amount_left: sale_token_info_0.total_amount_left,
                     token_sale_ratio: sale_token_info_0.token_sale_ratio,
+                    hard_cap: sale_token_info_0.hard_cap,
                     acceptable_exchange_token:
                       sale_token_info_0.acceptable_exchange_token,
                     status: sale_token_info_0.status,
                     participant: sale_token_info_0.participant,
                     start_time: sale_token_info_0.start_time,
                     duration: sale_token_info_0.duration,
-                    time_up: is_open_0 && true,
-                    title: sale_token_info_0.title,
-                    desc: sale_token_info_0.desc,
-                    project_logo: sale_token_info_0.project_logo,
-                    project_banner: sale_token_info_0.project_banner,
-                    token_name: sale_token_info_0.token_name,
                     token_symbol: sale_token_info_0.token_symbol,
+                    acceptable_token_symbol:
+                      sale_token_info_0.acceptable_token_symbol,
                     min: sale_token_info_0.min,
                     max: sale_token_info_0.max };
     Contract._query(context,
@@ -1473,13 +1435,12 @@ class Contract {
                                value: __compactRuntime.StateValue.newCell({ value: _descriptor_0.toValue(sale_id_0),
                                                                             alignment: _descriptor_0.alignment() }).encode() } },
                      { push: { storage: true,
-                               value: __compactRuntime.StateValue.newCell({ value: _descriptor_8.toValue(tmp_0),
-                                                                            alignment: _descriptor_8.alignment() }).encode() } },
+                               value: __compactRuntime.StateValue.newCell({ value: _descriptor_7.toValue(tmp_0),
+                                                                            alignment: _descriptor_7.alignment() }).encode() } },
                      { ins: { cached: false, n: 1 } },
                      { ins: { cached: true, n: 1 } }]);
-    __compactRuntime.assert(is_open_0, 'This sale has ended!');
     this.#_receive_0(context, partialProofData, coin_0);
-    const newCoin_0 = _descriptor_6.fromValue(Contract._query(context,
+    const newCoin_0 = _descriptor_8.fromValue(Contract._query(context,
                                                               partialProofData,
                                                               [
                                                                { dup: { n: 0 } },
@@ -1674,11 +1635,12 @@ class Contract {
                     total_amount_sold:
                       ((t1) => {
                         if (t1 > 340282366920938463463374607431768211455n)
-                          throw new __compactRuntime.CompactError('launchpad.compact line 139 char 28: cast from unsigned value to smaller unsigned value failed: ' + t1 + ' is greater than 340282366920938463463374607431768211455');
+                          throw new __compactRuntime.CompactError('launchpad.compact line 126 char 28: cast from unsigned value to smaller unsigned value failed: ' + t1 + ' is greater than 340282366920938463463374607431768211455');
                         return t1;
                       })(new_total_sold_0),
                     total_amount_left: new_total_left_0,
                     token_sale_ratio: sale_token_info_0.token_sale_ratio,
+                    hard_cap: sale_token_info_0.hard_cap,
                     acceptable_exchange_token:
                       sale_token_info_0.acceptable_exchange_token,
                     status:
@@ -1688,18 +1650,14 @@ class Contract {
                     participant:
                       ((t1) => {
                         if (t1 > 65535n)
-                          throw new __compactRuntime.CompactError('launchpad.compact line 142 char 22: cast from unsigned value to smaller unsigned value failed: ' + t1 + ' is greater than 65535');
+                          throw new __compactRuntime.CompactError('launchpad.compact line 129 char 22: cast from unsigned value to smaller unsigned value failed: ' + t1 + ' is greater than 65535');
                         return t1;
                       })(participant_amount_0),
                     start_time: sale_token_info_0.start_time,
                     duration: sale_token_info_0.duration,
-                    time_up: sale_token_info_0.time_up,
-                    title: sale_token_info_0.title,
-                    desc: sale_token_info_0.desc,
-                    project_logo: sale_token_info_0.project_logo,
-                    project_banner: sale_token_info_0.project_banner,
-                    token_name: sale_token_info_0.token_name,
                     token_symbol: sale_token_info_0.token_symbol,
+                    acceptable_token_symbol:
+                      sale_token_info_0.acceptable_token_symbol,
                     min: sale_token_info_0.min,
                     max: sale_token_info_0.max };
     Contract._query(context,
@@ -1715,8 +1673,8 @@ class Contract {
                                value: __compactRuntime.StateValue.newCell({ value: _descriptor_0.toValue(sale_id_0),
                                                                             alignment: _descriptor_0.alignment() }).encode() } },
                      { push: { storage: true,
-                               value: __compactRuntime.StateValue.newCell({ value: _descriptor_8.toValue(tmp_4),
-                                                                            alignment: _descriptor_8.alignment() }).encode() } },
+                               value: __compactRuntime.StateValue.newCell({ value: _descriptor_7.toValue(tmp_4),
+                                                                            alignment: _descriptor_7.alignment() }).encode() } },
                      { ins: { cached: false, n: 1 } },
                      { ins: { cached: true, n: 1 } }]);
     return [];
@@ -1726,7 +1684,7 @@ class Contract {
                                             partialProofData,
                                             this.#_local_secret_key_0(context,
                                                                       partialProofData));
-    const sale_token_info_0 = _descriptor_8.fromValue(Contract._query(context,
+    const sale_token_info_0 = _descriptor_7.fromValue(Contract._query(context,
                                                                       partialProofData,
                                                                       [
                                                                        { dup: { n: 0 } },
@@ -1744,7 +1702,7 @@ class Contract {
                                                                                                   alignment: _descriptor_0.alignment() } }] } },
                                                                        { popeq: { cached: false,
                                                                                   result: undefined } }]).value);
-    __compactRuntime.assert(_descriptor_6.fromValue(Contract._query(context,
+    __compactRuntime.assert(_descriptor_8.fromValue(Contract._query(context,
                                                                     partialProofData,
                                                                     [
                                                                      { dup: { n: 0 } },
@@ -1772,19 +1730,16 @@ class Contract {
                     total_amount_sold: sale_token_info_0.total_amount_sold,
                     total_amount_left: sale_token_info_0.total_amount_left,
                     token_sale_ratio: sale_token_info_0.token_sale_ratio,
+                    hard_cap: sale_token_info_0.hard_cap,
                     acceptable_exchange_token:
                       sale_token_info_0.acceptable_exchange_token,
                     status: 2,
                     participant: sale_token_info_0.participant,
                     start_time: sale_token_info_0.start_time,
                     duration: sale_token_info_0.duration,
-                    time_up: sale_token_info_0.time_up,
-                    title: sale_token_info_0.title,
-                    desc: sale_token_info_0.desc,
-                    project_logo: sale_token_info_0.project_logo,
-                    project_banner: sale_token_info_0.project_banner,
-                    token_name: sale_token_info_0.token_name,
                     token_symbol: sale_token_info_0.token_symbol,
+                    acceptable_token_symbol:
+                      sale_token_info_0.acceptable_token_symbol,
                     min: sale_token_info_0.min,
                     max: sale_token_info_0.max };
     Contract._query(context,
@@ -1800,8 +1755,8 @@ class Contract {
                                value: __compactRuntime.StateValue.newCell({ value: _descriptor_0.toValue(sale_id_0),
                                                                             alignment: _descriptor_0.alignment() }).encode() } },
                      { push: { storage: true,
-                               value: __compactRuntime.StateValue.newCell({ value: _descriptor_8.toValue(tmp_0),
-                                                                            alignment: _descriptor_8.alignment() }).encode() } },
+                               value: __compactRuntime.StateValue.newCell({ value: _descriptor_7.toValue(tmp_0),
+                                                                            alignment: _descriptor_7.alignment() }).encode() } },
                      { ins: { cached: false, n: 1 } },
                      { ins: { cached: true, n: 1 } }]);
     return [];
@@ -1872,7 +1827,7 @@ function ledger(state) {
   };
   return {
     get unique_index() {
-      return _descriptor_5.fromValue(Contract._query(context,
+      return _descriptor_2.fromValue(Contract._query(context,
                                                      partialProofData,
                                                      [
                                                       { dup: { n: 0 } },
@@ -1903,7 +1858,7 @@ function ledger(state) {
       isEmpty(...args_0) {
         if (args_0.length !== 0)
           throw new __compactRuntime.CompactError(`isEmpty: expected 0 arguments, received ${args_0.length}`);
-        return _descriptor_6.fromValue(Contract._query(context,
+        return _descriptor_8.fromValue(Contract._query(context,
                                                        partialProofData,
                                                        [
                                                         { dup: { n: 0 } },
@@ -1915,8 +1870,8 @@ function ledger(state) {
                                                                                    alignment: _descriptor_22.alignment() } }] } },
                                                         'size',
                                                         { push: { storage: false,
-                                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_5.toValue(0n),
-                                                                                                               alignment: _descriptor_5.alignment() }).encode() } },
+                                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_2.toValue(0n),
+                                                                                                               alignment: _descriptor_2.alignment() }).encode() } },
                                                         'eq',
                                                         { popeq: { cached: true,
                                                                    result: undefined } }]).value);
@@ -1924,7 +1879,7 @@ function ledger(state) {
       size(...args_0) {
         if (args_0.length !== 0)
           throw new __compactRuntime.CompactError(`size: expected 0 arguments, received ${args_0.length}`);
-        return _descriptor_5.fromValue(Contract._query(context,
+        return _descriptor_2.fromValue(Contract._query(context,
                                                        partialProofData,
                                                        [
                                                         { dup: { n: 0 } },
@@ -1948,7 +1903,7 @@ function ledger(state) {
                                       'launchpad.compact line 8 char 1',
                                       'Bytes<32>',
                                       key_0)
-        return _descriptor_6.fromValue(Contract._query(context,
+        return _descriptor_8.fromValue(Contract._query(context,
                                                        partialProofData,
                                                        [
                                                         { dup: { n: 0 } },
@@ -1975,7 +1930,7 @@ function ledger(state) {
                                       'launchpad.compact line 8 char 1',
                                       'Bytes<32>',
                                       key_0)
-        return _descriptor_8.fromValue(Contract._query(context,
+        return _descriptor_7.fromValue(Contract._query(context,
                                                        partialProofData,
                                                        [
                                                         { dup: { n: 0 } },
@@ -1998,14 +1953,14 @@ function ledger(state) {
         if (args_0.length !== 0)
           throw new __compactRuntime.CompactError(`iter: expected 0 arguments, received ${args_0.length}`);
         const self_0 = state.asArray()[2];
-        return self_0.asMap().keys().map(  (key) => {    const value = self_0.asMap().get(key).asCell();    return [      _descriptor_0.fromValue(key.value),      _descriptor_8.fromValue(value.value)    ];  })[Symbol.iterator]();
+        return self_0.asMap().keys().map(  (key) => {    const value = self_0.asMap().get(key).asCell();    return [      _descriptor_0.fromValue(key.value),      _descriptor_7.fromValue(value.value)    ];  })[Symbol.iterator]();
       }
     },
     fixed_sales_bank: {
       isEmpty(...args_0) {
         if (args_0.length !== 0)
           throw new __compactRuntime.CompactError(`isEmpty: expected 0 arguments, received ${args_0.length}`);
-        return _descriptor_6.fromValue(Contract._query(context,
+        return _descriptor_8.fromValue(Contract._query(context,
                                                        partialProofData,
                                                        [
                                                         { dup: { n: 0 } },
@@ -2017,8 +1972,8 @@ function ledger(state) {
                                                                                    alignment: _descriptor_22.alignment() } }] } },
                                                         'size',
                                                         { push: { storage: false,
-                                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_5.toValue(0n),
-                                                                                                               alignment: _descriptor_5.alignment() }).encode() } },
+                                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_2.toValue(0n),
+                                                                                                               alignment: _descriptor_2.alignment() }).encode() } },
                                                         'eq',
                                                         { popeq: { cached: true,
                                                                    result: undefined } }]).value);
@@ -2026,7 +1981,7 @@ function ledger(state) {
       size(...args_0) {
         if (args_0.length !== 0)
           throw new __compactRuntime.CompactError(`size: expected 0 arguments, received ${args_0.length}`);
-        return _descriptor_5.fromValue(Contract._query(context,
+        return _descriptor_2.fromValue(Contract._query(context,
                                                        partialProofData,
                                                        [
                                                         { dup: { n: 0 } },
@@ -2050,7 +2005,7 @@ function ledger(state) {
                                       'launchpad.compact line 9 char 1',
                                       'Bytes<32>',
                                       key_0)
-        return _descriptor_6.fromValue(Contract._query(context,
+        return _descriptor_8.fromValue(Contract._query(context,
                                                        partialProofData,
                                                        [
                                                         { dup: { n: 0 } },
@@ -2107,7 +2062,7 @@ function ledger(state) {
       isEmpty(...args_0) {
         if (args_0.length !== 0)
           throw new __compactRuntime.CompactError(`isEmpty: expected 0 arguments, received ${args_0.length}`);
-        return _descriptor_6.fromValue(Contract._query(context,
+        return _descriptor_8.fromValue(Contract._query(context,
                                                        partialProofData,
                                                        [
                                                         { dup: { n: 0 } },
@@ -2119,8 +2074,8 @@ function ledger(state) {
                                                                                    alignment: _descriptor_22.alignment() } }] } },
                                                         'size',
                                                         { push: { storage: false,
-                                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_5.toValue(0n),
-                                                                                                               alignment: _descriptor_5.alignment() }).encode() } },
+                                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_2.toValue(0n),
+                                                                                                               alignment: _descriptor_2.alignment() }).encode() } },
                                                         'eq',
                                                         { popeq: { cached: true,
                                                                    result: undefined } }]).value);
@@ -2128,7 +2083,7 @@ function ledger(state) {
       size(...args_0) {
         if (args_0.length !== 0)
           throw new __compactRuntime.CompactError(`size: expected 0 arguments, received ${args_0.length}`);
-        return _descriptor_5.fromValue(Contract._query(context,
+        return _descriptor_2.fromValue(Contract._query(context,
                                                        partialProofData,
                                                        [
                                                         { dup: { n: 0 } },
@@ -2152,7 +2107,7 @@ function ledger(state) {
                                       'launchpad.compact line 10 char 1',
                                       'Bytes<32>',
                                       key_0)
-        return _descriptor_6.fromValue(Contract._query(context,
+        return _descriptor_8.fromValue(Contract._query(context,
                                                        partialProofData,
                                                        [
                                                         { dup: { n: 0 } },
@@ -2214,8 +2169,7 @@ const _emptyContext = {
 const _dummyContract = new Contract({
   local_secret_key: (...args) => undefined,
   generate_sale_id: (...args) => undefined,
-  calculate_amount_to_buy: (...args) => undefined,
-  calculate_time: (...args) => undefined
+  calculate_amount_to_buy: (...args) => undefined
 });
 const pureCircuits = {
   public_key: (...args_0) => _dummyContract.circuits.public_key(_emptyContext, ...args_0).result

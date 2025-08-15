@@ -4,7 +4,7 @@ a3a9170fe532c3724c979121324e74dbf3e004af8ab59a1517573cb2aa90ff9a
 
 # CONTRACT ADDRESS
 
-02001559aded2d276348190434864470410d7039badeb322e8f55e2ac38a3dd05f38
+0200419c4ab97cc2f2f0acc662869399a6099ebddf2290bd444d1122c2f3439e9082
 
 # token balance
 
@@ -18,6 +18,19 @@ a3a9170fe532c3724c979121324e74dbf3e004af8ab59a1517573cb2aa90ff9a
 '0200cb6db5a335de756bb7a4b353a1990c89197bb7f0bbc4e0e5aab08b2bcce0d285': 17032000009n,
 '02000000000000000000000000000000000000000000000000000000000000000000': 19112996n
 }
+
+# TODO
+
+> implement projects page @DONE
+> implement projects details page @DONE
+> debug create fixed token sale @DONE
+> implement fixed sale participation @DONE
+> implement fixed sale closure by organizer @DONE
+> implement sale token withdrawal by generator
+> implement check expiry action
+> change token seperator generation format to make it unique
+> handling float ratio
+> error handling
 
 # Turborepo starter
 

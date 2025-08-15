@@ -15,10 +15,8 @@ import {
   LaunchPadContractProvider,
   LaunchPadPrivateStateKey,
 } from "./common-types.js";
-import {
-  ContractAddress,
-  QualifiedCoinInfo,
-} from "@midnight-ntwrk/compact-runtime";
+import { toHex } from "@midnight-ntwrk/midnight-js-utils";
+import { ContractAddress } from "@midnight-ntwrk/compact-runtime";
 import { combineLatest, from, map, Observable } from "rxjs";
 import {
   deployContract,
@@ -29,9 +27,8 @@ import {
   get_fixed_sales_received_bank,
   get_open_fixed_token_sales,
   randomNonceBytes,
-  stringTo32ByteArray,
 } from "./utils.js";
-import { encodeTokenType, nativeToken } from "@midnight-ntwrk/ledger";
+import { encodeTokenType } from "@midnight-ntwrk/ledger";
 
 const LaunchPadContractInstance: LaunchPadContract = new Contract(witnesses);
 
@@ -61,7 +58,8 @@ export class LaunchPadAPI {
       ],
       // ...and combine them to produce the required derived state.
       (ledgerState, privateState) => {
-        pureCircuits.public_key(privateState.secretKey);
+        const user_pk = pureCircuits.public_key(privateState.secretKey);
+
         return {
           receival_bank: get_fixed_sales_received_bank(
             ledgerState.fixed_sales_received_bank
@@ -70,6 +68,7 @@ export class LaunchPadAPI {
           fixed_sales: get_open_fixed_token_sales(
             ledgerState.open_fixed_token_sales
           ),
+          user_pk: toHex(user_pk),
         };
       }
     );
@@ -157,49 +156,76 @@ export class LaunchPadAPI {
   };
 
   static open_fixed_sale = async (
+    deployedContract: DeployedLaunchpadContract,
     amount: bigint,
     color: string,
     acceptable_color: string,
-    deployedContract: DeployedLaunchpadContract
+    ratio: bigint,
+    duration: bigint,
+    symbol: string,
+    acceptable_token_symbol: string,
+    min: bigint,
+    max: bigint,
+    hardCap: bigint
   ) => {
     const coin: CoinInfo = {
       nonce: randomNonceBytes(32),
       color: encodeTokenType(color),
       value: amount,
     };
+    // Convert Date.now() to Hours (rounded down)
+    const timeInHours = BigInt(Math.floor(Date.now() / 60000 / 60 / 60));
     try {
-      const data = await deployedContract.callTx.open_a_fixed_price_token_sale(
+      await deployedContract.callTx.open_a_fixed_price_token_sale(
         coin,
-        BigInt(1),
-        encodeTokenType(acceptable_color)
+        ratio,
+        encodeTokenType(acceptable_color),
+        timeInHours,
+        duration,
+        symbol,
+        acceptable_token_symbol,
+        min,
+        max,
+        hardCap
       );
-      return data;
     } catch (error) {
-      console.log(error);
+      console.log("error at open_fixed_sale " + error);
     }
   };
 
   static buy_fixed_token = async (
     deployedContract: DeployedLaunchpadContract,
     amount: bigint,
-    color: string
+    color: Uint8Array,
+    sale_id: Uint8Array
   ) => {
-    const sale_id = new Uint8Array([
-      5, 7, 9, 7, 3, 0, 0, 0, 0, 1, 2, 1, 4, 9, 5, 4, 0, 9, 0, 0, 0, 7, 0, 0, 6,
-      7, 9, 7, 5, 0, 0, 0,
-    ]);
-
     const coin: CoinInfo = {
       nonce: randomNonceBytes(32),
-      color: encodeTokenType(color),
+      color: color,
       value: amount,
     };
+
+    console.log(coin);
+
     try {
       await deployedContract.callTx.buy_token_at_fixed_price(
         coin,
         sale_id,
         amount
       );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  static close_fixed_sale = async (
+    deployedContract: DeployedLaunchpadContract,
+    sale_id: Uint8Array
+  ) => {
+    try {
+      console.log("closing sale...");
+      await deployedContract.callTx.closeSale(sale_id);
+      console.log("Sale closed successfully!");
     } catch (error) {
       console.log(error);
     }
