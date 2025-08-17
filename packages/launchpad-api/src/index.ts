@@ -102,7 +102,7 @@ export class LaunchPadAPI {
         console.log("Contract deployed succesfully!");
         return new LaunchPadAPI(deployedLaunchPadContract, providers);
       } catch (error) {
-        console.log(`error at deploying contracting: ${error}`);
+        throw new Error(`error at deploying contracting: ${error}`);
       }
     } else {
       try {
@@ -118,8 +118,7 @@ export class LaunchPadAPI {
         console.log("Contract found successfully");
         console.log("Contract joined succesfully!");
         return new this(deployedLaunchPadContract, providers);
-      } catch (error) {
-        console.error("Error at joining contract:", error);
+      } catch (error: any) {
         throw error;
       }
     }
@@ -157,8 +156,8 @@ export class LaunchPadAPI {
       console.log("creating token...");
       await deployedContract.callTx.create_token(name, amount, ticker, icon);
       console.log("Token created succesfully");
-    } catch (error) {
-      console.log(`error occured while creating token ${error}`);
+    } catch (error: any) {
+      throw error;
     }
   };
 
@@ -193,8 +192,8 @@ export class LaunchPadAPI {
         max,
         hardCap
       );
-    } catch (error) {
-      console.log("error at open_fixed_sale " + error);
+    } catch (error: any) {
+      throw error;
     }
   };
 
@@ -218,8 +217,8 @@ export class LaunchPadAPI {
         sale_id,
         amount
       );
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      throw error;
     }
   };
 
@@ -231,8 +230,8 @@ export class LaunchPadAPI {
       console.log("closing sale...");
       await deployedContract.callTx.closeSale(sale_id);
       console.log("Sale closed successfully!");
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      throw error;
     }
   };
 
@@ -242,8 +241,8 @@ export class LaunchPadAPI {
   ) => {
     try {
       await deployedContract.callTx.withdraw_token(sale_id);
-    } catch (error) {
-      console.log("error: " + error);
+    } catch (error: any) {
+      throw error;
     }
   };
 }

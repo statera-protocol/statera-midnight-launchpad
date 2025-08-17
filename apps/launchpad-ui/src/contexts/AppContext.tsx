@@ -5,6 +5,7 @@ import React, {
   useState,
   useCallback,
   useMemo,
+  useRef,
 } from "react";
 import { useDeployedLaunchpadContext } from "../hooks/useDeployedManager";
 import { type status } from "../lib/actions";
@@ -16,6 +17,7 @@ import {
 } from "@repo/launchpad-api";
 import type { SaleDataType } from "../lib/assets";
 import { type TokenData } from "../lib/assets";
+import { CompactError } from "@midnight-ntwrk/compact-runtime";
 
 export type AppContextType = {
   deploymentState: status;
@@ -63,7 +65,6 @@ function useObservableState<T>(
   debugName?: string
 ): T | null {
   const [state, setState] = useState<T | null>(initialState);
-
   useEffect(() => {
     if (!observable$) return;
 
@@ -142,55 +143,6 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
   const [route, setRoute] = useState("dashboard"); //to be saved
   const [projectId, setProjectId] = useState(""); //to be saved
 
-  // useEffect(() => {
-  //   const stored_project_id = localStorage.getItem("project-id");
-  //   const stored_api = localStorage.getItem("api");
-  //   const stored_route = localStorage.getItem("route");
-  //   const stored_wallet_address = localStorage.getItem("wallet-address");
-  //   const stored_generating_state = localStorage.getItem("is-generating");
-  //   const stored_launch_state = localStorage.getItem("launching"); // Fixed typo
-  //   const stored_contributing_state = localStorage.getItem("is-contributing");
-  //   const stored_withdrawing_state = localStorage.getItem("is-withdrawing");
-  //   const stored_closing_state = localStorage.getItem("is-closing");
-
-  //   // Set states with correct setter functions and parse JSON
-  //   stored_api && setApi(JSON.parse(stored_api));
-  //   stored_project_id && setProjectId(JSON.parse(stored_project_id)); // Fixed setter
-  //   stored_route && setRoute(JSON.parse(stored_route)); // Fixed setter
-  //   stored_wallet_address &&
-  //     setWalletAddress(JSON.parse(stored_wallet_address)); // Fixed setter
-  //   stored_generating_state &&
-  //     setIsGenerating(JSON.parse(stored_generating_state)); // Fixed setter
-  //   stored_contributing_state &&
-  //     setIsContributing(JSON.parse(stored_contributing_state)); // Fixed setter
-  //   stored_launch_state && setLaunching(JSON.parse(stored_launch_state)); // Fixed setter
-  //   stored_withdrawing_state &&
-  //     setIsWithdrawing(JSON.parse(stored_withdrawing_state)); // Fixed setter
-  //   stored_closing_state && setIsClosing(JSON.parse(stored_closing_state)); // Fixed setter
-  // }, []); // Empty dependency array - only run on mount
-
-  // // Save to localStorage whenever state changes
-  // useEffect(() => {
-  //   localStorage.setItem("route", JSON.stringify(route));
-  //   localStorage.setItem("api", JSON.stringify(api));
-  //   localStorage.setItem("wallet-address", JSON.stringify(walletAddress));
-  //   localStorage.setItem("is-generating", JSON.stringify(isGenerating));
-  //   localStorage.setItem("launching", JSON.stringify(launching)); // Fixed key name
-  //   localStorage.setItem("is-contributing", JSON.stringify(isContributing));
-  //   localStorage.setItem("is-withdrawing", JSON.stringify(isWithdrawing));
-  //   localStorage.setItem("is-closing", JSON.stringify(isClosing));
-  //   localStorage.setItem("project-id", JSON.stringify(projectId));
-  // }, [
-  //   route,
-  //   api,
-  //   walletAddress,
-  //   isGenerating,
-  //   isClosing,
-  //   isContributing,
-  //   isWithdrawing,
-  //   launching,
-  //   projectId,
-  // ]);
   // RxJS OBSERVABLE STATE MANAGEMENT
   const deploymentState =
     useObservableState<status>(
@@ -207,8 +159,6 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
 
   //AUTO CLEAR ERROR/SUCCES MESSAGES AFTER FEW SECONDS
   useEffect(() => {
-    if (!success || !error) return;
-
     const timer = setTimeout(() => {
       setSuccess(null);
       setError(null);
@@ -223,15 +173,24 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
     setError(null);
   }, []);
 
-  const handleError = useCallback((errorMessage: string) => {
-    console.error("App Error:", errorMessage);
-    setError(errorMessage);
-  }, []);
+  const handleError = (error: any) => {
+    if (error instanceof CompactError) {
+      const trimmed_message = error.message.substring(14);
+      error.message.includes("Amount to buy must be greater than 0!") &&
+        setError(trimmed_message);
+      error.message.includes("This sale has not received any funds") &&
+        setError(trimmed_message);
+      error.message.includes("Amount is greater than amount left!") &&
+        setError(trimmed_message);
+      error.message.includes("This sale has been completed or closed") &&
+        setError(trimmed_message);
+    }
+  };
 
-  const handleSuccess = useCallback((successMessage: string) => {
+  const handleSuccess = (successMessage: string) => {
     console.log("App Success:", successMessage);
     setSuccess(successMessage);
-  }, []);
+  };
 
   //CONNECTS WALLET
   const connectWallet = useCallback(async (): Promise<void> => {
@@ -355,9 +314,10 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
       const sale_id = projectDetail.key_uint;
       setIsClosing(true);
       await LaunchPadAPI.close_fixed_sale(api.deployedContract, sale_id);
-      setIsClosing(false);
     } catch (error) {
       console.log("Error while closing " + error);
+    } finally {
+      setIsClosing(false);
     }
   };
 
@@ -376,22 +336,28 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
         details.acceptable_exchange_token,
         sale_id
       );
-      setIsContributing(false);
       console.log("Token bought successfully!");
     } catch (error) {
-      console.log("an error occured: " + error);
+      handleError(error);
+    } finally {
+      setIsContributing(false);
     }
   };
 
   const WithdrawFunds = async (details: FixedSaleData) => {
-    const sale_id = details.key_uint;
-    if (!api) {
-      return;
-    }
+    try {
+      const sale_id = details.key_uint;
+      if (!api) {
+        return;
+      }
 
-    setIsWithdrawing(true);
-    await LaunchPadAPI.withdraw_funds(api.deployedContract, sale_id);
-    setIsWithdrawing(false);
+      setIsWithdrawing(true);
+      await LaunchPadAPI.withdraw_funds(api.deployedContract, sale_id);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsWithdrawing(false);
+    }
   };
 
   // Memoized context value to prevent unnecessary re-renders
