@@ -11,14 +11,19 @@ import { witnesses } from "@repo/launchpad-contract";
 import {
   DeployedLaunchpadContract,
   derivedState,
-  FixedSaleData,
   LaunchPadContract,
   LaunchPadContractProvider,
   LaunchPadPrivateStateKey,
 } from "./common-types.js";
 import { toHex } from "@midnight-ntwrk/midnight-js-utils";
 import { ContractAddress } from "@midnight-ntwrk/compact-runtime";
-import { combineLatest, from, map, Observable } from "rxjs";
+import {
+  combineLatest,
+  distinctUntilChanged,
+  from,
+  map,
+  Observable,
+} from "rxjs";
 import {
   deployContract,
   findDeployedContract,
@@ -30,6 +35,7 @@ import {
   randomNonceBytes,
 } from "./utils.js";
 import { encodeTokenType } from "@midnight-ntwrk/ledger";
+import { isEqual } from "lodash";
 
 const LaunchPadContractInstance: LaunchPadContract = new Contract(witnesses);
 
@@ -174,14 +180,12 @@ export class LaunchPadAPI {
       color: encodeTokenType(color),
       value: amount,
     };
-    // Convert Date.now() to Hours (rounded down)
-    const timeInHours = BigInt(Math.floor(Date.now() / 60000 / 60 / 60));
     try {
       await deployedContract.callTx.open_a_fixed_price_token_sale(
         coin,
         ratio,
         encodeTokenType(acceptable_color),
-        timeInHours,
+        BigInt(Date.now()),
         duration,
         symbol,
         acceptable_token_symbol,

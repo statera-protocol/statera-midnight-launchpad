@@ -8,6 +8,9 @@ export type Witnesses<T> = {
   calculate_amount_to_buy(context: __compactRuntime.WitnessContext<Ledger, T>,
                           received_amount_0: bigint,
                           sale_ratio_0: bigint): [T, bigint];
+  calculate_time(context: __compactRuntime.WitnessContext<Ledger, T>,
+                 start_time_0: bigint,
+                 duration_0: bigint): [T, boolean];
 }
 
 export type ImpureCircuits<T> = {
@@ -89,7 +92,8 @@ export type Ledger = {
                                  acceptable_token_symbol: string,
                                  min: bigint,
                                  max: bigint,
-                                 withdrawn: boolean
+                                 withdrawn: boolean,
+                                 time_up: boolean
                                };
     [Symbol.iterator](): Iterator<[Uint8Array, { organizer: Uint8Array,
   total_amount_for_sale: bigint,
@@ -106,7 +110,8 @@ export type Ledger = {
   acceptable_token_symbol: string,
   min: bigint,
   max: bigint,
-  withdrawn: boolean
+  withdrawn: boolean,
+  time_up: boolean
 }]>
   };
   fixed_sales_bank: {

@@ -58,6 +58,7 @@ export interface DeployedLaunchpadAPIProvider {
     contractAddress?: ContractAddress
   ) => Promise<LaunchPadAPI | undefined>;
   readonly status$: Observable<status>;
+  readonly wallet_address: string;
 }
 
 export class BrowserDeployedLaunchpadManager
@@ -66,12 +67,14 @@ export class BrowserDeployedLaunchpadManager
   contractAddress: ContractAddress | null;
   private statusSubject: BehaviorSubject<status>;
   readonly status$: Observable<status>;
+  wallet_address: string;
   // private deployedContract: undefined
 
   constructor() {
     this.contractAddress = null;
     this.statusSubject = new BehaviorSubject<status>("no-action");
     this.status$ = this.statusSubject.asObservable();
+    this.wallet_address = "";
   }
 
   async resolve(contractAddress?: ContractAddress) {
@@ -79,9 +82,10 @@ export class BrowserDeployedLaunchpadManager
 
     let api;
     try {
-      const provider = await initializeProviders();
+      const { providers, wallet } = await initializeProviders();
+      this.wallet_address = (await wallet.state()).address;
       api = await LaunchPadAPI.joinOrDeployLaunchPadContract(
-        provider,
+        providers,
         contractAddress && contractAddress
       );
     } catch (error) {
@@ -99,52 +103,60 @@ export class BrowserDeployedLaunchpadManager
   }
 }
 
-const initializeProviders = async (): Promise<LaunchPadContractProvider> => {
+type WalletAndProviders = {
+  providers: LaunchPadContractProvider;
+  wallet: DAppConnectorWalletAPI;
+};
+
+const initializeProviders = async (): Promise<WalletAndProviders> => {
   const { wallet, uris } = await connectToWallet();
   const walletState = await wallet.state();
 
   return {
-    privateStateProvider: levelPrivateStateProvider({
-      privateStateStoreName: LaunchPadPrivateStateKey,
-    }),
-    zkConfigProvider: new FetchZkConfigProvider<LaunchPadCircuitKeys>(
-      window.location.origin,
-      fetch.bind(window)
-    ),
-    proofProvider: httpClientProofProvider(uris.proverServerUri),
-    publicDataProvider: indexerPublicDataProvider(
-      uris.indexerUri,
-      uris.indexerWsUri
-    ),
-    walletProvider: {
-      coinPublicKey: walletState.coinPublicKey,
-      encryptionPublicKey: walletState.encryptionPublicKey,
-      balanceTx(
-        tx: UnbalancedTransaction,
-        newCoins: CoinInfo[]
-      ): Promise<BalancedTransaction> {
-        return wallet
-          .balanceAndProveTransaction(
-            ZswapTransaction.deserialize(
-              tx.serialize(getLedgerNetworkId()),
-              getZswapNetworkId()
-            ),
-            newCoins
-          )
-          .then((zswapTx) =>
-            Transaction.deserialize(
-              zswapTx.serialize(getZswapNetworkId()),
-              getLedgerNetworkId()
+    providers: {
+      privateStateProvider: levelPrivateStateProvider({
+        privateStateStoreName: LaunchPadPrivateStateKey,
+      }),
+      zkConfigProvider: new FetchZkConfigProvider<LaunchPadCircuitKeys>(
+        window.location.origin,
+        fetch.bind(window)
+      ),
+      proofProvider: httpClientProofProvider(uris.proverServerUri),
+      publicDataProvider: indexerPublicDataProvider(
+        uris.indexerUri,
+        uris.indexerWsUri
+      ),
+      walletProvider: {
+        coinPublicKey: walletState.coinPublicKey,
+        encryptionPublicKey: walletState.encryptionPublicKey,
+        balanceTx(
+          tx: UnbalancedTransaction,
+          newCoins: CoinInfo[]
+        ): Promise<BalancedTransaction> {
+          return wallet
+            .balanceAndProveTransaction(
+              ZswapTransaction.deserialize(
+                tx.serialize(getLedgerNetworkId()),
+                getZswapNetworkId()
+              ),
+              newCoins
             )
-          )
-          .then(createBalancedTx);
+            .then((zswapTx) =>
+              Transaction.deserialize(
+                zswapTx.serialize(getZswapNetworkId()),
+                getLedgerNetworkId()
+              )
+            )
+            .then(createBalancedTx);
+        },
+      },
+      midnightProvider: {
+        submitTx(tx: BalancedTransaction): Promise<TransactionId> {
+          return wallet.submitTransaction(tx);
+        },
       },
     },
-    midnightProvider: {
-      submitTx(tx: BalancedTransaction): Promise<TransactionId> {
-        return wallet.submitTransaction(tx);
-      },
-    },
+    wallet,
   };
 };
 

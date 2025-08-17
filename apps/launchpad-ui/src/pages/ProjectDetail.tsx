@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useParams, Link, redirect } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import {
   Card,
@@ -112,25 +111,25 @@ const project = {
   ],
   team: [
     {
-      name: "Musa Lawal",
+      name: "Johnny Eco",
       role: "CEO & Founder",
       avatar: "M",
       bio: "Former Goldman Sachs quantitative analyst with 10+ years in DeFi",
     },
     {
-      name: "Samir Samir",
+      name: "Vic Salem",
       role: "CTO",
       avatar: "S",
       bio: "Ex-Google engineer specializing in blockchain infrastructure",
     },
     {
-      name: "Elliot Lucky",
-      role: "Head of Product",
+      name: "Antonia Malon",
+      role: "Head of Product I",
       avatar: "E",
       bio: "Product leader from Coinbase with expertise in user experience",
     },
     {
-      name: "Joseph Martins",
+      name: "Fred Jon",
       role: "Head of Product II",
       avatar: "M",
       bio: "Product leader from Coinbase with expertise in user experience",
@@ -152,8 +151,7 @@ const project = {
   ],
 };
 
-const ProjectDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+const ProjectDetail = () => {
   const {
     contractState,
     closeSale,
@@ -162,14 +160,16 @@ const ProjectDetail: React.FC = () => {
     isWithdrawing,
     WithdrawFunds,
     isClosing,
+    setRoute,
+    projectId,
   } = useApp();
   const projectDetail = contractState?.fixed_sales.find(
-    (sale) => sale.key === id
+    (sale) => sale.key === projectId
   );
 
   if (projectDetail === undefined) {
-    redirect("/");
-    return;
+    setRoute("dashboard");
+    return null;
   }
 
   const [contributionAmount, setContributionAmount] = useState<string>("");
@@ -178,10 +178,14 @@ const ProjectDetail: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Project Not Found</h1>
-          <Link to="/projects">
-            <Button>Back to Projects</Button>
-          </Link>
+          <h1
+            onClick={() => setRoute("projects")}
+            className="text-2xl font-bold mb-4"
+          >
+            Project Not Found
+          </h1>
+
+          <Button>Back to Projects</Button>
         </div>
       </div>
     );
@@ -194,6 +198,10 @@ const ProjectDetail: React.FC = () => {
         100,
       100
     );
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setContributionAmount(e.target.value);
   };
 
   const getStatusColor = (status: ProjectStatus): string => {
@@ -213,21 +221,41 @@ const ProjectDetail: React.FC = () => {
     buyFixedToken(projectDetail, Number(contributionAmount));
   };
 
-  const timeRemaining = (): string => {
-    const now = new Date();
-    const endDate = new Date(project.endDate);
-    const diff = endDate.getTime() - now.getTime();
+  const calculateTimeRemaining = (startTime: number, duration: number) => {
+    // startTime: timestamp from Date.now() when sale was created
+    // duration: number of days for the sale
 
-    if (diff <= 0) return "Sale ended";
+    // Convert duration from days to milliseconds
+    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+    const millisecondsPerHour = 1000 * 60 * 60;
+    const durationInMilliseconds = duration * millisecondsPerDay;
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    // Calculate when the sale should end
+    const endTime = startTime + durationInMilliseconds;
 
-    return `${days}d ${hours}h remaining`;
-  };
+    // Get current timestamp
+    const now = Date.now();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setContributionAmount(e.target.value);
+    // Calculate the difference
+    const diff = endTime - now;
+
+    if (diff <= 0) {
+      return "Sale ended";
+    }
+
+    // Calculate remaining days and hours
+    const daysRemaining = Math.floor(diff / millisecondsPerDay);
+    const hoursRemaining = Math.floor(
+      (diff % millisecondsPerDay) / millisecondsPerHour
+    );
+
+    // If less than a day remaining, show only hours
+    if (daysRemaining === 0) {
+      return `${hoursRemaining}h remaining`;
+    }
+
+    // If a day or more remaining, show days and hours
+    return `${daysRemaining}d ${hoursRemaining}h remaining`;
   };
 
   return (
@@ -236,11 +264,14 @@ const ProjectDetail: React.FC = () => {
       <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50 px-6">
         <div className="container mx-auto py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/projects">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
+            <Button
+              onClick={() => setRoute("projects")}
+              variant="ghost"
+              size="icon"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">SP</span>
@@ -280,7 +311,7 @@ const ProjectDetail: React.FC = () => {
               className="border-gray-600 hover:bg-gray-200 bg-white text-black flex gap-2"
             >
               {!isClosing ? (
-                <span className="flex gap-2">
+                <span className="flex gap-2 justify-center items-center">
                   <X /> Close Sale
                 </span>
               ) : (
@@ -723,7 +754,10 @@ const ProjectDetail: React.FC = () => {
                         ? projectDetail.status === "closed"
                           ? "Closed"
                           : "Completed"
-                        : timeRemaining()}
+                        : calculateTimeRemaining(
+                            Number(projectDetail.start_time),
+                            Number(projectDetail.duration)
+                          )}
                     </span>
                   </div>
                 </div>

@@ -1,8 +1,10 @@
-import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { useApp } from "../hooks/useApp";
 
 export default function NotFound() {
+  const { setRoute } = useApp();
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">
       <div className="text-center space-y-6">
@@ -13,12 +15,13 @@ export default function NotFound() {
         <p className="text-gray-400 max-w-md mx-auto">
           The page you are looking for doesn't exist or has been moved.
         </p>
-        <Link to="/">
-          <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
-        </Link>
+        <Button
+          onClick={() => setRoute("dashboard")}
+          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Home
+        </Button>
       </div>
     </div>
   );

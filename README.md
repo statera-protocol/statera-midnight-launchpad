@@ -4,20 +4,7 @@ a3a9170fe532c3724c979121324e74dbf3e004af8ab59a1517573cb2aa90ff9a
 
 # CONTRACT ADDRESS
 
-0200419c4ab97cc2f2f0acc662869399a6099ebddf2290bd444d1122c2f3439e9082
-
 # token balance
-
-{
-'020030ab76772398ed4e9d5925eb4e7d89097189f96071ff50575b254c6db76c93e5': 300n,
-'02005a0ca7dd64fb16c045e915a973e31f2003ada71ff386603811455fb7dd4b1d0c': 100n,
-'0200c848bd03d242c06aad16fbecf82c3d5711d77018fa02ff9ad4d195779aa71b09': 200000000n,
-'02006c425ab8b2f942e49f0f9e1415ced23eb71e9b39d2d8fe2e771569a9be25e58d': 1000000000n,
-'02007c2a1d57174ec521468403080cd8d229401d65340ddf3744f60e49ec5056b6be': 1000000n,
-'0200435eead662c006f17fd134ffdba4fa6cd70f6efe944c6ea45f9710e40b627cac': 5000000000n,
-'0200cb6db5a335de756bb7a4b353a1990c89197bb7f0bbc4e0e5aab08b2bcce0d285': 17032000009n,
-'02000000000000000000000000000000000000000000000000000000000000000000': 19112996n
-}
 
 # TODO
 
@@ -29,11 +16,18 @@ a3a9170fe532c3724c979121324e74dbf3e004af8ab59a1517573cb2aa90ff9a
 > implement sale token withdrawal by generator @DONE
 > change token seperator generation format to make it unique @DONE
 > fix UI width overflow @DONE
-> fix reload caused by RxJS subscription
-> fixed build and compile action to make easier for others to use
-> understand and fix http-server error on load
-> error handling
-> implement check expiry action
+> fixed build and compile action to make easier for others to use @DONE
+> understand and fix http-server error on load @DONE
+> implement check expiry action @DONE
+> state persistence on reload 
+> fix reload caused by RxJS subscription 
+> error handling @DONE
+
+# STORE
+
+api,
+
+> save state on local storage to avoid clearance on reload
 > handling float ratio
 
 # Turborepo starter

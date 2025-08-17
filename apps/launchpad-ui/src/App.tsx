@@ -1,35 +1,28 @@
-import { Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import TokenGenerator from "./pages/TokenGenerator";
 import CreateSale from "./pages/CreateSale";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
-import NotFound from "./pages/NotFound";
-import Success from "./components/Success";
-import Error from "./components/Error";
 import { useApp } from "./hooks/useApp";
+import Error from "./components/Error";
 
 function App() {
-  const { error, success } = useApp();
+  const { route, error } = useApp();
 
   return (
     <div className="relative w-full min-h-screen">
-      {/* {error ||
-        (success && (
-          <div className="absolute top-16 right-16">
-            {error && <Error />}
-            {success && <Success />}
-          </div>
-        ))} */}
+      {error && (
+        <div className="absolute top-8 right-8 z-100">
+          <Error message={error} />
+        </div>
+      )}
+
       <div className="w-full">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/token-generator" element={<TokenGenerator />} />
-          <Route path="/create-sale" element={<CreateSale />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/projects/:id" element={<ProjectDetail />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        {route === "dashboard" && <Dashboard />}
+        {route === "token-generator" && <TokenGenerator />}
+        {route === "create-sale" && <CreateSale />}
+        {route === "projects" && <Projects />}
+        {route === "project-detail" && <ProjectDetail />}
       </div>
     </div>
   );

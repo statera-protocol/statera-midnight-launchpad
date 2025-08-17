@@ -59,6 +59,7 @@ export const get_open_fixed_token_sales = (
       max: Number(sale.max),
       sale_type: "Fixed",
       isWithdrawn: sale.withdrawn,
+      time_up: sale.time_up,
     });
   }
 

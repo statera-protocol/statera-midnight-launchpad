@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import {
   Card,
@@ -31,7 +30,7 @@ import { IMAGE, saleTypesList, statuses } from "../lib/assets";
 import { useApp } from "../hooks/useApp";
 
 export default function Projects() {
-  const { contractState } = useApp();
+  const { contractState, setRoute, setProjectId } = useApp();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -83,20 +82,24 @@ export default function Projects() {
       <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50 px-6">
         <div className="container mx-auto py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Link to="/">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center cursor-pointer">
-                <TrendingUp className="w-5 h-5 text-white" />
-              </div>
-            </Link>
+            <div
+              onClick={() => setRoute("dashboard")}
+              className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center cursor-pointer"
+            >
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
+
             <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               All Projects
             </h1>
           </div>
-          <Link to="/create-sale">
-            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-              Launch Project
-            </Button>
-          </Link>
+
+          <Button
+            onClick={() => setRoute("create-sale")}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          >
+            Launch Project
+          </Button>
         </div>
       </header>
 
@@ -375,12 +378,16 @@ export default function Projects() {
                   </div>
 
                   {/* Action Button */}
-                  <Link to={`/projects/${project.key}`} className="self-end">
-                    <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 group-hover:shadow-lg group-hover:shadow-purple-500/25">
-                      View Details
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </Link>
+                  <Button
+                    onClick={() => {
+                      setRoute("project-detail");
+                      setProjectId(project.key);
+                    }}
+                    className="w-full self-end bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 group-hover:shadow-lg group-hover:shadow-purple-500/25"
+                  >
+                    View Details
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
                 </CardContent>
               </Card>
             ))}

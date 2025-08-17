@@ -48,6 +48,10 @@ export type AppContextType = {
   WithdrawFunds: (d: FixedSaleData) => void;
   isClosing: boolean;
   setIsClosing: (b: boolean) => void;
+  route: string;
+  setRoute: (s: string) => void;
+  projectId: string;
+  setProjectId: (s: string) => void;
 };
 
 export const AppContext = createContext<AppContextType | null>(null);
@@ -123,19 +127,70 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
   const context = useDeployedLaunchpadContext();
 
   //STATE MANAGEMENT
-  const [api, setApi] = useState<LaunchPadAPI>();
+  const [api, setApi] = useState<LaunchPadAPI>(); //to be saved
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [walletAddress, setWalletAddress] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [walletAddress, setWalletAddress] = useState(""); //to be saved
+  const [isGenerating, setIsGenerating] = useState(false); //to be saved
   const [generationComplete, setGenerationComplete] = useState(false);
-  const [launching, setLaunching] = useState(false);
+  const [launching, setLaunching] = useState(false); //to be saved
   const [saleData, setSaleData] = useState<SaleDataType>(INITIAL_SALE_DATA);
   const [tokenData, setTokenData] = useState<TokenData>(INITIAL_TOKEN_DATA);
-  const [isContributing, setIsContributing] = useState<boolean>(false);
-  const [isWithdrawing, setIsWithdrawing] = useState<boolean>(false);
-  const [isClosing, setIsClosing] = useState<boolean>(false);
+  const [isContributing, setIsContributing] = useState<boolean>(false); //to be saved
+  const [isWithdrawing, setIsWithdrawing] = useState<boolean>(false); //to be saved
+  const [isClosing, setIsClosing] = useState<boolean>(false); //to be saved
+  const [route, setRoute] = useState("dashboard"); //to be saved
+  const [projectId, setProjectId] = useState(""); //to be saved
 
+  // useEffect(() => {
+  //   const stored_project_id = localStorage.getItem("project-id");
+  //   const stored_api = localStorage.getItem("api");
+  //   const stored_route = localStorage.getItem("route");
+  //   const stored_wallet_address = localStorage.getItem("wallet-address");
+  //   const stored_generating_state = localStorage.getItem("is-generating");
+  //   const stored_launch_state = localStorage.getItem("launching"); // Fixed typo
+  //   const stored_contributing_state = localStorage.getItem("is-contributing");
+  //   const stored_withdrawing_state = localStorage.getItem("is-withdrawing");
+  //   const stored_closing_state = localStorage.getItem("is-closing");
+
+  //   // Set states with correct setter functions and parse JSON
+  //   stored_api && setApi(JSON.parse(stored_api));
+  //   stored_project_id && setProjectId(JSON.parse(stored_project_id)); // Fixed setter
+  //   stored_route && setRoute(JSON.parse(stored_route)); // Fixed setter
+  //   stored_wallet_address &&
+  //     setWalletAddress(JSON.parse(stored_wallet_address)); // Fixed setter
+  //   stored_generating_state &&
+  //     setIsGenerating(JSON.parse(stored_generating_state)); // Fixed setter
+  //   stored_contributing_state &&
+  //     setIsContributing(JSON.parse(stored_contributing_state)); // Fixed setter
+  //   stored_launch_state && setLaunching(JSON.parse(stored_launch_state)); // Fixed setter
+  //   stored_withdrawing_state &&
+  //     setIsWithdrawing(JSON.parse(stored_withdrawing_state)); // Fixed setter
+  //   stored_closing_state && setIsClosing(JSON.parse(stored_closing_state)); // Fixed setter
+  // }, []); // Empty dependency array - only run on mount
+
+  // // Save to localStorage whenever state changes
+  // useEffect(() => {
+  //   localStorage.setItem("route", JSON.stringify(route));
+  //   localStorage.setItem("api", JSON.stringify(api));
+  //   localStorage.setItem("wallet-address", JSON.stringify(walletAddress));
+  //   localStorage.setItem("is-generating", JSON.stringify(isGenerating));
+  //   localStorage.setItem("launching", JSON.stringify(launching)); // Fixed key name
+  //   localStorage.setItem("is-contributing", JSON.stringify(isContributing));
+  //   localStorage.setItem("is-withdrawing", JSON.stringify(isWithdrawing));
+  //   localStorage.setItem("is-closing", JSON.stringify(isClosing));
+  //   localStorage.setItem("project-id", JSON.stringify(projectId));
+  // }, [
+  //   route,
+  //   api,
+  //   walletAddress,
+  //   isGenerating,
+  //   isClosing,
+  //   isContributing,
+  //   isWithdrawing,
+  //   launching,
+  //   projectId,
+  // ]);
   // RxJS OBSERVABLE STATE MANAGEMENT
   const deploymentState =
     useObservableState<status>(
@@ -198,14 +253,22 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
       }
       console.log(deployedContract.deployedContractAddress);
       setApi(deployedContract);
-      setWalletAddress("0x1234...5678"); // Replace with actual wallet address
+
+      const shortAddress =
+        context.wallet_address.length > 20
+          ? context.wallet_address.substring(0, 6) +
+            "..." +
+            context.wallet_address.slice(-4) +
+            "*"
+          : context.wallet_address;
+      setWalletAddress(shortAddress);
 
       handleSuccess(
         `Contract ${!contractAddress ? "deployed" : "joined"} successfully`
       );
     } catch (error) {
       handleError(
-        `Failed to connect wallet: ${error instanceof Error ? error.message : String(error)}`
+        "Failed to connect wallet. Check if Lace Wallet is installed!"
       );
     }
   }, [context, clearMessages, handleError, handleSuccess]);
@@ -364,6 +427,10 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
       WithdrawFunds,
       isClosing,
       setIsClosing,
+      route,
+      setRoute,
+      projectId,
+      setProjectId,
     }),
     [
       deploymentState,
@@ -391,6 +458,8 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
       isContributing,
       isWithdrawing,
       isClosing,
+      route,
+      projectId,
     ]
   );
 

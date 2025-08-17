@@ -1,7 +1,9 @@
 import { Github, Twitter, MessageCircle, Globe } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useApp } from "../hooks/useApp";
 
 export function Footer() {
+  const { setRoute } = useApp();
+
   return (
     <footer className="border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm mt-auto">
       <div className="text-left mx-auto px-4 py-8">
@@ -26,30 +28,30 @@ export function Footer() {
           <div className="space-y-4">
             <h4 className="text-gray-200 font-semibold">Quick Links</h4>
             <div className="space-y-2">
-              <Link
-                to="/"
+              <span
+                onClick={() => setRoute("dashboard")}
                 className="block text-gray-400 hover:text-gray-200 text-sm transition-colors"
               >
                 Dashboard
-              </Link>
-              <Link
-                to="/projects"
+              </span>
+              <span
+                onClick={() => setRoute("project")}
                 className="block text-gray-400 hover:text-gray-200 text-sm transition-colors"
               >
                 Projects
-              </Link>
-              <Link
-                to="/token-generator"
+              </span>
+              <span
+                onClick={() => setRoute("token-generator")}
                 className="block text-gray-400 hover:text-gray-200 text-sm transition-colors"
               >
                 Token Generator
-              </Link>
-              <Link
-                to="/create-sale"
+              </span>
+              <span
+                onClick={() => setRoute("create-sale")}
                 className="block text-gray-400 hover:text-gray-200 text-sm transition-colors"
               >
                 Create Sale
-              </Link>
+              </span>
             </div>
           </div>
 

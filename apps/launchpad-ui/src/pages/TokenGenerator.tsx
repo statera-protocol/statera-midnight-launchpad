@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import {
   Card,
@@ -10,7 +9,6 @@ import {
 } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { Textarea } from "../components/ui/textarea";
 import {
   ArrowLeft,
   Upload,
@@ -37,6 +35,7 @@ export default function TokenGenerator() {
     isGenerating,
     generationComplete,
     setGenerationComplete,
+    setRoute,
   } = useApp();
 
   const handleInputChange = (field: keyof TokenData, value: string): void => {
@@ -64,11 +63,14 @@ export default function TokenGenerator() {
       <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50 px-6">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
+            <Button
+              onClick={() => setRoute("dashboard")}
+              variant="ghost"
+              size="icon"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <Coins className="w-5 h-5 text-white" />
@@ -349,7 +351,7 @@ export default function TokenGenerator() {
               </p>
             </div>
 
-            <Card className="bg-gray-800/50 border-gray-700 max-w-md mx-auto">
+            <Card className="bg-gray-800/50 border-gray-700 max-w-md mx-auto text-left">
               <CardContent className="p-6 space-y-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
@@ -368,7 +370,7 @@ export default function TokenGenerator() {
                     <span className="text-gray-400">Token ID:</span>
                   </div>
                   <div className="bg-gray-700 p-2 rounded font-mono text-xs text-green-400 break-all">
-                    0x1234567890abcdef1234567890abcdef12345678
+                    02001234567890abcdef1234567890abcdef12345678
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Transaction Hash:</span>
@@ -388,12 +390,14 @@ export default function TokenGenerator() {
               >
                 Generate Another Token
               </Button>
-              <Link to="/">
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                  <Rocket className="w-4 h-4 mr-2" />
-                  Create Sale Campaign
-                </Button>
-              </Link>
+
+              <Button
+                onClick={() => setRoute("create-sale")}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              >
+                <Rocket className="w-4 h-4 mr-2" />
+                Create Sale Campaign
+              </Button>
             </div>
           </div>
         )}

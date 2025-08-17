@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { saleTypes } from "../lib/assets";
 import {
@@ -44,7 +43,8 @@ interface Step {
 }
 
 export default function CreateSale() {
-  const { setSaleData, saleData, createFixedSale, launching } = useApp();
+  const { setSaleData, saleData, createFixedSale, launching, setRoute } =
+    useApp();
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -86,11 +86,14 @@ export default function CreateSale() {
       <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-50 ">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
+            <Button
+              onClick={() => setRoute("dashboard")}
+              variant="ghost"
+              size="icon"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <Rocket className="w-5 h-5 text-white" />
@@ -345,12 +348,12 @@ export default function CreateSale() {
                     />
                     <p className="text-xs text-gray-400">
                       Enter your token ID or{" "}
-                      <Link
-                        to="/token-generator"
+                      <span
+                        onClick={() => setRoute("token-generator")}
                         className="text-blue-400 hover:underline"
                       >
                         create a new token
-                      </Link>
+                      </span>
                     </p>
                   </div>
 

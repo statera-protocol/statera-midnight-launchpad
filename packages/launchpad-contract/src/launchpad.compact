@@ -22,12 +22,13 @@ struct FixedSalesData{
     status: SaleStatus;
     participant: Uint<16>;
     start_time: Uint<64>;
-    duration: Uint<32>;
+    duration: Uint<8>;
     token_symbol: Opaque<"string">;
     acceptable_token_symbol: Opaque<"string">;
     min: Uint<64>;
     max: Uint<64>;
     withdrawn: Boolean;
+    time_up: Boolean;
 }
 
 constructor(initialNonce: Bytes<32>) {
@@ -38,7 +39,7 @@ constructor(initialNonce: Bytes<32>) {
 witness local_secret_key(): Bytes<32>;
 witness generate_sale_id(): Bytes<32>;
 witness calculate_amount_to_buy(received_amount: Uint<128>, sale_ratio: Uint<64>): Uint<128>;
-// witness calculate_time(start_time: Uint<32>, duration: Uint<32>): Boolean;
+witness calculate_time(start_time: Uint<64>, duration: Uint<8>): Boolean;
 
 export circuit create_token(
     token_name: Bytes<32>,
@@ -59,7 +60,7 @@ export circuit open_a_fixed_price_token_sale(
     sale_ratio: Uint<64>,
     acceptable_exchange_token: Bytes<32>,
     creation_time: Uint<64>,
-    sale_duration: Uint<32>,
+    sale_duration: Uint<8>,
     token_symbol: Opaque<"string">,
     acceptable_token_symbol: Opaque<"string">,
     min: Uint<64>,
@@ -90,6 +91,7 @@ export circuit open_a_fixed_price_token_sale(
         disclose(acceptable_token_symbol),
         disclose(min),
         disclose(max),
+        false,
         false
     });
 }
@@ -102,12 +104,15 @@ export circuit buy_token_at_fixed_price(coin: CoinInfo, sale_id: Bytes<32>, sale
     assert(amount_to_buy <= sale_token_info.total_amount_left, "Amount is greater than amount left!");
     assert(coin.color == sale_token_info.acceptable_exchange_token, "This token color is not acceptable by organizer");
 
-    // const is_open = disclose(calculate_time(sale_token_info.start_time, sale_token_info.duration));
+    const is_closed = disclose(calculate_time(sale_token_info.start_time, sale_token_info.duration));
+
     open_fixed_token_sales.insert(disclose(sale_id), FixedSalesData {
         ...sale_token_info,
-        // time_up: is_open ? true : false
+        time_up: is_closed ? true : false
     });
     
+    assert(!is_closed, "This sale has been completed or closed");
+
     receive(disclose(coin));
 
     const newCoin = fixed_sales_received_bank.member(disclose(sale_id)) ? mergeCoinImmediate(fixed_sales_received_bank.lookup(disclose(sale_id)), disclose(coin)) : disclose(coin);

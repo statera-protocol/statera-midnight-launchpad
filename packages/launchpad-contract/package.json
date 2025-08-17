@@ -18,6 +18,7 @@
   "scripts": {
     "compact": "run-compactc src/launchpad.compact ./src/managed/launchpad",
     "build": "rm -rf dist && tsc --project tsconfig.build.json && cp -R ./src/managed ./dist/managed && cp ./src/launchpad.compact dist",
+    "build:start": "run compact && run build",
     "lint": "eslint src",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepack": "yarn build"

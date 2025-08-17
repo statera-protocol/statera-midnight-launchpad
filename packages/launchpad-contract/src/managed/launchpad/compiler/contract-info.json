@@ -98,7 +98,7 @@
           "name": "sale_duration",
           "type": {
             "type-name": "Uint",
-            "maxval": 4294967295
+            "maxval": 255
           }
         },
         {

@@ -36,15 +36,18 @@ export const witnesses = {
   },
   calculate_time: (
     { privateState }: WitnessContext<Ledger, LaunchPadPrivateState>,
-    duration: bigint,
-    start_time: bigint
+    start_time: bigint,
+    duration: bigint
   ): [LaunchPadPrivateState, boolean] => {
-    const millisecondsPerHour = 1000 * 60 * 60 * 24;
-    const durationInMilliseconds = millisecondsPerHour * Number(duration);
-    const expiryDate = Number(start_time) + durationInMilliseconds;
-    const currentDate = Date.now();
-    const notExpired = expiryDate >= currentDate;
+    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+    const durationInMilliseconds = millisecondsPerDay * Number(duration);
 
-    return [privateState, notExpired];
+    const expiryTimestamp = Number(start_time) + durationInMilliseconds;
+
+    const currentTimestamp = Date.now();
+
+    const isDurationOver = currentTimestamp > expiryTimestamp;
+
+    return [privateState, isDurationOver];
   },
 };

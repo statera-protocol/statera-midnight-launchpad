@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import {
   Card,
@@ -32,8 +31,13 @@ import { Footer } from "../components/footer";
 import { useApp } from "../hooks/useApp";
 
 export default function Dashboard() {
-  const { connectWallet, deploymentState, walletAddress, disconnectWallet } =
-    useApp();
+  const {
+    connectWallet,
+    deploymentState,
+    walletAddress,
+    disconnectWallet,
+    setRoute,
+  } = useApp();
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 text-left">
@@ -51,25 +55,24 @@ export default function Dashboard() {
 
           <div className="flex items-center space-x-4">
             {deploymentState === "deployed" && (
-              <Link to="/projects">
-                <Button
-                  variant="outline"
-                  className="border-gray-700 hover:bg-gray-800 hover:text-white bg-transparent"
-                >
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Projects
-                </Button>
-              </Link>
-            )}
-            <Link to="/token-generator">
               <Button
+                onClick={() => setRoute("projects")}
                 variant="outline"
                 className="border-gray-700 hover:bg-gray-800 hover:text-white bg-transparent"
               >
-                <Coins className="w-4 h-4 mr-2" />
-                Token Generator
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Projects
               </Button>
-            </Link>
+            )}
+
+            <Button
+              onClick={() => setRoute("token-generator")}
+              variant="outline"
+              className="border-gray-700 hover:bg-gray-800 hover:text-white bg-transparent"
+            >
+              <Coins className="w-4 h-4 mr-2" />
+              Token Generator
+            </Button>
 
             {deploymentState !== "deployed" && (
               <Button
@@ -117,17 +120,13 @@ export default function Dashboard() {
                     className="bg-gray-800 border-gray-700 text-white"
                   >
                     <DropdownMenuItem className="hover:bg-gray-700">
-                      <Link to="/projects" className="flex items-center w-full">
+                      <span
+                        onClick={() => setRoute("projects")}
+                        className="flex items-center w-full"
+                      >
                         <Users className="w-4 h-4 mr-2" />
                         My Projects
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator className="bg-gray-700" />
-                    <DropdownMenuItem className="hover:bg-gray-700">
-                      <Link to="/projects" className="flex items-center w-full">
-                        <Users className="w-4 h-4 mr-2" />
-                        My Tokens
-                      </Link>
+                      </span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-gray-700" />
                     <DropdownMenuItem
@@ -148,7 +147,7 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="flex flex-col px-6">
         {/* Hero Section - Full Screen */}
-        <section className="min-h-screen flex flex-col justify-center container mx-auto px-6 py-8">
+        <section className="min-h-screen flex flex-col justify-center items-center container mx-auto px-6 py-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               Launch Your Project on Midnight
@@ -209,6 +208,24 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </div>
+          <div className="flex gap-8">
+            <Button
+              onClick={() => setRoute("create-sale")}
+              variant="outline"
+              className="border-gray-700 hover:bg-gray-800 hover:text-white bg-transparent"
+            >
+              <Coins className="w-4 h-4 mr-2" />
+              Create a Sale
+            </Button>
+            <Button
+              onClick={() => setRoute("token-generator")}
+              variant="outline"
+              className="border-gray-700 hover:bg-gray-800 hover:text-white bg-transparent"
+            >
+              <Coins className="w-4 h-4 mr-2" />
+              Launch your Token
+            </Button>
+          </div>
         </section>
 
         {/* Sale Models Section - Full Screen */}
@@ -241,15 +258,14 @@ export default function Dashboard() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <Link to="/create-sale">
-                        <Button
-                          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-700 hover:to-purple-700 group-hover:shadow-lg group-hover:shadow-purple-500/25"
-                          disabled={deploymentState === "deployed"}
-                        >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Create Sale
-                        </Button>
-                      </Link>
+                      <Button
+                        onClick={() => setRoute("create-sale")}
+                        className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-700 hover:to-purple-700 group-hover:shadow-lg group-hover:shadow-purple-500/25"
+                        disabled={deploymentState === "deployed"}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Create Sale
+                      </Button>
                     </CardContent>
                   </Card>
                 );
@@ -257,96 +273,6 @@ export default function Dashboard() {
             </div>
           </div>
         </section>
-
-        {/* Recent Projects Section - Full Screen */}
-        {deploymentState === "deployed" && (
-          <section className="min-h-screen flex flex-col justify-center container mx-auto px-6 py-8">
-            <div>
-              <h3 className="text-2xl font-bold mb-6 text-center">
-                Recent Projects
-              </h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                <Card className="bg-gray-800/50 border-gray-700">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-                          <span className="text-white font-bold">D</span>
-                        </div>
-                        <div>
-                          <CardTitle className="text-gray-100">
-                            DeFi Protocol
-                          </CardTitle>
-                          <CardDescription className="text-gray-400">
-                            Fixed Sale
-                          </CardDescription>
-                        </div>
-                      </div>
-                      <Badge className="bg-green-500/10 text-green-400 border-green-500/20">
-                        Live
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">Raised</span>
-                        <span className="text-gray-100">$2.1M / $3M</span>
-                      </div>
-                      <div
-                        className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full"
-                        style={{ width: "70%" }}
-                      ></div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">Participants</span>
-                        <span className="text-gray-100">1,247</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-800/50 border-gray-700">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                          <span className="text-white font-bold">N</span>
-                        </div>
-                        <div>
-                          <CardTitle className="text-gray-100">
-                            NFT Marketplace
-                          </CardTitle>
-                          <CardDescription className="text-gray-400">
-                            Batch Auction
-                          </CardDescription>
-                        </div>
-                      </div>
-                      <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20">
-                        Upcoming
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">Target</span>
-                        <span className="text-gray-100">$5M</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">Starts in</span>
-                        <span className="text-gray-100">2 days</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">Whitelist</span>
-                        <span className="text-gray-100">3,456 registered</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </section>
-        )}
       </main>
 
       {deploymentState !== "deployed" && (
