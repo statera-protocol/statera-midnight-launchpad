@@ -300,54 +300,55 @@ const ProjectDetail = () => {
           className="w-full h-64 md:h-80 object-cover"
         />
 
-        <div className="flex right-8 top-8 justify-end w-full absolute z-10 px-6">
-          {contractState?.user_pk === projectDetail.organizer &&
-          projectDetail.status === "live" ? (
-            <Button
-              onClick={() => closeSale(projectDetail)}
-              variant="outline"
-              size="default"
-              disabled={isClosing}
-              className="border-gray-600 hover:bg-gray-200 bg-white text-black flex gap-2"
-            >
-              {!isClosing ? (
-                <span className="flex gap-2 justify-center items-center">
-                  <X /> Close Sale
-                </span>
-              ) : (
-                <span className="flex gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>{" "}
-                  Closing Sale
-                </span>
-              )}
-            </Button>
-          ) : (
-            <Button
-              onClick={() => WithdrawFunds(projectDetail)}
-              variant="outline"
-              size="default"
-              disabled={isWithdrawing || projectDetail.isWithdrawn}
-              className={`border-gray-600 hover:bg-gray-200 text-black flex gap-2 ${projectDetail.isWithdrawn ? "bg-gray-200 cursor-not-allowed" : "bg-white"}`}
-            >
-              {!isWithdrawing ? (
-                <span>
-                  {!projectDetail.isWithdrawn ? (
-                    <span className="flex gap-2">
-                      <BanknoteArrowDown /> Withdraw Funds
-                    </span>
-                  ) : (
-                    "Withdrawn"
-                  )}
-                </span>
-              ) : (
-                <span className="flex gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>{" "}
-                  Withdrawing Funds...
-                </span>
-              )}
-            </Button>
-          )}
-        </div>
+        {contractState?.user_pk === projectDetail.organizer && (
+          <div className="flex right-8 top-8 justify-end w-full absolute z-10 px-6">
+            {projectDetail.status === "live" ? (
+              <Button
+                onClick={() => closeSale(projectDetail)}
+                variant="outline"
+                size="default"
+                disabled={isClosing}
+                className="border-gray-600 hover:bg-gray-200 bg-white text-black flex gap-2"
+              >
+                {!isClosing ? (
+                  <span className="flex gap-2 justify-center items-center">
+                    <X /> Close Sale
+                  </span>
+                ) : (
+                  <span className="flex gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>{" "}
+                    Closing Sale
+                  </span>
+                )}
+              </Button>
+            ) : (
+              <Button
+                onClick={() => WithdrawFunds(projectDetail)}
+                variant="outline"
+                size="default"
+                disabled={isWithdrawing || projectDetail.isWithdrawn}
+                className={`border-gray-600 hover:bg-gray-200 text-black flex gap-2 ${projectDetail.isWithdrawn ? "bg-gray-200 cursor-not-allowed" : "bg-white"}`}
+              >
+                {!isWithdrawing ? (
+                  <span>
+                    {!projectDetail.isWithdrawn ? (
+                      <span className="flex gap-2">
+                        <BanknoteArrowDown /> Withdraw Funds
+                      </span>
+                    ) : (
+                      "Withdrawn"
+                    )}
+                  </span>
+                ) : (
+                  <span className="flex gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>{" "}
+                    Withdrawing Funds...
+                  </span>
+                )}
+              </Button>
+            )}
+          </div>
+        )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent" />
         <div className="absolute bottom-6 left-6 right-6 px-6 text-left">

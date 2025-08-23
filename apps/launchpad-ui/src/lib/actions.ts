@@ -121,10 +121,12 @@ const initializeProviders = async (): Promise<WalletAndProviders> => {
         window.location.origin,
         fetch.bind(window)
       ),
-      proofProvider: httpClientProofProvider(uris.proverServerUri),
+      proofProvider: httpClientProofProvider(
+        import.meta.env.VITE_PROOF_SERVER_URI as string
+      ),
       publicDataProvider: indexerPublicDataProvider(
-        uris.indexerUri,
-        uris.indexerWsUri
+        import.meta.env.VITE_INDEXER_URL as string,
+        import.meta.env.VITE_INDEXER_WS_URL as string
       ),
       walletProvider: {
         coinPublicKey: walletState.coinPublicKey,
@@ -253,13 +255,4 @@ const connectToWallet = (): Promise<{
       })
     )
   );
-};
-
-export const calculateExpiryDate = (duration: number, creationDate: number) => {
-  const millisecondsPerHour = 1000 * 60 * 60 * 24;
-  const durationInMilliseconds = millisecondsPerHour * duration;
-  const expiryDate = creationDate + durationInMilliseconds;
-
-  const dateObject = new Date(expiryDate);
-  return dateObject.toLocaleDateString();
 };

@@ -4,8 +4,6 @@ import React, {
   useEffect,
   useState,
   useCallback,
-  useMemo,
-  useRef,
 } from "react";
 import { useDeployedLaunchpadContext } from "../hooks/useDeployedManager";
 import { type status } from "../lib/actions";
@@ -15,7 +13,6 @@ import {
   type derivedState,
   type FixedSaleData,
 } from "@repo/launchpad-api";
-import type { SaleDataType } from "../lib/assets";
 import { type TokenData } from "../lib/assets";
 import { CompactError } from "@midnight-ntwrk/compact-runtime";
 
@@ -32,10 +29,6 @@ export type AppContextType = {
   isGenerating: boolean;
   generationComplete: boolean;
   setGenerationComplete: (b: boolean) => void;
-  saleData: SaleDataType;
-  setSaleData: React.Dispatch<React.SetStateAction<SaleDataType>>;
-  createFixedSale: () => Promise<void>;
-  launching: boolean;
   error: string | null;
   setError: (e: string | null) => void;
   success: string | null;
@@ -87,33 +80,6 @@ function useObservableState<T>(
 }
 
 // DUMMY INITIAL STATE DATA
-const INITIAL_SALE_DATA: SaleDataType = {
-  // Project Info
-  projectName: "",
-  projectDescription: "",
-  logo: "logo",
-  banner: "logo",
-  website: "",
-  twitter: "",
-  telegram: "",
-  discord: "",
-
-  // TOKEN INFO
-  tokenID: "",
-  tokenName: "",
-  tokenSymbol: "",
-  softCap: 0,
-  hardCap: 0,
-
-  // SALE PARAMETERS
-  saleType: "",
-  exchangeTokenID: "",
-  exchangeTokenSymbol: "",
-  exchangeRatio: 0,
-  minContribution: 0,
-  maxContribution: 0,
-  duration: 0,
-};
 
 const INITIAL_TOKEN_DATA: TokenData = {
   name: "",
@@ -128,18 +94,16 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
   const context = useDeployedLaunchpadContext();
 
   //STATE MANAGEMENT
-  const [api, setApi] = useState<LaunchPadAPI>(); //to be saved
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [walletAddress, setWalletAddress] = useState(""); //to be saved
-  const [isGenerating, setIsGenerating] = useState(false); //to be saved
+  const [api, setApi] = useState<LaunchPadAPI>(); // shared
+  const [error, setError] = useState<string | null>(null); // shared
+  const [success, setSuccess] = useState<string | null>(null); // shared
+  const [walletAddress, setWalletAddress] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
   const [generationComplete, setGenerationComplete] = useState(false);
-  const [launching, setLaunching] = useState(false); //to be saved
-  const [saleData, setSaleData] = useState<SaleDataType>(INITIAL_SALE_DATA);
   const [tokenData, setTokenData] = useState<TokenData>(INITIAL_TOKEN_DATA);
-  const [isContributing, setIsContributing] = useState<boolean>(false); //to be saved
-  const [isWithdrawing, setIsWithdrawing] = useState<boolean>(false); //to be saved
-  const [isClosing, setIsClosing] = useState<boolean>(false); //to be saved
+  const [isContributing, setIsContributing] = useState<boolean>(false);
+  const [isWithdrawing, setIsWithdrawing] = useState<boolean>(false);
+  const [isClosing, setIsClosing] = useState<boolean>(false);
   const [route, setRoute] = useState("dashboard"); //to be saved
   const [projectId, setProjectId] = useState(""); //to be saved
 
@@ -157,7 +121,7 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
     "Contract State"
   );
 
-  //AUTO CLEAR ERROR/SUCCES MESSAGES AFTER FEW SECONDS
+  // AUTO CLEAR ERROR/SUCCESS MESSAGES AFTER FEW SECONDS
   useEffect(() => {
     const timer = setTimeout(() => {
       setSuccess(null);
@@ -241,7 +205,7 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
     console.log("Wallet disconnected");
   }, [clearMessages]);
 
-  //GENERATES TOKEN AND SENDS TO USER
+  // GENERATES TOKEN AND SENDS TO USER
   const generateToken = useCallback(async (): Promise<void> => {
     if (!api) {
       handleError("API not available. Please connect wallet first.");
@@ -271,38 +235,23 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
   }, [api, tokenData, handleError, handleSuccess]);
 
   //CREATES TOKEN FIXED SALE
-  const createFixedSale = useCallback(async (): Promise<void> => {
-    if (!api) {
-      handleError("Connect Wallet to create sale");
-      return;
-    }
+  // const createFixedSale = useCallback(async ():  => {
+  //   if (!api) {
+  //     handleError("Connect Wallet to create sale");
+  //     return;
+  //   }
 
-    setLaunching(true);
-    try {
-      const data = await LaunchPadAPI.open_fixed_sale(
-        api.deployedContract,
-        BigInt(saleData.softCap),
-        saleData.tokenID,
-        saleData.exchangeTokenID,
-        BigInt(saleData.exchangeRatio),
-        BigInt(saleData.duration),
-        saleData.tokenSymbol,
-        saleData.exchangeTokenSymbol,
-        BigInt(saleData.minContribution),
-        BigInt(saleData.maxContribution),
-        BigInt(saleData.hardCap)
-      );
+  //   try {
 
-      handleSuccess("Fixed sale created successfully");
-      console.log("Fixed sale creation result:", data);
-    } catch (error) {
-      handleError(
-        `Failed to create fixed sale: ${error instanceof Error ? error.message : String(error)}`
-      );
-    } finally {
-      setLaunching(false);
-    }
-  }, [api, saleData, handleError, handleSuccess]);
+  //     handleSuccess("Fixed sale created successfully");
+  //   } catch (error) {
+  //     handleError(
+  //       `Failed to create fixed sale: ${error instanceof Error ? error.message : String(error)}`
+  //     );
+  //   } finally {
+  //     setLaunching(false);
+  //   }
+  // }, [api, handleError, handleSuccess]);
 
   //CLOSES TOKEN FIXED SALE
   const closeSale = async (projectDetail: FixedSaleData) => {
@@ -361,73 +310,38 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
   };
 
   // Memoized context value to prevent unnecessary re-renders
-  const contextValue = useMemo<AppContextType>(
-    () => ({
-      deploymentState,
-      api,
-      contractState,
-      connectWallet,
-      walletAddress,
-      disconnectWallet,
-      tokenData,
-      setTokenData,
-      generateToken,
-      isGenerating,
-      generationComplete,
-      saleData,
-      setSaleData,
-      createFixedSale,
-      launching,
-      error,
-      setError,
-      success,
-      setSuccess,
-      clearMessages,
-      closeSale,
-      buyFixedToken,
-      isContributing,
-      setIsContributing,
-      setGenerationComplete,
-      isWithdrawing,
-      setIsWithdrawing,
-      WithdrawFunds,
-      isClosing,
-      setIsClosing,
-      route,
-      setRoute,
-      projectId,
-      setProjectId,
-    }),
-    [
-      deploymentState,
-      api,
-      contractState,
-      connectWallet,
-      walletAddress,
-      disconnectWallet,
-      tokenData,
-      setTokenData,
-      generateToken,
-      isGenerating,
-      generationComplete,
-      saleData,
-      setSaleData,
-      createFixedSale,
-      launching,
-      error,
-      setError,
-      success,
-      setSuccess,
-      clearMessages,
-      closeSale,
-      buyFixedToken,
-      isContributing,
-      isWithdrawing,
-      isClosing,
-      route,
-      projectId,
-    ]
-  );
+  const contextValue: AppContextType = {
+    deploymentState,
+    api,
+    contractState,
+    connectWallet,
+    walletAddress,
+    disconnectWallet,
+    tokenData,
+    setTokenData,
+    generateToken,
+    isGenerating,
+    generationComplete,
+    error,
+    setError,
+    success,
+    setSuccess,
+    clearMessages,
+    closeSale,
+    buyFixedToken,
+    isContributing,
+    setIsContributing,
+    setGenerationComplete,
+    isWithdrawing,
+    setIsWithdrawing,
+    WithdrawFunds,
+    isClosing,
+    setIsClosing,
+    route,
+    setRoute,
+    projectId,
+    setProjectId,
+  };
 
   return (
     <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>

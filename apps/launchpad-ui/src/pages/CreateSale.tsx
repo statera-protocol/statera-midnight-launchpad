@@ -1,5 +1,5 @@
 import { Button } from "../components/ui/button";
-import { saleTypes } from "../lib/assets";
+import { saleTypes, type formData, type Step } from "../lib/assets";
 import {
   Card,
   CardContent,
@@ -28,29 +28,163 @@ import {
   Shield,
   Info,
   CheckCircle,
-  type LucideIcon,
 } from "lucide-react";
 import { Footer } from "../components/footer";
-
-import { type SaleDataType } from "../lib/assets";
 import { useApp } from "../hooks/useApp";
 import { useState } from "react";
+import { LaunchPadAPI } from "@repo/launchpad-api";
 
-interface Step {
-  number: number;
-  title: string;
-  icon: LucideIcon;
-}
+const INITIAL_SALE_DATA: formData = {
+  saleType: "fixed",
+  projectName: "",
+  projectWebsite: "",
+  projectDescription: "",
+  tokenId: "", //validate if this is an ideal token type
+  tokenName: "",
+  tokenTicker: "",
+  hardCap: 0,
+  softCap: 0,
+  exchangeTokenId: "",
+  exchangeTokenSymbol: "",
+  exchangeRatio: "",
+  duration: 0,
+  minContribution: 0,
+  maxContribution: 0,
+  target: 0,
+};
 
 export default function CreateSale() {
-  const { setSaleData, saleData, createFixedSale, launching, setRoute } =
-    useApp();
+  const { setRoute, api, setError, setSuccess } = useApp();
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [saleData, setSaleData] = useState<formData>(INITIAL_SALE_DATA);
+  const [launching, setLaunching] = useState(false);
+
+  //uploads logo and banner
+  const uploadToCloudinary = async (imageFile: File) => {
+    const formData = new FormData();
+    formData.append("file", imageFile);
+    console.log({ imageFile });
+
+    console.log(
+      import.meta.env.VITE_UPLOAD_PRESET as string,
+      import.meta.env.VITE_CLOUDINARY_API as string
+    );
+
+    formData.append(
+      "upload_preset",
+      import.meta.env.VITE_UPLOAD_PRESET as string
+    );
+
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_CLOUDINARY_API as string,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data.secure_url;
+    } catch (error) {
+      console.error("Error uploading to Cloudinary:", error);
+      throw error;
+    }
+  };
+
+  // call sale circuit and upload to db
+  const handleFormSubmission = async (): Promise<void> => {
+    // if (!api) {
+    //   setError("Please Connect your wallet to perform this action!.")
+    //   return;
+    // }
+    setLaunching(true);
+
+    try {
+      // await LaunchPadAPI.open_fixed_sale(
+      //   api.deployedContract,
+      //   BigInt(saleData.softCap),
+      //   saleData.tokenId,
+      //   saleData.exchangeTokenId,
+      //   BigInt(saleData.exchangeRatio),
+      //   BigInt(saleData.duration),
+      //   saleData.tokenTicker,
+      //   saleData.exchangeTokenSymbol,
+      //   BigInt(saleData.minContribution),
+      //   BigInt(saleData.maxContribution),
+      //   BigInt(saleData.hardCap)
+      // );
+
+      //upload image to get url
+      let logo_url: string | null;
+      let banner_url: string | null;
+
+      logo_url = logoFile && (await uploadToCloudinary(logoFile));
+      banner_url = bannerFile && (await uploadToCloudinary(bannerFile));
+
+      // update db with new sale info and clear form data
+
+      const url = `${import.meta.env.VITE_BASE_API}/projects`;
+      if (!url) {
+        setError("Url not found!");
+        return;
+      }
+
+      const PROJECT = {
+        saleType: saleData.saleType,
+        projectName: saleData.projectName,
+        projectWebsite: saleData.projectWebsite,
+        projectDescription: saleData.projectDescription,
+        projectLogo: logo_url,
+        projectBanner: banner_url,
+        tokenId: saleData.tokenId,
+        tokenName: saleData.tokenName,
+        tokenTicker: saleData.tokenTicker,
+        hardCap: saleData.hardCap,
+        softCap: saleData.softCap,
+        exchangeTokenId: saleData.exchangeTokenId,
+        exchangeTokenSymbol: saleData.exchangeTokenSymbol,
+        exchangeRatio: saleData.exchangeRatio,
+        duration: saleData.duration,
+        minContribution: saleData.minContribution,
+        maxContribution: saleData.maxContribution,
+        target: saleData.target,
+      };
+
+      const config = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(PROJECT),
+      };
+
+      const response = await fetch(url, config);
+
+      const data = await response.json();
+      console.log({ data });
+
+      //CLEAR SALE DATA TO INITIAL
+      setSaleData(INITIAL_SALE_DATA);
+      setBannerFile(null);
+      setLogoFile(null);
+      setCurrentStep(1);
+      setSuccess("Sale Uploaded Successfully");
+    } catch (error) {
+      console.log("An error occured" + error);
+    } finally {
+      setLaunching(false);
+    }
+  };
 
   const handleInputChange = (
-    field: keyof SaleDataType,
+    field: keyof formData,
     value: string | boolean
   ): void => {
     setSaleData((prev) => ({
@@ -178,9 +312,9 @@ export default function CreateSale() {
                       <Input
                         id="website"
                         placeholder="https://yourproject.com"
-                        value={saleData.website}
+                        value={saleData.projectWebsite}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("website", e.target.value)
+                          handleInputChange("projectWebsite", e.target.value)
                         }
                         className="bg-gray-700 border-gray-600 text-gray-100"
                       />
@@ -340,9 +474,9 @@ export default function CreateSale() {
                     <Input
                       id="tokenAddress"
                       placeholder="0x1234...5678"
-                      value={saleData.tokenID}
+                      value={saleData.tokenId}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        handleInputChange("tokenID", e.target.value)
+                        handleInputChange("tokenId", e.target.value)
                       }
                       className="bg-gray-700 border-gray-600 text-gray-100 font-mono"
                     />
@@ -379,10 +513,10 @@ export default function CreateSale() {
                       <Input
                         id="tokenSymbol"
                         placeholder="e.g., MTK"
-                        value={saleData.tokenSymbol}
+                        value={saleData.tokenTicker}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                           handleInputChange(
-                            "tokenSymbol",
+                            "tokenTicker",
                             e.target.value.toUpperCase()
                           )
                         }
@@ -447,7 +581,7 @@ export default function CreateSale() {
                     <Select
                       value={saleData.saleType}
                       onValueChange={(value: string) =>
-                        handleInputChange("saleType", value)
+                        handleInputChange("saleType", value.toLowerCase())
                       }
                     >
                       <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-100">
@@ -460,12 +594,7 @@ export default function CreateSale() {
                             value={type.value}
                             className="text-gray-100"
                           >
-                            <div>
-                              <div className="font-medium">{type.label}</div>
-                              <div className="text-xs text-gray-400">
-                                {type.description}
-                              </div>
-                            </div>
+                            <div className="font-medium">{type.label}</div>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -484,9 +613,9 @@ export default function CreateSale() {
                         id="exchangeTokenID"
                         type="string"
                         placeholder="0x1234...5678"
-                        value={saleData.exchangeTokenID}
+                        value={saleData.exchangeTokenId}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("exchangeTokenID", e.target.value)
+                          handleInputChange("exchangeTokenId", e.target.value)
                         }
                         className="bg-gray-700 border-gray-600 text-gray-100"
                       />
@@ -645,15 +774,13 @@ export default function CreateSale() {
                                   )
                                   .join(" ")
                               : "Not set"}{" "}
-                            ({saleData.tokenSymbol || "N/A"})
+                            ({saleData.tokenTicker || "N/A"})
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Sale Type:</span>
                           <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">
-                            {saleTypes.find(
-                              (t) => t.value === saleData.saleType
-                            )?.label || "Not selected"}
+                            {saleData.saleType}
                           </Badge>
                         </div>
                       </div>
@@ -674,13 +801,13 @@ export default function CreateSale() {
                         <div className="flex justify-between">
                           <span className="text-gray-400">Soft Cap:</span>
                           <span className="text-gray-100">
-                            {saleData.softCap || "0"} {saleData.tokenSymbol}
+                            {saleData.softCap || "0"} {saleData.tokenTicker}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Hard Cap:</span>
                           <span className="text-gray-100">
-                            {saleData.hardCap || "0"} {saleData.tokenSymbol}
+                            {saleData.hardCap || "0"} {saleData.tokenTicker}
                           </span>
                         </div>
                         <div className="flex justify-between">
@@ -691,7 +818,7 @@ export default function CreateSale() {
                   </div>
 
                   <Button
-                    onClick={createFixedSale}
+                    onClick={handleFormSubmission}
                     disabled={launching}
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 cursor-pointer"
                     size="lg"
@@ -741,7 +868,7 @@ export default function CreateSale() {
                       {saleData.projectName.toUpperCase() || "Project Name"}
                     </h3>
                     <p className="text-sm text-gray-400">
-                      {saleData.tokenSymbol || "TOKEN"}
+                      {saleData.tokenTicker || "TOKEN"}
                     </p>
                   </div>
                 </div>
@@ -757,7 +884,7 @@ export default function CreateSale() {
                   <div className="flex justify-between">
                     <span className="text-gray-400">Hard Cap:</span>
                     <span className="text-gray-100">
-                      {saleData.hardCap || "0"} {saleData.tokenSymbol}
+                      {saleData.hardCap || "0"} {saleData.tokenTicker}
                     </span>
                   </div>
                   <div className="flex justify-between">

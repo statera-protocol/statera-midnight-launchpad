@@ -54,16 +54,14 @@ export default function Dashboard() {
           </div>
 
           <div className="flex items-center space-x-4">
-            {deploymentState === "deployed" && (
-              <Button
-                onClick={() => setRoute("projects")}
-                variant="outline"
-                className="border-gray-700 hover:bg-gray-800 hover:text-white bg-transparent"
-              >
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Projects
-              </Button>
-            )}
+            <Button
+              onClick={() => setRoute("projects")}
+              variant="outline"
+              className="border-gray-700 hover:bg-gray-800 hover:text-white bg-transparent"
+            >
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Projects
+            </Button>
 
             <Button
               onClick={() => setRoute("token-generator")}

@@ -1,10 +1,17 @@
-import { TrendingUp, Layers, Shield, BarChart3, Zap } from "lucide-react";
+import {
+  TrendingUp,
+  Layers,
+  Shield,
+  BarChart3,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
 
-export interface SaleType {
+export interface SaleTypeList {
   value: string;
   label: string;
-  description: string;
 }
+``;
 
 export interface TokenData {
   name: string;
@@ -13,32 +20,31 @@ export interface TokenData {
   description: string;
 }
 
-export interface SaleDataType {
-  // Project Info
+export interface Step {
+  number: number;
+  title: string;
+  icon: LucideIcon;
+}
+
+export type SaleType = "fixed" | "batch" | "overflow";
+
+export interface formData {
+  saleType: SaleType;
   projectName: string;
+  projectWebsite: string;
   projectDescription: string;
-  logo: string;
-  banner: string;
-  website: string;
-  twitter: string;
-  telegram: string;
-  discord: string;
-
-  // Token Info
-  tokenID: string;
+  tokenId: string; //validate if this is an ideal token type
   tokenName: string;
-  tokenSymbol: string;
-  softCap: number;
+  tokenTicker: string;
   hardCap: number;
-
-  // Sale Parameters
-  saleType: string;
-  exchangeTokenID: string;
+  softCap: number;
+  exchangeTokenId: string;
   exchangeTokenSymbol: string;
-  exchangeRatio: number;
+  exchangeRatio: string;
+  duration: number;
   minContribution: number;
   maxContribution: number;
-  duration: number;
+  target: number;
 }
 
 export const saleModels = [
@@ -107,35 +113,29 @@ export const saleTypesList = [
   "Hybrid Sale",
 ];
 
-export const saleTypes: SaleType[] = [
+export const saleTypes: SaleTypeList[] = [
   {
     value: "fixed",
     label: "Fixed Sale",
-    description: "Traditional fixed-price sale",
   },
   {
     value: "batch",
     label: "Batch Auction",
-    description: "Fair price discovery mechanism",
   },
   {
     value: "overflow",
     label: "Overflow Sale",
-    description: "Handle excess demand efficiently",
   },
   {
     value: "whitelist",
     label: "Whitelist Sale",
-    description: "Exclusive pre-approved participants",
   },
   {
     value: "bonding-curve",
     label: "Bonding Curve",
-    description: "Dynamic pricing mechanism",
   },
   {
     value: "hybrid",
     label: "Hybrid Sale",
-    description: "Combination of multiple mechanisms",
   },
 ];
