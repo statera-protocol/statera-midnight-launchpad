@@ -39,10 +39,12 @@ export type DeployedLaunchpadContract =
   | DeployedContract<LaunchPadContract>
   | FoundContract<LaunchPadContract>;
 
-export type derivedState = {
+export type DerivedState = {
   receival_bank: sale_bank_type;
   sale_bank: sale_bank_type;
   fixed_sales: FixedSaleData[];
+  batch_sales: BatchSaleData[];
+  overflow_sales: OverflowSaleData[];
   user_pk: string;
 };
 
@@ -60,8 +62,6 @@ export type FixedSaleData = {
   participants: string;
   start_time: string;
   duration: string;
-  token_symbol: string;
-  acceptable_token_symbol: string;
   min: number;
   max: number;
   sale_type: string;
@@ -69,7 +69,44 @@ export type FixedSaleData = {
   time_up: boolean;
 };
 
-export type YourOriginalType = {
+export type BatchSaleData = {
+  key_uint: Uint8Array;
+  key: string;
+  organizer: string;
+  total_amount_for_sale: number;
+  contribution: number;
+  acceptable_exchange_token: Uint8Array;
+  status: string;
+  participants: string;
+  start_time: string;
+  duration: string;
+  min: number;
+  max: number;
+  sale_type: string;
+  isWithdrawn: boolean;
+  time_up: boolean;
+};
+
+export type OverflowSaleData = {
+  key_uint: Uint8Array;
+  key: string;
+  organizer: string;
+  total_amount_for_sale: number;
+  contribution: number;
+  acceptable_exchange_token: Uint8Array;
+  target: number;
+  status: string;
+  participants: string;
+  start_time: string;
+  duration: string;
+  min: number;
+  max: number;
+  sale_type: string;
+  isWithdrawn: boolean;
+  time_up: boolean;
+};
+
+export type FixedTokenSaleType = {
   isEmpty(): boolean;
   size(): bigint;
   member(key_0: Uint8Array): boolean;
@@ -85,8 +122,6 @@ export type YourOriginalType = {
     participant: bigint;
     start_time: bigint;
     duration: bigint;
-    token_symbol: string;
-    acceptable_token_symbol: string;
     min: bigint;
     max: bigint;
     withdrawn: boolean;
@@ -107,12 +142,90 @@ export type YourOriginalType = {
         participant: bigint;
         start_time: bigint;
         duration: bigint;
-        token_symbol: string;
-        acceptable_token_symbol: string;
         min: bigint;
         max: bigint;
         withdrawn: boolean;
         time_up: boolean;
+      },
+    ]
+  >;
+};
+
+export type BatchTokenSaleType = {
+  isEmpty(): boolean;
+  size(): bigint;
+  member(key_0: Uint8Array): boolean;
+  lookup(key_0: Uint8Array): {
+    organizer: Uint8Array;
+    total_amount_for_sale: bigint;
+    contribution: bigint;
+    acceptable_exchange_token: Uint8Array;
+    status: number;
+    participant: bigint;
+    start_time: bigint;
+    duration: bigint;
+    withdrawn: boolean;
+    time_up: boolean;
+    min: bigint;
+    max: bigint;
+  };
+  [Symbol.iterator](): Iterator<
+    [
+      Uint8Array,
+      {
+        organizer: Uint8Array;
+        total_amount_for_sale: bigint;
+        contribution: bigint;
+        acceptable_exchange_token: Uint8Array;
+        status: number;
+        participant: bigint;
+        start_time: bigint;
+        duration: bigint;
+        withdrawn: boolean;
+        time_up: boolean;
+        min: bigint;
+        max: bigint;
+      },
+    ]
+  >;
+};
+
+export type OverflowTokenSaleType = {
+  isEmpty(): boolean;
+  size(): bigint;
+  member(key_0: Uint8Array): boolean;
+  lookup(key_0: Uint8Array): {
+    organizer: Uint8Array;
+    total_amount_for_sale: bigint;
+    contribution: bigint;
+    acceptable_exchange_token: Uint8Array;
+    target: bigint;
+    status: number;
+    participant: bigint;
+    start_time: bigint;
+    duration: bigint;
+    withdrawn: boolean;
+    time_up: boolean;
+    min: bigint;
+    max: bigint;
+  };
+  [Symbol.iterator](): Iterator<
+    [
+      Uint8Array,
+      {
+        organizer: Uint8Array;
+        total_amount_for_sale: bigint;
+        contribution: bigint;
+        acceptable_exchange_token: Uint8Array;
+        target: bigint;
+        status: number;
+        participant: bigint;
+        start_time: bigint;
+        duration: bigint;
+        withdrawn: boolean;
+        time_up: boolean;
+        min: bigint;
+        max: bigint;
       },
     ]
   >;

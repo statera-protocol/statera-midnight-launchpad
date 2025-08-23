@@ -53,6 +53,7 @@
     "packages/compact*",
     "packages/launchpad-contract*",
     "packages/launchpad-api*",
-    "packages/launchpad-cli*"
+    "packages/launchpad-cli*",
+    "packages/launchpad-server*"
   ]
 }
