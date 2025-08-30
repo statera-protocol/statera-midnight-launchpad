@@ -1,7 +1,7 @@
 import { levelPrivateStateProvider } from "@midnight-ntwrk/midnight-js-level-private-state-provider";
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface, Interface } from "node:readline/promises";
-import { derivedState, LaunchPadAPI, stringToBytes } from "@repo/launchpad-api";
+import { DerivedState, LaunchPadAPI, stringToBytes } from "@repo/launchpad-api";
 import { toHex } from "@midnight-ntwrk/midnight-js-utils";
 import { type Config } from "./config.js";
 import {
@@ -109,9 +109,9 @@ const circuit_main_loop = async (
     return;
   }
   try {
-    let currentState: derivedState | undefined;
+    let currentState: DerivedState | undefined;
     const stateObserver = {
-      next: (state: derivedState) => {
+      next: (state: DerivedState) => {
         currentState = state;
       },
     };
@@ -140,6 +140,7 @@ const circuit_main_loop = async (
                 await rli.question("Enter token ticker "),
                 await rli.question("Enter token icon ")
               );
+              wallet.transferTransaction([]);
             } catch (error) {
               console.log(error);
             }
@@ -162,19 +163,19 @@ const circuit_main_loop = async (
             const hardcap = BigInt(await rli.question("Enter hard cap "));
 
             try {
-              const data = await LaunchPadAPI.open_fixed_sale(
-                deployedAPI.deployedContract,
-                amount,
-                color,
-                acceptable_color,
-                ratio,
-                duration,
-                token_symbol,
-                acceptable_token_symbol,
-                min,
-                max,
-                hardcap
-              );
+              // const data = await LaunchPadAPI.open_fixed_sale(
+              //   deployedAPI.deployedContract,
+              //   amount,
+              //   color,
+              //   acceptable_color,
+              //   ratio,
+              //   duration,
+              //   token_symbol,
+              //   acceptable_token_symbol,
+              //   min,
+              //   max,
+              //   hardcap
+              // );
               console.log("Sale created successfully!");
             } catch (error) {
               console.log(error);
@@ -204,11 +205,11 @@ const circuit_main_loop = async (
             break;
           }
           case "4": {
-            console.log(currentState?.sale_bank);
+            // console.log(currentState?.sale_bank);
             break;
           }
           case "5": {
-            console.log(currentState?.receival_bank);
+            // console.log(currentState?.receival_bank);
             break;
           }
           case "6": {
@@ -229,10 +230,10 @@ const circuit_main_loop = async (
               ]);
 
               console.log("closing sale...");
-              await LaunchPadAPI.close_fixed_sale(
-                deployedAPI.deployedContract,
-                sale_id
-              );
+              // await LaunchPadAPI.close_fixed_sale(
+              //   deployedAPI.deployedContract,
+              //   sale_id
+              // );
               console.log("sale is closed");
             } catch (error) {
               console.log(error);

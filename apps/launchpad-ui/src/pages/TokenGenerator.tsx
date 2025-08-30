@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Button } from "../components/ui/button";
 import {
   Card,
@@ -21,23 +21,59 @@ import {
 import { Badge } from "../components/ui/badge";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { Footer } from "../components/footer";
-import { useApp } from "../hooks/useApp";
+import { useAppDeployment } from "../hooks/useAppDeployment";
 import type { TokenData } from "../lib/assets";
+import { LaunchPadAPI, stringToBytes } from "@repo/launchpad-api";
+
+const INITIAL_TOKEN_DATA: TokenData = {
+  name: "",
+  ticker: "",
+  totalSupply: "",
+  description: "",
+};
 
 export default function TokenGenerator() {
   const [iconFile, setIconFile] = useState<File | null>(null);
 
-  const {
-    deploymentState,
-    tokenData,
-    setTokenData,
-    generateToken,
-    isGenerating,
-    generationComplete,
-    setGenerationComplete,
-    setRoute,
-  } = useApp();
+  const [generationComplete, setGenerationComplete] = useState(false);
+  const [tokenData, setTokenData] = useState<TokenData>(INITIAL_TOKEN_DATA);
 
+  const { deploymentState, setRoute, api, handleError, handleSuccess } =
+    useAppDeployment();
+
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // HANDLES TOKEN GENERATION
+  const generateToken = useCallback(async (): Promise<void> => {
+    if (!api) {
+      handleError("API not available. Please connect wallet first.");
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const txData = await LaunchPadAPI.createToken(
+        api.deployedContract,
+        await stringToBytes(tokenData.name),
+        BigInt(tokenData.totalSupply),
+        tokenData.ticker,
+        tokenData.description
+      );
+
+      setGenerationComplete(true);
+      handleSuccess("Token generated successfully");
+      console.log("Token creation transaction:", txData);
+    } catch (error) {
+      handleError("Failed to generate token");
+      handleError(
+        `Failed to generate token: ${error instanceof Error ? error.message : String(error)}`
+      );
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [api, tokenData, handleError, handleSuccess]);
+
+  //SETS FORM INPUTS
   const handleInputChange = (field: keyof TokenData, value: string): void => {
     setTokenData((prev: TokenData) => ({
       ...prev,
@@ -45,6 +81,7 @@ export default function TokenGenerator() {
     }));
   };
 
+  //HANDLES TOKEN GENERATION
   const handleIconUpload = (
     event: React.ChangeEvent<HTMLInputElement>
   ): void => {

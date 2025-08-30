@@ -84,12 +84,19 @@ export class BrowserDeployedLaunchpadManager
     try {
       const { providers, wallet } = await initializeProviders();
       this.wallet_address = (await wallet.state()).address;
+
       api = await LaunchPadAPI.joinOrDeployLaunchPadContract(
         providers,
-        contractAddress && contractAddress
+        contractAddress
       );
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      if (error.message?.includes("RemoteApiShutdownError")) {
+        console.warn("Wallet API shutdown, forcing reconnect...");
+        // Clear state or trigger reconnect
+        await connectToWallet();
+      } else {
+        console.error("LaunchPad deployment error:", error);
+      }
       this.statusSubject.next("failed-with-error");
     }
 
@@ -109,7 +116,7 @@ type WalletAndProviders = {
 };
 
 const initializeProviders = async (): Promise<WalletAndProviders> => {
-  const { wallet, uris } = await connectToWallet();
+  const { wallet } = await connectToWallet();
   const walletState = await wallet.state();
 
   return {
@@ -237,14 +244,24 @@ const connectToWallet = (): Promise<{
         walletConnectorAPI: await connectorAPI.enable(),
         connectorAPI,
       })),
-      catchError((error, apis) =>
-        error
-          ? throwError(() => {
-              console.error("Unable to enable connector API");
-              return new Error("Application is not authorized");
-            })
-          : apis
-      ),
+      catchError((error) => {
+        console.error("Wallet connection error:", error);
+
+        if (error.message.includes("respond")) {
+          return throwError(
+            () => new Error("Wallet did not respond in time. Is it unlocked?")
+          );
+        }
+        if (error.message.includes("authorized")) {
+          return throwError(
+            () =>
+              new Error(
+                "Application not authorized by wallet. Did the user reject?"
+              )
+          );
+        }
+        return throwError(() => new Error("Unknown wallet connection error"));
+      }),
       concatMap(async ({ walletConnectorAPI, connectorAPI }) => {
         const uris = await connectorAPI.serviceUriConfig();
 

@@ -1,8 +1,8 @@
 import { Github, Twitter, MessageCircle, Globe } from "lucide-react";
-import { useApp } from "../hooks/useApp";
+import { useAppDeployment } from "../hooks/useAppDeployment";
 
 export function Footer() {
-  const { setRoute } = useApp();
+  const { setRoute } = useAppDeployment();
 
   return (
     <footer className="border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm mt-auto">

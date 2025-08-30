@@ -1,5 +1,9 @@
 import { Ledger } from "./managed/launchpad/contract/index.cjs";
-import { WitnessContext } from "@midnight-ntwrk/compact-runtime";
+import {
+  MerkleTreePath,
+  WitnessContext,
+} from "@midnight-ntwrk/compact-runtime";
+import { sha256 } from "@noble/hashes/sha2.js";
 
 export type LaunchPadPrivateState = {
   readonly secretKey: Uint8Array;
@@ -50,74 +54,32 @@ export const witnesses = {
 
     return [privateState, isDurationOver];
   },
-  encodeBuyerHash: (
-    { privateState }: WitnessContext<Ledger, LaunchPadPrivateState>,
-    pk: Uint8Array,
-    bool: boolean,
-    amount: bigint
-  ): [LaunchPadPrivateState, Uint8Array] => {
-    const result = new Uint8Array(41);
-
-    // Copy pk32 (first 32 pk)
-    result.set(pk, 0);
-
-    // Encode boolean (1 byte at position 32)
-    result[32] = bool ? 1 : 0;
-
-    // Encode uint64 (big-endian, 8 pk at positions 33–40)
-    for (let i = 0; i < 8; i++) {
-      result[40 - i] = Number((amount >> BigInt(i * 8)) & 0xffn);
-    }
-
-    return [privateState, result];
+  confirmContribution: (
+    context: WitnessContext<Ledger, LaunchPadPrivateState>,
+    item: Uint8Array
+  ): [LaunchPadPrivateState, MerkleTreePath<Uint8Array>] => {
+    return [
+      context.privateState,
+      context.ledger.contributors.findPathForLeaf(item)!,
+    ];
   },
-  decodeBuyerHash: (
+  calcAmountToWtihdrawFromBatch: (
     { privateState }: WitnessContext<Ledger, LaunchPadPrivateState>,
-    encrypt: Uint8Array,
+    amount: bigint,
     totalReceived: bigint,
     totalSold: bigint
   ): [LaunchPadPrivateState, bigint] => {
-    // const pk = encrypt.slice(0, 32); not needed
-
-    // Extract boolean
-    // Boolean: wether or not the buyer has withdraw. If no, it return a value of -1
-    const bool = encrypt[32] === 1;
-
-    // Extract uint64 (big-endian)
-    // Amount contributed: responsible for returning the amount the user has contributed in the sale
-    let amount = 0n;
-    for (let i = 0; i < 8; i++) {
-      amount = (amount << 8n) | BigInt(encrypt[33 + i]);
-    }
-
-    let returnValue;
-
-    bool
-      ? (returnValue = -1n)
-      : (returnValue = (amount / totalReceived) * totalSold);
+    let returnValue = (amount / totalReceived) * totalSold;
 
     return [privateState, returnValue];
   },
-  decodeBuyerHashOverflow: (
+  calcAmountToWtihdrawFromOverflow: (
     { privateState }: WitnessContext<Ledger, LaunchPadPrivateState>,
-    encrypt: Uint8Array,
+    amount: bigint,
     totalReceived: bigint, // sum of all contributions
     amountForSale: bigint, // total tokens available
-    targetAmount: bigint, // total raise target
-    return_type: Uint8Array
+    targetAmount: bigint // total raise target
   ): [LaunchPadPrivateState, bigint] => {
-    const bool = encrypt[32] === 1;
-
-    // decode contribution
-    let amount = 0n;
-    for (let i = 0; i < 8; i++) {
-      amount = (amount << 8n) | BigInt(encrypt[33 + i]);
-    }
-
-    if (bool) {
-      return [privateState, -1n]; // withdrawn, no tokens, no refund
-    }
-
     const price = targetAmount / amountForSale;
     let spent: bigint;
     let tokens: bigint;
@@ -134,10 +96,46 @@ export const witnesses = {
       tokens = spent / price;
       refund = amount - spent;
     }
+    return [privateState, tokens];
+  },
+  calcAmountToRefundFromOverflow: (
+    { privateState }: WitnessContext<Ledger, LaunchPadPrivateState>,
+    amount: bigint,
+    totalReceived: bigint, // sum of all contributions
+    amountForSale: bigint, // total tokens available
+    targetAmount: bigint // total raise target
+  ): [LaunchPadPrivateState, bigint] => {
+    const price = targetAmount / amountForSale;
+    let spent: bigint;
+    let tokens: bigint;
+    let refund: bigint;
 
-    const text = new TextDecoder().decode(return_type);
+    if (totalReceived <= targetAmount) {
+      // Not oversubscribed: full allocation
+      spent = amount;
+      tokens = amount / price;
+      refund = 0n;
+    } else {
+      // Overflow case: scale down
+      spent = (amount * targetAmount) / totalReceived;
+      tokens = spent / price;
+      refund = amount - spent;
+    }
+    return [privateState, refund];
+  },
+  calculateLeftover: (
+    { privateState }: WitnessContext<Ledger, LaunchPadPrivateState>,
+    totalReceived: bigint, // sum of all contributions
+    amountForSale: bigint, // total tokens available
+    targetAmount: bigint // total raise target
+  ): [LaunchPadPrivateState, bigint] => {
+    if (totalReceived >= targetAmount) {
+      return [privateState, 0n];
+    }
 
-    // Return: private state, tokens allocated, refund owed
-    return [privateState, text == "tokens" ? tokens : refund];
+    const price = targetAmount / amountForSale;
+    let leftover = totalReceived * price;
+
+    return [privateState, leftover];
   },
 };

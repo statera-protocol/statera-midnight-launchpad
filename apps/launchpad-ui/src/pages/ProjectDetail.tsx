@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "../components/ui/button";
 import {
   Card,
@@ -23,19 +23,26 @@ import {
   Target,
   Shield,
   Globe,
-  Twitter,
   MessageCircle,
   CheckCircle,
   AlertCircle,
-  Zap,
   X,
   BanknoteArrowDown,
+  Twitter,
 } from "lucide-react";
 import { Footer } from "../components/footer";
-import { useApp } from "../hooks/useApp";
+import { useAppDeployment } from "../hooks/useAppDeployment";
 import { IMAGE } from "../lib/assets";
+import {
+  LaunchPadAPI,
+  type BatchSaleData,
+  type DerivedState,
+  type FixedSaleData,
+  type OverflowSaleData,
+} from "@repo/launchpad-api";
 
 type ProjectStatus = "live" | "completed" | "closed";
+export type SaleData = FixedSaleData | BatchSaleData | OverflowSaleData;
 
 // Mock project data - in real app, this would come from API/database
 const project = {
@@ -152,56 +159,159 @@ const project = {
 };
 
 const ProjectDetail = () => {
-  const {
-    contractState,
-    closeSale,
-    buyFixedToken,
-    isContributing,
-    isWithdrawing,
-    WithdrawFunds,
-    isClosing,
-    setRoute,
-    projectId,
-  } = useApp();
-  const projectDetail = contractState?.fixed_sales.find(
-    (sale) => sale.key === projectId
-  );
+  const { api, handleError, setRoute, projectDetail } = useAppDeployment();
+
+  const [isContributing, setIsContributing] = useState<boolean>(false);
+  const [isWithdrawing, setIsWithdrawing] = useState<boolean>(false);
+  const [isClosing, setIsClosing] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOrganizer, setIsOrganizer] = useState(false);
+  const [contributionAmount, setContributionAmount] = useState<string>("");
+  const [withdrawalAmount, setWithdrawalAmount] = useState<string>("");
+
+  // const [projectDetail, setProjectDetail] = useState<SaleData | undefined>(
+  //   undefined
+  // );
+
+  // TYPE GUARD
+  const isFixedSale = (sale: SaleData): sale is FixedSaleData => {
+    return sale.saleType === "fixed";
+  };
+
+  const isBatchSale = (sale: SaleData): sale is BatchSaleData => {
+    return sale.saleType === "batch";
+  };
+
+  const isOverflowSale = (sale: SaleData): sale is OverflowSaleData => {
+    return sale.saleType === "overflow";
+  };
+
+  // HANDLES SALES CLOSURE
+  const closeSale = async (projectDetail: SaleData, saleType: string) => {
+    try {
+      if (!isOrganizer || !api) {
+        return;
+      }
+      const sale_id = projectDetail.keyUint;
+      setIsClosing(true);
+      await LaunchPadAPI.closeSale(api.deployedContract, sale_id, saleType);
+    } catch (error) {
+      console.log("Error while closing " + error);
+    } finally {
+      setIsClosing(false);
+    }
+  };
+
+  //HANDLE SALES BUYING
+  const handleContribute = async (details: SaleData) => {
+    const amount = Number(contributionAmount);
+    try {
+      const sale_id = details.keyUint;
+      const buy_amount = BigInt(amount);
+
+      if (!api) {
+        return;
+      }
+      setIsContributing(true);
+
+      await LaunchPadAPI.contributeToSale(
+        api.deployedContract,
+        buy_amount,
+        details.acceptableExchangeToken,
+        sale_id,
+        details.saleType
+      );
+    } catch (error) {
+      console.error("Error in handleContribute:", error); // Add more detailed error logging
+      handleError(error);
+    } finally {
+      setIsContributing(false);
+    }
+  };
+
+  // HANDLES SALES WITHDRAWAL
+  const handleWithdraw = async (details: SaleData) => {
+    try {
+      const sale_id = details.keyUint;
+      const sale_type = details.saleType;
+      if (!api) {
+        return;
+      }
+      console.log("Withdrawing...");
+      await LaunchPadAPI.withdrawFromSale(
+        api.deployedContract,
+        sale_type,
+        sale_id,
+        BigInt(withdrawalAmount)
+      );
+      console.log("Withdrawal completed");
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsWithdrawing(false);
+    }
+  };
+
+  const handleOrganiserWithdrawal = async (details: SaleData) => {
+    if (!api) {
+      return;
+    }
+    setIsWithdrawing(true);
+
+    try {
+      await LaunchPadAPI.organizerWithdrawal(
+        api?.deployedContract,
+        details.saleType,
+        details.keyUint
+      );
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsWithdrawing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!api) {
+      console.log("no api");
+      return;
+    }
+    setIsLoading(true);
+    const stateSubscription = api.state$.subscribe((state: DerivedState) => {
+      const is_owner = state?.user_pk === projectDetail?.organizer;
+      setIsOrganizer(is_owner);
+    });
+
+    setIsLoading(false);
+
+    return () => {
+      stateSubscription.unsubscribe();
+    };
+  }, [api]);
 
   if (projectDetail === undefined) {
     setRoute("dashboard");
     return null;
   }
 
-  const [contributionAmount, setContributionAmount] = useState<string>("");
-
-  if (!project) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <h1
-            onClick={() => setRoute("projects")}
-            className="text-2xl font-bold mb-4"
-          >
-            Project Not Found
-          </h1>
-
-          <Button>Back to Projects</Button>
-        </div>
-      </div>
-    );
-  }
-
-  const getProgressPercentage = (): number => {
+  const getProgressPercentage = (projectDetail: FixedSaleData): number => {
     return Math.min(
-      (projectDetail?.total_amount_sold /
-        projectDetail?.total_amount_for_sale) *
+      (projectDetail?.totalAmountSold / projectDetail?.totalAmountForSale) *
         100,
       100
     );
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleContributionChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     setContributionAmount(e.target.value);
+  };
+
+  const handleWithdrawalChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    setWithdrawalAmount(e.target.value);
   };
 
   const getStatusColor = (status: ProjectStatus): string => {
@@ -215,10 +325,6 @@ const ProjectDetail = () => {
       default:
         return "bg-gray-500/10 text-gray-400 border-gray-500/20";
     }
-  };
-
-  const handleContribute = async (): Promise<void> => {
-    buyFixedToken(projectDetail, Number(contributionAmount));
   };
 
   const calculateTimeRemaining = (startTime: number, duration: number) => {
@@ -265,7 +371,7 @@ const ProjectDetail = () => {
         <div className="container mx-auto py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button
-              onClick={() => setRoute("projects")}
+              onClick={() => setRoute("dashboard")}
               variant="ghost"
               size="icon"
             >
@@ -281,12 +387,16 @@ const ProjectDetail = () => {
               </h1>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex justify-center items-center gap-2">
             <Badge
               className={getStatusColor(projectDetail.status as ProjectStatus)}
             >
               {projectDetail.status.charAt(0).toUpperCase() +
                 projectDetail.status.slice(1)}
+            </Badge>
+            <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20">
+              {projectDetail.saleType.charAt(0).toUpperCase() +
+                projectDetail.saleType.slice(1)}
             </Badge>
           </div>
         </div>
@@ -300,11 +410,11 @@ const ProjectDetail = () => {
           className="w-full h-64 md:h-80 object-cover"
         />
 
-        {contractState?.user_pk === projectDetail.organizer && (
+        {isOrganizer && (
           <div className="flex right-8 top-8 justify-end w-full absolute z-10 px-6">
             {projectDetail.status === "live" ? (
               <Button
-                onClick={() => closeSale(projectDetail)}
+                onClick={() => closeSale(projectDetail, projectDetail.saleType)}
                 variant="outline"
                 size="default"
                 disabled={isClosing}
@@ -316,14 +426,14 @@ const ProjectDetail = () => {
                   </span>
                 ) : (
                   <span className="flex gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>{" "}
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400 mr-2"></div>{" "}
                     Closing Sale
                   </span>
                 )}
               </Button>
             ) : (
               <Button
-                onClick={() => WithdrawFunds(projectDetail)}
+                onClick={() => handleOrganiserWithdrawal(projectDetail)}
                 variant="outline"
                 size="default"
                 disabled={isWithdrawing || projectDetail.isWithdrawn}
@@ -332,7 +442,7 @@ const ProjectDetail = () => {
                 {!isWithdrawing ? (
                   <span>
                     {!projectDetail.isWithdrawn ? (
-                      <span className="flex gap-2">
+                      <span className="flex gap-2 cursor-pointer">
                         <BanknoteArrowDown /> Withdraw Funds
                       </span>
                     ) : (
@@ -372,7 +482,7 @@ const ProjectDetail = () => {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="border-gray-600 hover:bg-gray-800 bg-transparent"
+                    className="border-gray-600 hover:bg-gray-800 bg-transparent !text-white cursor-pointer"
                   >
                     <Globe className="w-4 h-4" />
                   </Button>
@@ -381,7 +491,7 @@ const ProjectDetail = () => {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="border-gray-600 hover:bg-gray-800 bg-transparent"
+                    className="border-gray-600 hover:bg-gray-800 bg-transparent !text-white cursor-pointer"
                   >
                     <Twitter className="w-4 h-4" />
                   </Button>
@@ -390,7 +500,7 @@ const ProjectDetail = () => {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="border-gray-600 hover:bg-gray-800 bg-transparent"
+                    className="border-gray-600 hover:bg-gray-800 bg-transparent !text-white cursor-pointer"
                   >
                     <MessageCircle className="w-4 h-4" />
                   </Button>
@@ -413,24 +523,6 @@ const ProjectDetail = () => {
                   className="data-[state=active]:bg-gray-700 text-white"
                 >
                   Overview
-                </TabsTrigger>
-                <TabsTrigger
-                  value="tokenomics"
-                  className="data-[state=active]:bg-gray-700 text-white"
-                >
-                  Tokenomics
-                </TabsTrigger>
-                <TabsTrigger
-                  value="roadmap"
-                  className="data-[state=active]:bg-gray-700 text-white"
-                >
-                  Roadmap
-                </TabsTrigger>
-                <TabsTrigger
-                  value="team"
-                  className="data-[state=active]:bg-gray-700 text-white"
-                >
-                  Team
                 </TabsTrigger>
                 <TabsTrigger
                   value="risks"
@@ -491,182 +583,6 @@ const ProjectDetail = () => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="tokenomics" className="space-y-6">
-                <Card className="bg-gray-800/50 border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="text-gray-100">
-                      Token Distribution
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Total Supply:</span>
-                          <span className="text-gray-100 font-semibold">
-                            {project.tokenomics.totalSupply} {project.symbol}
-                          </span>
-                        </div>
-
-                        <div className="space-y-3">
-                          {Object.entries(project.tokenomics)
-                            .slice(1)
-                            .map(([key, value]) => (
-                              <div key={key} className="space-y-1">
-                                <div className="flex justify-between text-sm">
-                                  <span className="text-gray-400 capitalize">
-                                    {key.replace("Allocation", "")}:
-                                  </span>
-                                  <span className="text-gray-100">{value}</span>
-                                </div>
-                                <div className="w-full bg-gray-700 rounded-full h-2">
-                                  <div
-                                    className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full"
-                                    style={{ width: value }}
-                                  />
-                                </div>
-                              </div>
-                            ))}
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <h4 className="font-semibold text-gray-200">
-                          Token Utility
-                        </h4>
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <Zap className="w-4 h-4 text-yellow-400" />
-                            <span className="text-gray-300 text-sm">
-                              Governance voting rights
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Zap className="w-4 h-4 text-yellow-400" />
-                            <span className="text-gray-300 text-sm">
-                              Staking rewards
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Zap className="w-4 h-4 text-yellow-400" />
-                            <span className="text-gray-300 text-sm">
-                              Platform fee discounts
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Zap className="w-4 h-4 text-yellow-400" />
-                            <span className="text-gray-300 text-sm">
-                              Liquidity mining rewards
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="roadmap" className="space-y-6">
-                <Card className="bg-gray-800/50 border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="text-gray-100">
-                      Development Roadmap
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      {project.roadmap.map((phase, index) => (
-                        <div key={index} className="relative">
-                          <div className="flex items-start space-x-4">
-                            <div
-                              className={`w-4 h-4 rounded-full mt-1 ${
-                                phase.status === "completed"
-                                  ? "bg-green-500"
-                                  : phase.status === "in-progress"
-                                    ? "bg-blue-500"
-                                    : "bg-gray-500"
-                              }`}
-                            />
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-3 mb-2">
-                                <h4 className="font-semibold text-gray-200">
-                                  {phase.phase}
-                                </h4>
-                                <Badge
-                                  className={
-                                    phase.status === "completed"
-                                      ? "bg-green-500/10 text-green-400 border-green-500/20"
-                                      : phase.status === "in-progress"
-                                        ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
-                                        : "bg-gray-500/10 text-gray-400 border-gray-500/20"
-                                  }
-                                >
-                                  {phase.status.replace("-", " ")}
-                                </Badge>
-                              </div>
-                              <h5 className="text-gray-100 mb-2">
-                                {phase.title}
-                              </h5>
-                              <ul className="space-y-1">
-                                {phase.items.map((item, itemIndex) => (
-                                  <li
-                                    key={itemIndex}
-                                    className="flex items-center space-x-2"
-                                  >
-                                    <div className="w-2 h-2 bg-gray-600 rounded-full" />
-                                    <span className="text-gray-300 text-sm">
-                                      {item}
-                                    </span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                          {index < project.roadmap.length - 1 && (
-                            <div className="absolute left-2 top-6 w-0.5 h-8 bg-gray-700" />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="team" className="space-y-6">
-                <Card className="bg-gray-800/50 border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="text-gray-100">Core Team</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {project.team.map((member, index) => (
-                        <div
-                          key={index}
-                          className="flex items-start space-x-4 p-4 bg-gray-700/30 rounded-lg"
-                        >
-                          <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                            <span className="text-white font-bold">
-                              {member.avatar}
-                            </span>
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-gray-200">
-                              {member.name}
-                            </h4>
-                            <p className="text-blue-400 text-sm mb-2">
-                              {member.role}
-                            </p>
-                            <p className="text-gray-300 text-sm">
-                              {member.bio}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
               <TabsContent value="risks" className="space-y-6">
                 <Card className="bg-gray-800/50 border-gray-700">
                   <CardHeader>
@@ -713,31 +629,52 @@ const ProjectDetail = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   {projectDetail.status === "live" ? (
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Price:</span>
-                      <span className="text-gray-100 font-semibold">
-                        {projectDetail.token_sale_ratio}{" "}
-                        {projectDetail.acceptable_token_symbol.toUpperCase()}
-                      </span>
+                    <div>
+                      {isFixedSale(projectDetail) && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Price:</span>
+                          <span className="text-gray-100 font-semibold">
+                            {projectDetail.tokenSaleRatio} TEST
+                          </span>
+                        </div>
+                      )}
+                      {isBatchSale(projectDetail) && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Total Tokens:</span>
+                          <span className="text-gray-100 font-semibold">
+                            {projectDetail.contribution} TEST
+                          </span>
+                        </div>
+                      )}
+                      {isOverflowSale(projectDetail) && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Sale Target:</span>
+                          <span className="text-gray-100 font-semibold">
+                            {projectDetail.target} TEST
+                          </span>
+                        </div>
+                      )}
                     </div>
                   ) : (
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Amount Sold:</span>
-                      <span className="text-gray-400">
-                        {projectDetail.total_amount_sold}{" "}
-                        {projectDetail.token_symbol}
-                      </span>
-                    </div>
-                  )}
-                  {projectDetail.status !== "live" && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Amount Raised:</span>
-                      <span className="text-gray-400">
-                        {projectDetail.total_amount_sold *
-                          Number(projectDetail.token_sale_ratio)}{" "}
-                        {projectDetail.acceptable_token_symbol}
-                      </span>
-                    </div>
+                    isFixedSale(projectDetail) && (
+                      <div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Amount Sold:</span>
+                          <span className="text-gray-400">
+                            {projectDetail.totalAmountSold} TEST
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Amount Raised:</span>
+                          <span className="text-gray-400">
+                            {projectDetail.totalAmountSold *
+                              Number(projectDetail.tokenSaleRatio)}{" "}
+                            TEST
+                          </span>
+                        </div>
+                      </div>
+                    )
                   )}
                   <div className="flex justify-between">
                     <span className="text-gray-400">Sale Type:</span>
@@ -745,7 +682,7 @@ const ProjectDetail = () => {
                       variant="outline"
                       className="border-gray-600 text-gray-400"
                     >
-                      {projectDetail.sale_type}
+                      {projectDetail.saleType}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
@@ -756,32 +693,49 @@ const ProjectDetail = () => {
                           ? "Closed"
                           : "Completed"
                         : calculateTimeRemaining(
-                            Number(projectDetail.start_time),
+                            Number(projectDetail.startTime),
                             Number(projectDetail.duration)
                           )}
                     </span>
                   </div>
                 </div>
 
-                {projectDetail.status === "live" && (
+                {projectDetail.status === "live" ? (
                   <>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-400">Progress</span>
-                        <span className="text-gray-100">
-                          {projectDetail.total_amount_sold} /{" "}
-                          {projectDetail.total_amount_for_sale}{" "}
-                          {projectDetail.token_symbol.toUpperCase()}
-                        </span>
+                        {isFixedSale(projectDetail) && (
+                          <span className="text-gray-100">
+                            {projectDetail.totalAmountSold} /{" "}
+                            {projectDetail.totalAmountForSale} TEST
+                          </span>
+                        )}
+                        {isBatchSale(projectDetail) && (
+                          <span className="text-gray-100">
+                            {projectDetail.contribution} TEST
+                          </span>
+                        )}
+                        {isOverflowSale(projectDetail) && (
+                          <span className="text-gray-100">
+                            {projectDetail.contribution} /{" "}
+                            {projectDetail.target} TEST
+                          </span>
+                        )}
                       </div>
-                      <Progress
-                        value={getProgressPercentage()}
-                        className="h-3"
-                      />
+                      {isFixedSale(projectDetail) && (
+                        <Progress
+                          value={getProgressPercentage(projectDetail)}
+                          className="h-3"
+                        />
+                      )}
                       <div className="flex justify-between text-xs text-gray-400">
-                        <span>
-                          {getProgressPercentage().toFixed(1)}% Complete
-                        </span>
+                        {isFixedSale(projectDetail) && (
+                          <span>
+                            {getProgressPercentage(projectDetail).toFixed(1)}%
+                            Complete
+                          </span>
+                        )}
                         <span>
                           {projectDetail.participants.toLocaleString()}{" "}
                           Participants
@@ -790,48 +744,74 @@ const ProjectDetail = () => {
                     </div>
 
                     {/* Contribution Form */}
+
                     <div className="space-y-3 pt-4 border-t border-gray-700">
                       <div className="space-y-2">
                         <label className="text-sm text-gray-300">
-                          Contribution Amount (
-                          {projectDetail.acceptable_token_symbol.toUpperCase()})
+                          Contribution Amount (TEST)
                         </label>
                         <Input
                           type="number"
                           placeholder="0.0"
                           value={contributionAmount}
-                          onChange={handleInputChange}
+                          onChange={handleContributionChange}
                           className="bg-gray-700 border-gray-600 text-gray-100"
                         />
                       </div>
-                      <Button
-                        onClick={handleContribute}
-                        disabled={!contributionAmount || isContributing}
-                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                      >
-                        {isContributing ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Contributing...
-                          </>
-                        ) : (
-                          "Contribute Now"
-                        )}
-                      </Button>
+                      {projectDetail.status === "live" && (
+                        <Button
+                          onClick={() => handleContribute(projectDetail)}
+                          disabled={!contributionAmount || isContributing}
+                          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 cursor-pointer"
+                        >
+                          {isContributing ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Contributing...
+                            </>
+                          ) : (
+                            "Contribute Now"
+                          )}
+                        </Button>
+                      )}
                     </div>
                   </>
+                ) : (
+                  <>
+                    {(isBatchSale(projectDetail) ||
+                      isOverflowSale(projectDetail)) && (
+                      <div className="space-y-3 pt-4 border-t border-gray-700">
+                        <div className="space-y-2">
+                          <label className="text-sm text-gray-300">
+                            Withdrawal Amount (TEST)
+                          </label>
+                          <Input
+                            type="number"
+                            placeholder="0.0"
+                            value={withdrawalAmount}
+                            onChange={handleWithdrawalChange}
+                            className="bg-gray-700 border-gray-600 text-gray-100"
+                          />
+                        </div>
+
+                        <Button
+                          onClick={() => handleWithdraw(projectDetail)}
+                          disabled={!withdrawalAmount || isWithdrawing}
+                          className="w-full bg-pink-500 hover:bg-pink-700 cursor-pointer"
+                        >
+                          {isWithdrawing ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Withdrawing...
+                            </>
+                          ) : (
+                            "Withdraw Now"
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 )}
-
-                {/* {project.status === "upcoming" && (
-                  <Alert className="bg-blue-500/10 border-blue-500/20">
-                    <Clock className="h-4 w-4 text-blue-400" />
-                    <AlertDescription className="text-blue-300">
-                      Sale starts on{" "}
-                      {new Date(project.startDate).toLocaleDateString()}
-                    </AlertDescription>
-                  </Alert>
-                )} */}
-
                 {projectDetail.status === "completed" && (
                   <Alert className="bg-green-500/10 border-green-500/20">
                     <CheckCircle className="h-4 w-4 text-green-400" />
@@ -891,16 +871,16 @@ const ProjectDetail = () => {
                     {projectDetail.participants.toLocaleString()}
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
+                  TEST
                   <div className="flex items-center space-x-2">
                     <Target className="w-4 h-4 text-purple-400" />
                     <span className="text-gray-400 text-sm">Hard Cap</span>
                   </div>
                   <span className="text-gray-100 font-semibold">
-                    {projectDetail.hard_cap}{" "}
-                    {projectDetail.token_symbol.toUpperCase()}
+                    {projectDetail.hard_cap} TEST
                   </span>
-                </div>
+                </div> */}
                 {projectDetail.status !== "live" && (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -908,8 +888,7 @@ const ProjectDetail = () => {
                       <span className="text-gray-400 text-sm">Soft Cap</span>
                     </div>
                     <span className="text-gray-100 font-semibold">
-                      {projectDetail.total_amount_for_sale}{" "}
-                      {projectDetail.token_symbol.toUpperCase()}
+                      {projectDetail.totalAmountForSale} TEST
                     </span>
                   </div>
                 )}

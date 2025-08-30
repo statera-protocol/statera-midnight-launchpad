@@ -1,3 +1,4 @@
+import React from "react";
 import { Button } from "../components/ui/button";
 import { saleTypes, type formData, type Step } from "../lib/assets";
 import {
@@ -30,7 +31,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { Footer } from "../components/footer";
-import { useApp } from "../hooks/useApp";
+import { useAppDeployment } from "../hooks/useAppDeployment";
 import { useState } from "react";
 import { LaunchPadAPI } from "@repo/launchpad-api";
 
@@ -54,121 +55,61 @@ const INITIAL_SALE_DATA: formData = {
 };
 
 export default function CreateSale() {
-  const { setRoute, api, setError, setSuccess } = useApp();
+  const { setRoute, api, setError, setSuccess } = useAppDeployment();
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [saleData, setSaleData] = useState<formData>(INITIAL_SALE_DATA);
   const [launching, setLaunching] = useState(false);
 
-  //uploads logo and banner
-  const uploadToCloudinary = async (imageFile: File) => {
-    const formData = new FormData();
-    formData.append("file", imageFile);
-    console.log({ imageFile });
-
-    console.log(
-      import.meta.env.VITE_UPLOAD_PRESET as string,
-      import.meta.env.VITE_CLOUDINARY_API as string
-    );
-
-    formData.append(
-      "upload_preset",
-      import.meta.env.VITE_UPLOAD_PRESET as string
-    );
-
-    try {
-      const response = await fetch(
-        import.meta.env.VITE_CLOUDINARY_API as string,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.secure_url;
-    } catch (error) {
-      console.error("Error uploading to Cloudinary:", error);
-      throw error;
-    }
-  };
-
   // call sale circuit and upload to db
   const handleFormSubmission = async (): Promise<void> => {
-    // if (!api) {
-    //   setError("Please Connect your wallet to perform this action!.")
-    //   return;
-    // }
+    if (!api) {
+      setError("Please Connect your wallet to perform this action!.");
+      return;
+    }
     setLaunching(true);
-
     try {
-      // await LaunchPadAPI.open_fixed_sale(
-      //   api.deployedContract,
-      //   BigInt(saleData.softCap),
-      //   saleData.tokenId,
-      //   saleData.exchangeTokenId,
-      //   BigInt(saleData.exchangeRatio),
-      //   BigInt(saleData.duration),
-      //   saleData.tokenTicker,
-      //   saleData.exchangeTokenSymbol,
-      //   BigInt(saleData.minContribution),
-      //   BigInt(saleData.maxContribution),
-      //   BigInt(saleData.hardCap)
-      // );
-
-      //upload image to get url
-      let logo_url: string | null;
-      let banner_url: string | null;
-
-      logo_url = logoFile && (await uploadToCloudinary(logoFile));
-      banner_url = bannerFile && (await uploadToCloudinary(bannerFile));
-
-      // update db with new sale info and clear form data
-
-      const url = `${import.meta.env.VITE_BASE_API}/projects`;
-      if (!url) {
-        setError("Url not found!");
-        return;
+      console.log(saleData.saleType);
+      if (saleData.saleType === "fixed") {
+        console.log("fixed start");
+        await LaunchPadAPI.openFixedSale(
+          api.deployedContract,
+          BigInt(saleData.softCap),
+          saleData.tokenId,
+          saleData.exchangeTokenId,
+          BigInt(saleData.exchangeRatio),
+          BigInt(saleData.duration),
+          BigInt(saleData.minContribution),
+          BigInt(saleData.maxContribution)
+        );
+        console.log("fixed done");
+      } else if (saleData.saleType === "batch") {
+        console.log("batched start");
+        await LaunchPadAPI.openBatchSale(
+          api.deployedContract,
+          BigInt(saleData.softCap),
+          saleData.tokenId,
+          saleData.exchangeTokenId,
+          BigInt(saleData.duration),
+          BigInt(saleData.minContribution),
+          BigInt(saleData.maxContribution)
+        );
+        console.log("batched done");
+      } else if (saleData.saleType === "overflow") {
+        console.log("overflowed start");
+        await LaunchPadAPI.openOverflowSale(
+          api.deployedContract,
+          BigInt(saleData.softCap),
+          saleData.tokenId,
+          saleData.exchangeTokenId,
+          BigInt(saleData.duration),
+          BigInt(saleData.minContribution),
+          BigInt(saleData.maxContribution),
+          BigInt(saleData.target)
+        );
+        console.log("overflowed done");
       }
-
-      const PROJECT = {
-        saleType: saleData.saleType,
-        projectName: saleData.projectName,
-        projectWebsite: saleData.projectWebsite,
-        projectDescription: saleData.projectDescription,
-        projectLogo: logo_url,
-        projectBanner: banner_url,
-        tokenId: saleData.tokenId,
-        tokenName: saleData.tokenName,
-        tokenTicker: saleData.tokenTicker,
-        hardCap: saleData.hardCap,
-        softCap: saleData.softCap,
-        exchangeTokenId: saleData.exchangeTokenId,
-        exchangeTokenSymbol: saleData.exchangeTokenSymbol,
-        exchangeRatio: saleData.exchangeRatio,
-        duration: saleData.duration,
-        minContribution: saleData.minContribution,
-        maxContribution: saleData.maxContribution,
-        target: saleData.target,
-      };
-
-      const config = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(PROJECT),
-      };
-
-      const response = await fetch(url, config);
-
-      const data = await response.json();
-      console.log({ data });
 
       //CLEAR SALE DATA TO INITIAL
       setSaleData(INITIAL_SALE_DATA);
@@ -176,11 +117,9 @@ export default function CreateSale() {
       setLogoFile(null);
       setCurrentStep(1);
       setSuccess("Sale Uploaded Successfully");
-    } catch (error) {
-      console.log("An error occured" + error);
-    } finally {
+
       setLaunching(false);
-    }
+    } catch (error) {}
   };
 
   const handleInputChange = (
@@ -299,6 +238,7 @@ export default function CreateSale() {
                         id="projectName"
                         placeholder="e.g., DeFi Protocol"
                         value={saleData.projectName}
+                        disabled={launching}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                           handleInputChange("projectName", e.target.value)
                         }
@@ -311,6 +251,7 @@ export default function CreateSale() {
                       </Label>
                       <Input
                         id="website"
+                        disabled={launching}
                         placeholder="https://yourproject.com"
                         value={saleData.projectWebsite}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -327,6 +268,7 @@ export default function CreateSale() {
                     </Label>
                     <Textarea
                       id="description"
+                      disabled={launching}
                       placeholder="Describe your project, its goals, and what makes it unique..."
                       value={saleData.projectDescription}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
@@ -335,56 +277,12 @@ export default function CreateSale() {
                       className="bg-gray-700 border-gray-600 text-gray-100 min-h-[120px]"
                     />
                   </div>
-                  {/* 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="twitter" className="text-gray-200">
-                        Twitter
-                      </Label>
-                      <Input
-                        id="twitter"
-                        placeholder="@yourproject"
-                        value={saleData.twitter}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("twitter", e.target.value)
-                        }
-                        className="bg-gray-700 border-gray-600 text-gray-100"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="telegram" className="text-gray-200">
-                        Telegram
-                      </Label>
-                      <Input
-                        id="telegram"
-                        placeholder="@yourproject"
-                        value={saleData.telegram}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("telegram", e.target.value)
-                        }
-                        className="bg-gray-700 border-gray-600 text-gray-100"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="discord" className="text-gray-200">
-                        Discord
-                      </Label>
-                      <Input
-                        id="discord"
-                        placeholder="discord.gg/yourproject"
-                        value={saleData.discord}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("discord", e.target.value)
-                        }
-                        className="bg-gray-700 border-gray-600 text-gray-100"
-                      />
-                    </div>
-                  </div> */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label className="text-gray-200">Project Logo</Label>
                       <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 text-center">
                         <input
+                          disabled={launching}
                           type="file"
                           accept="image/*"
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -420,6 +318,7 @@ export default function CreateSale() {
                       <Label className="text-gray-200">Banner Image</Label>
                       <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 text-center">
                         <input
+                          disabled={launching}
                           type="file"
                           accept="image/*"
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -473,6 +372,7 @@ export default function CreateSale() {
                     </Label>
                     <Input
                       id="tokenAddress"
+                      disabled={launching}
                       placeholder="0x1234...5678"
                       value={saleData.tokenId}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -499,6 +399,7 @@ export default function CreateSale() {
                       <Input
                         id="tokenName"
                         placeholder="e.g., My Token"
+                        disabled={launching}
                         value={saleData.tokenName}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                           handleInputChange("tokenName", e.target.value)
@@ -513,6 +414,7 @@ export default function CreateSale() {
                       <Input
                         id="tokenSymbol"
                         placeholder="e.g., MTK"
+                        disabled={launching}
                         value={saleData.tokenTicker}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                           handleInputChange(
@@ -532,6 +434,7 @@ export default function CreateSale() {
                       <Input
                         type="number"
                         id="hardCap"
+                        disabled={launching}
                         placeholder="e.g., 1000000000"
                         value={saleData.hardCap}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -548,6 +451,7 @@ export default function CreateSale() {
                         type="number"
                         id="softCap"
                         placeholder="e.g., MTK"
+                        disabled={launching}
                         value={saleData.softCap}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                           handleInputChange(
@@ -612,6 +516,7 @@ export default function CreateSale() {
                       <Input
                         id="exchangeTokenID"
                         type="string"
+                        disabled={launching}
                         placeholder="0x1234...5678"
                         value={saleData.exchangeTokenId}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -631,6 +536,7 @@ export default function CreateSale() {
                         id="exchangeTokenSymbol"
                         type="text"
                         placeholder="e.g MID"
+                        disabled={launching}
                         value={saleData.exchangeTokenSymbol.toUpperCase()}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                           handleInputChange(
@@ -644,21 +550,50 @@ export default function CreateSale() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="exchangeRatio" className="text-gray-200">
-                        Exchange Ratio *
-                      </Label>
-                      <Input
-                        id="exchangeRatio"
-                        type="number"
-                        placeholder="100"
-                        value={saleData.exchangeRatio}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("exchangeRatio", e.target.value)
-                        }
-                        className="bg-gray-700 border-gray-600 text-gray-100"
-                      />
-                    </div>
+                    {saleData.saleType === "fixed" && (
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="exchangeRatio"
+                          className="text-gray-200"
+                        >
+                          Exchange Ratio *
+                        </Label>
+                        <Input
+                          id="exchangeRatio"
+                          type="number"
+                          placeholder="100"
+                          disabled={launching}
+                          value={saleData.exchangeRatio}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            handleInputChange("exchangeRatio", e.target.value)
+                          }
+                          className="bg-gray-700 border-gray-600 text-gray-100"
+                        />
+                      </div>
+                    )}
+
+                    {saleData.saleType === "overflow" && (
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="exchangeRatio"
+                          className="text-gray-200"
+                        >
+                          Sale Target *
+                        </Label>
+                        <Input
+                          id="target"
+                          type="number"
+                          placeholder="100"
+                          disabled={launching}
+                          value={saleData.target}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            handleInputChange("target", e.target.value)
+                          }
+                          className="bg-gray-700 border-gray-600 text-gray-100"
+                        />
+                      </div>
+                    )}
+
                     <div className="space-y-2">
                       <Label htmlFor="duration" className="text-gray-200">
                         Duration (days) *
@@ -666,6 +601,7 @@ export default function CreateSale() {
                       <Input
                         id="duration"
                         type="number"
+                        disabled={launching}
                         placeholder="1000"
                         value={saleData.duration}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -689,6 +625,7 @@ export default function CreateSale() {
                         id="minContribution"
                         type="number"
                         step="0.1"
+                        disabled={launching}
                         placeholder="0.1"
                         value={saleData.minContribution}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -709,6 +646,7 @@ export default function CreateSale() {
                       <Input
                         id="maxContribution"
                         type="number"
+                        disabled={launching}
                         value={saleData.maxContribution}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                           handleInputChange("maxContribution", e.target.value)

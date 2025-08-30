@@ -49,88 +49,87 @@ export function stringTo32ByteArray(input: string): Uint8Array {
   return result;
 }
 
-export const get_fixed_sales = (
+export const getFixedSales = (
   open_fixed_token_sales: FixedTokenSaleType
 ): FixedSaleData[] => {
   const sales: FixedSaleData[] = [];
 
   for (const [key, sale] of open_fixed_token_sales) {
     sales.push({
-      key_uint: key,
+      keyUint: key,
       key: toHex(key),
       organizer: toHex(sale.organizer),
-      total_amount_for_sale: Number(sale.total_amount_for_sale),
-      total_amount_sold: Number(sale.total_amount_sold),
-      total_amount_left: Number(sale.total_amount_left),
-      token_sale_ratio: sale.token_sale_ratio.toString(),
-      hard_cap: Number(sale.hard_cap),
-      acceptable_exchange_token: sale.acceptable_exchange_token,
+      totalAmountForSale: Number(sale.totalAmountForSale),
+      totalAmountSold: Number(sale.totalAmountSold),
+      totalAmountLeft: Number(sale.totalAmountLeft),
+      tokenSaleRatio: sale.tokenSaleRatio.toString(),
+      acceptableExchangeToken: sale.acceptableExchangeToken,
       status: SaleStatus[sale.status],
       participants: sale.participant.toString(),
-      start_time: sale.start_time.toString(),
+      startTime: sale.startTime.toString(),
       duration: sale.duration.toString(),
       min: Number(sale.min),
       max: Number(sale.max),
-      sale_type: "fixed",
+      saleType: "fixed",
       isWithdrawn: sale.withdrawn,
-      time_up: sale.time_up,
+      timeUp: sale.timeUp,
     });
   }
 
   return sales;
 };
 
-export const get_batch_sales = (
+export const getBatchSales = (
   open_fixed_token_sales: BatchTokenSaleType
 ): BatchSaleData[] => {
   const sales: BatchSaleData[] = [];
 
   for (const [key, sale] of open_fixed_token_sales) {
     sales.push({
-      key_uint: key,
+      keyUint: key,
       key: toHex(key),
       organizer: toHex(sale.organizer),
-      total_amount_for_sale: Number(sale.total_amount_for_sale),
+      totalAmountForSale: Number(sale.totalAmountForSale),
       contribution: Number(sale.contribution),
-      acceptable_exchange_token: sale.acceptable_exchange_token,
+      acceptableExchangeToken: sale.acceptableExchangeToken,
       status: SaleStatus[sale.status],
       participants: sale.participant.toString(),
-      start_time: sale.start_time.toString(),
+      startTime: sale.startTime.toString(),
       duration: sale.duration.toString(),
       min: Number(sale.min),
       max: Number(sale.max),
-      sale_type: "batch",
+      saleType: "batch",
       isWithdrawn: sale.withdrawn,
-      time_up: sale.time_up,
+      timeUp: sale.timeUp,
     });
   }
 
   return sales;
 };
 
-export const get_overflow_sales = (
+export const getOverflowSales = (
   open_fixed_token_sales: OverflowTokenSaleType
 ): OverflowSaleData[] => {
   const sales: OverflowSaleData[] = [];
 
   for (const [key, sale] of open_fixed_token_sales) {
     sales.push({
-      key_uint: key,
+      keyUint: key,
       key: toHex(key),
       organizer: toHex(sale.organizer),
-      total_amount_for_sale: Number(sale.total_amount_for_sale),
+      totalAmountForSale: Number(sale.totalAmountForSale),
       contribution: Number(sale.contribution),
-      acceptable_exchange_token: sale.acceptable_exchange_token,
+      acceptableExchangeToken: sale.acceptableExchangeToken,
       target: Number(sale.target),
       status: SaleStatus[sale.status],
       participants: sale.participant.toString(),
-      start_time: sale.start_time.toString(),
+      startTime: sale.startTime.toString(),
       duration: sale.duration.toString(),
       min: Number(sale.min),
       max: Number(sale.max),
-      sale_type: "batch",
+      saleType: "overflow",
       isWithdrawn: sale.withdrawn,
-      time_up: sale.time_up,
+      timeUp: sale.timeUp,
     });
   }
 

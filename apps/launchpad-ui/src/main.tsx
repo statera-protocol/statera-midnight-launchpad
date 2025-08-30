@@ -3,8 +3,8 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./App.css";
 import { ThemeProvider } from "next-themes";
-import { DeployedLaunchpadProvider } from "./contexts/DeployedAppContext.tsx";
-import { AppContextProvider } from "./contexts/AppContext.tsx";
+import { DeployedLaunchpadProvider } from "./contexts/DeployedAppContext";
+import { AppContextProvider } from "./contexts/AppContext";
 import "./polyfills.ts";
 import {
   setNetworkId,

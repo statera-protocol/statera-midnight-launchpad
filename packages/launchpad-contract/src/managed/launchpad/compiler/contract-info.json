@@ -40,7 +40,7 @@
       }
     },
     {
-      "name": "open_fixed_sale",
+      "name": "openFixedSale",
       "pure": false,
       "arguments": [
         {
@@ -81,7 +81,7 @@
           }
         },
         {
-          "name": "acceptable_exchange_token",
+          "name": "acceptableExchangeToken",
           "type": {
             "type-name": "Bytes",
             "length": 32
@@ -114,13 +114,6 @@
             "type-name": "Uint",
             "maxval": 18446744073709551615
           }
-        },
-        {
-          "name": "token_hard_cap",
-          "type": {
-            "type-name": "Uint",
-            "maxval": 18446744073709551615
-          }
         }
       ],
       "result-type": {
@@ -130,7 +123,7 @@
       }
     },
     {
-      "name": "buy_from_fixed_price",
+      "name": "buyFromFixedSale",
       "pure": false,
       "arguments": [
         {
@@ -185,7 +178,7 @@
       }
     },
     {
-      "name": "open_batch_sale",
+      "name": "openBatchSale",
       "pure": false,
       "arguments": [
         {
@@ -219,7 +212,7 @@
           }
         },
         {
-          "name": "acceptable_exchange_token",
+          "name": "acceptableExchangeToken",
           "type": {
             "type-name": "Bytes",
             "length": 32
@@ -261,7 +254,7 @@
       }
     },
     {
-      "name": "buy_from_batch_sale",
+      "name": "buyFromBatchSale",
       "pure": false,
       "arguments": [
         {
@@ -316,7 +309,7 @@
       }
     },
     {
-      "name": "open_overflow_sale",
+      "name": "openOverflowSale",
       "pure": false,
       "arguments": [
         {
@@ -350,7 +343,7 @@
           }
         },
         {
-          "name": "acceptable_exchange_token",
+          "name": "acceptableExchangeToken",
           "type": {
             "type-name": "Bytes",
             "length": 32
@@ -399,7 +392,7 @@
       }
     },
     {
-      "name": "buy_from_overflow_sale",
+      "name": "buyFromOverflowSale",
       "pure": false,
       "arguments": [
         {
@@ -438,24 +431,6 @@
             "type-name": "Bytes",
             "length": 32
           }
-        }
-      ],
-      "result-type": {
-        "type-name": "Tuple",
-        "types": [
-        ]
-      }
-    },
-    {
-      "name": "withdrawal_from_batch",
-      "pure": false,
-      "arguments": [
-        {
-          "name": "sale_id",
-          "type": {
-            "type-name": "Bytes",
-            "length": 32
-          }
         },
         {
           "name": "amount",
@@ -472,7 +447,7 @@
       }
     },
     {
-      "name": "withdraw_from_overflow",
+      "name": "withdrawalFromBatchSale",
       "pure": false,
       "arguments": [
         {
@@ -483,7 +458,7 @@
           }
         },
         {
-          "name": "amount",
+          "name": "amountContributed",
           "type": {
             "type-name": "Uint",
             "maxval": 18446744073709551615
@@ -497,7 +472,7 @@
       }
     },
     {
-      "name": "closeSale",
+      "name": "withdrawFromOverflowSale",
       "pure": false,
       "arguments": [
         {
@@ -508,10 +483,10 @@
           }
         },
         {
-          "name": "sale_type",
+          "name": "amountContributed",
           "type": {
             "type-name": "Uint",
-            "maxval": 255
+            "maxval": 18446744073709551615
           }
         }
       ],
@@ -522,7 +497,97 @@
       }
     },
     {
-      "name": "organizers_withdrawal",
+      "name": "closeFixedSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "closeBatchSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "closeOverflowSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "organizerWIthdrawalFromFixedSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "organizerWIthdrawalFromBatchSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "organizerWIthdrawalFromOverflowSale",
       "pure": false,
       "arguments": [
         {

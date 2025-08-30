@@ -23,11 +23,9 @@ import {
   findDeployedContract,
 } from "@midnight-ntwrk/midnight-js-contracts";
 import {
-  get_sales_bank,
-  get_received_bank,
-  get_fixed_sales,
-  get_batch_sales,
-  get_overflow_sales,
+  getBatchSales,
+  getFixedSales,
+  getOverflowSales,
   randomNonceBytes,
 } from "./utils.js";
 import { encodeTokenType } from "@midnight-ntwrk/ledger";
@@ -62,14 +60,16 @@ export class LaunchPadAPI {
       (ledgerState, privateState) => {
         const user_pk = pureCircuits.public_key(privateState.secretKey);
 
+        const fixed_sales = getFixedSales(ledgerState.openFixedTokenSales);
+        const batch_sales = getBatchSales(ledgerState.openBatchTokenSales);
+        const overflow_sales = getOverflowSales(
+          ledgerState.openOverflowTokenSales
+        );
+
         return {
-          receival_bank: get_received_bank(ledgerState.received_bank),
-          sale_bank: get_sales_bank(ledgerState.sales_bank),
-          fixed_sales: get_fixed_sales(ledgerState.open_fixed_token_sales),
-          batch_sales: get_batch_sales(ledgerState.open_batch_token_sales),
-          overflow_sales: get_overflow_sales(
-            ledgerState.open_overflow_token_sales
-          ),
+          fixed_sales,
+          batch_sales,
+          overflow_sales,
           user_pk: toHex(user_pk),
         };
       }
@@ -97,7 +97,7 @@ export class LaunchPadAPI {
         console.log("Contract deployed succesfully!");
         return new LaunchPadAPI(deployedLaunchPadContract, providers);
       } catch (error) {
-        throw new Error(`error at deploying contracting: ${error}`);
+        throw new Error(`${error}`);
       }
     } else {
       try {
@@ -156,7 +156,7 @@ export class LaunchPadAPI {
     }
   };
 
-  static open_fixed_sale = async (
+  static openFixedSale = async (
     deployedContract: DeployedLaunchpadContract,
     amount: bigint,
     color: string,
@@ -164,8 +164,7 @@ export class LaunchPadAPI {
     ratio: bigint,
     duration: bigint,
     min: bigint,
-    max: bigint,
-    hardCap: bigint
+    max: bigint
   ) => {
     const coin: CoinInfo = {
       nonce: randomNonceBytes(32),
@@ -173,22 +172,21 @@ export class LaunchPadAPI {
       value: amount,
     };
     try {
-      await deployedContract.callTx.open_fixed_sale(
+      await deployedContract.callTx.openFixedSale(
         coin,
         ratio,
         encodeTokenType(acceptable_color),
         BigInt(Date.now()),
         duration,
         min,
-        max,
-        hardCap
+        max
       );
     } catch (error: any) {
       throw error;
     }
   };
 
-  static open_batch_sale = async (
+  static openBatchSale = async (
     deployedContract: DeployedLaunchpadContract,
     amount: bigint,
     color: string,
@@ -203,7 +201,7 @@ export class LaunchPadAPI {
       value: amount,
     };
     try {
-      deployedContract.callTx.open_batch_sale(
+      await deployedContract.callTx.openBatchSale(
         coin,
         encodeTokenType(acceptable_color),
         BigInt(Date.now()),
@@ -211,10 +209,13 @@ export class LaunchPadAPI {
         min,
         max
       );
-    } catch (error) {}
+      console.log("Batch Sale createdd Successfully");
+    } catch (error) {
+      throw error;
+    }
   };
 
-  static open_overflow_sale = async (
+  static openOverflowSale = async (
     deployedContract: DeployedLaunchpadContract,
     amount: bigint,
     color: string,
@@ -230,7 +231,7 @@ export class LaunchPadAPI {
       value: amount,
     };
     try {
-      deployedContract.callTx.open_overflow_sale(
+      await deployedContract.callTx.openOverflowSale(
         coin,
         encodeTokenType(acceptable_color),
         BigInt(Date.now()),
@@ -239,87 +240,105 @@ export class LaunchPadAPI {
         min,
         max
       );
-    } catch (error) {}
-  };
-
-  static buy_fixed_token = async (
-    deployedContract: DeployedLaunchpadContract,
-    amount: bigint,
-    color: Uint8Array,
-    sale_id: Uint8Array
-  ) => {
-    const coin: CoinInfo = {
-      nonce: randomNonceBytes(32),
-      color: color,
-      value: amount,
-    };
-
-    console.log(coin);
-
-    try {
-      await deployedContract.callTx.buy_from_fixed_price(coin, sale_id, amount);
-    } catch (error: any) {
+    } catch (error) {
       throw error;
     }
   };
 
-  static buy_token = async (
+  static contributeToSale = async (
     deployedContract: DeployedLaunchpadContract,
     amount: bigint,
     color: Uint8Array,
     sale_id: Uint8Array,
     sale_type: string
   ) => {
+    const coin: CoinInfo = {
+      nonce: randomNonceBytes(32),
+      color: color,
+      value: amount,
+    };
     try {
-      const coin: CoinInfo = {
-        nonce: randomNonceBytes(32),
-        color: color,
-        value: amount,
-      };
-
       if (sale_type === "fixed") {
-        await deployedContract.callTx.buy_from_fixed_price(
-          coin,
-          sale_id,
-          amount
-        );
+        await deployedContract.callTx.buyFromFixedSale(coin, sale_id, amount);
       } else if (sale_type === "batch") {
-        await deployedContract.callTx.buy_from_batch_sale(
+        console.log({ coin });
+        console.log("Got here");
+        await deployedContract.callTx.buyFromBatchSale(coin, sale_id, amount);
+      } else if (sale_type === "overflow") {
+        await deployedContract.callTx.buyFromOverflowSale(
           coin,
           sale_id,
           amount
         );
-      } else if (sale_type === "overflow") {
-        await deployedContract.callTx.buy_from_overflow_sale(coin, sale_id);
       }
     } catch (error) {
       throw error;
     }
   };
 
-  // static close_fixed_sale = async (
-  //   deployedContract: DeployedLaunchpadContract,
-  //   sale_id: Uint8Array
-  // ) => {
-  //   try {
-  //     console.log("closing sale...");
-  //     await deployedContract.callTx.closeSale(sale_id, 1n);
-  //     console.log("Sale closed successfully!");
-  //   } catch (error: any) {
-  //     throw error;
-  //   }
-  // };
+  static closeSale = async (
+    deployedContract: DeployedLaunchpadContract,
+    sale_id: Uint8Array,
+    sale_type: string
+  ) => {
+    try {
+      console.log("closing sale...");
 
-  // static withdraw_funds = async (
-  //   deployedContract: DeployedLaunchpadContract,
-  //   sale_id: Uint8Array
-  // ) => {
-  //   try {
-  //     await deployedContract.callTx.withdraw_token(sale_id);
-  //   } catch (error: any) {
-  //     throw error;
-  //   }
-  // };
+      if (sale_type === "fixed") {
+        console.log("closing fixed sale");
+        await deployedContract.callTx.closeFixedSale(sale_id);
+      } else if (sale_type === "batch") {
+        console.log("closing batch sale");
+        await deployedContract.callTx.closeBatchSale(sale_id);
+      } else if (sale_type === "overflow") {
+        console.log("closing overflow sale");
+        await deployedContract.callTx.closeOverflowSale(sale_id);
+      }
+      console.log("Sale closed successfully!");
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
+  static withdrawFromSale = async (
+    deployedContract: DeployedLaunchpadContract,
+    sale_type: string,
+    sale_id: Uint8Array,
+    amount: bigint
+  ) => {
+    try {
+      if (sale_type === "batch") {
+        await deployedContract.callTx.withdrawalFromBatchSale(
+          sale_id,
+          BigInt(amount)
+        );
+      } else {
+        await deployedContract.callTx.withdrawFromOverflowSale(sale_id, amount);
+      }
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
+  static organizerWithdrawal = async (
+    deployedContract: DeployedLaunchpadContract,
+    sale_type: string,
+    sale_id: Uint8Array
+  ) => {
+    try {
+      if (sale_type === "fixed") {
+        await deployedContract.callTx.organizerWIthdrawalFromFixedSale(sale_id);
+      } else if (sale_type === "batch") {
+        await deployedContract.callTx.organizerWIthdrawalFromBatchSale(sale_id);
+      } else {
+        await deployedContract.callTx.organizerWIthdrawalFromOverflowSale(
+          sale_id
+        );
+      }
+    } catch (error: any) {
+      throw error;
+    }
+  };
 }
 
 /**
