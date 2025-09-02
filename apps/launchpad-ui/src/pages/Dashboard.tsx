@@ -39,7 +39,12 @@ import { Footer } from "../components/footer";
 import { useAppDeployment } from "../hooks/useAppDeployment";
 import { useEffect, useState } from "react";
 import { IMAGE, saleTypesList, statuses } from "../lib/assets";
-import type { DerivedState } from "@repo/launchpad-api";
+import type {
+  BatchSaleData,
+  DerivedState,
+  FixedSaleData,
+  OverflowSaleData,
+} from "@repo/launchpad-api";
 import type { SaleData } from "./ProjectDetail";
 
 export default function Dashboard() {
@@ -69,36 +74,39 @@ export default function Dashboard() {
         ...state.batch_sales,
         ...state.overflow_sales,
       ];
-      // shuffle
-      merged
+
+      // Fix the shuffling logic
+      const shuffled = merged
         .map((p) => ({ ...p, sort: Math.random() }))
         .sort((a, b) => a.sort - b.sort)
         .map(({ sort, ...rest }) => rest);
-      setAllProjects(merged ?? []);
+
+      setAllProjects(shuffled ?? []);
+      setIsLoading(false); // Move this inside the subscription
     });
-    setIsLoading(false);
 
     return () => {
       stateSubscription.unsubscribe();
     };
   }, [api]);
 
-  // const allProjects = useMemo(() => {
-  //   return allProjects.filter((project) => {
-  //     const matchesSearch =
-  //       searchTerm === "" ||
-  //       project.key.toLowerCase().includes(searchTerm.toLowerCase());
+  useEffect(() => {
+    api?.state$.subscribe((state) => {
+      console.log(state);
+    });
+  }, [api]);
 
-  //     const matchesStatus =
-  //       selectedStatus === "All" ||
-  //       project.status.toLowerCase() === selectedStatus.toLowerCase();
+  const isFixedSale = (sale: SaleData): sale is FixedSaleData => {
+    return sale.saleType === "fixed";
+  };
 
-  //     const matchesSaleType =
-  //       selectedSaleType === "All" || project.saleType === selectedSaleType;
+  const isBatchSale = (sale: SaleData): sale is BatchSaleData => {
+    return sale.saleType === "batch";
+  };
 
-  //     return matchesSearch && matchesStatus && matchesSaleType;
-  //   });
-  // }, [allProjects, searchTerm, selectedStatus, selectedSaleType]);
+  const isOverflowSale = (sale: SaleData): sale is OverflowSaleData => {
+    return sale.saleType === "overflow";
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -131,7 +139,7 @@ export default function Dashboard() {
             {deploymentState === "deployed" && (
               <Button
                 onClick={() => setRoute("create-sale")}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 cursor-pointer"
               >
                 Launch Project
               </Button>
@@ -141,7 +149,7 @@ export default function Dashboard() {
               <Button
                 onClick={() => setRoute("token-generator")}
                 variant="outline"
-                className="border-gray-700 hover:bg-gray-800 hover:text-white bg-transparent"
+                className="border-gray-700 hover:bg-gray-800 hover:text-white bg-transparent cursor-pointer"
               >
                 <Coins className="w-4 h-4 mr-2" />
                 Token Generator
@@ -155,7 +163,7 @@ export default function Dashboard() {
             {deploymentState !== "deployed" && (
               <Button
                 onClick={connectWallet}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 cursor-pointer"
                 disabled={deploymentState === "in-progress"}
               >
                 <Wallet className="w-4 h-4 mr-2" />
@@ -185,7 +193,7 @@ export default function Dashboard() {
                       size="icon"
                       className="rounded-full"
                     >
-                      <Avatar className="w-8 h-8">
+                      <Avatar className="w-8 h-8 cursor-pointer">
                         <AvatarImage src="/placeholder.svg?height=32&width=32" />
                         <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600">
                           <User className="w-4 h-4" />
@@ -348,7 +356,7 @@ export default function Dashboard() {
               )}
 
               {/* Loading Skeleton */}
-              {isLoading ? (
+              {isLoading && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {Array.from({ length: 6 }).map((_, idx) => (
                     <Card
@@ -364,10 +372,42 @@ export default function Dashboard() {
                           <div className="h-6 w-16 bg-gray-600/50 rounded-full" />
                         </div>
                       </div>
+                      <CardHeader>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 bg-gray-700/50 rounded-full" />
+                          <div>
+                            <div className="h-5 w-24 bg-gray-700/50 rounded mb-2" />
+                            <div className="h-4 w-16 bg-gray-700/50 rounded" />
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4 flex-1">
+                        <div className="h-4 w-full bg-gray-700/50 rounded" />
+                        <div className="h-4 w-3/4 bg-gray-700/50 rounded" />
+                        <div className="flex gap-4 justify-between items-center">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 bg-gray-700/50 rounded" />
+                            <div>
+                              <div className="h-3 w-8 bg-gray-700/50 rounded mb-1" />
+                              <div className="h-4 w-16 bg-gray-700/50 rounded" />
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 bg-gray-700/50 rounded" />
+                            <div>
+                              <div className="h-3 w-12 bg-gray-700/50 rounded mb-1" />
+                              <div className="h-4 w-8 bg-gray-700/50 rounded" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="h-10 w-full bg-gray-700/50 rounded" />
+                      </CardContent>
                     </Card>
                   ))}
                 </div>
-              ) : allProjects.length > 0 /* Projects Grid */ ? (
+              )}
+
+              {!isLoading && allProjects.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                   {allProjects.map((project) => (
                     <Card
@@ -379,10 +419,8 @@ export default function Dashboard() {
                           const displayProject = allProjects.find(
                             (proj) => proj.key === project.key
                           );
-                          console.log({ displayProject });
                           setProjectDetail(displayProject);
                           setRoute("project-detail");
-                          console.log(project.key);
                         }}
                         className="relative cursor-pointer"
                       >
@@ -416,10 +454,10 @@ export default function Dashboard() {
                           </div>
                           <div>
                             <CardTitle className="text-gray-100">
-                              Sample Project
+                              {project.projectName}
                             </CardTitle>
                             <CardDescription className="text-gray-400">
-                              TEST
+                              {project.tokenSymbol}
                             </CardDescription>
                           </div>
                         </div>
@@ -433,13 +471,42 @@ export default function Dashboard() {
 
                         {/* Stats */}
                         <div className="flex gap-4 justify-between items-center text-sm">
-                          <div className="flex items-center space-x-2">
-                            <DollarSign className="w-4 h-4 text-green-400" />
-                            <div>
-                              <p className="text-gray-400">Price</p>
-                              <p className="text-gray-100">tbd TEST</p>
+                          {isFixedSale(project) && (
+                            <div className="flex items-center space-x-2">
+                              <DollarSign className="w-4 h-4 text-green-400" />
+                              <div>
+                                <p className="text-gray-400">Price</p>
+                                <p className="text-gray-100">
+                                  {project.tokenSaleRatio}{" "}
+                                  {project.acceptableTokenSymbol}
+                                </p>
+                              </div>
                             </div>
-                          </div>
+                          )}
+                          {isBatchSale(project) && (
+                            <div className="flex items-center space-x-2">
+                              <DollarSign className="w-4 h-4 text-green-400" />
+                              <div>
+                                <p className="text-gray-400">Total Pool</p>
+                                <p className="text-gray-100">
+                                  {project.totalAmountForSale}{" "}
+                                  {project.tokenSymbol}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                          {isOverflowSale(project) && (
+                            <div className="flex items-center space-x-2">
+                              <DollarSign className="w-4 h-4 text-green-400" />
+                              <div>
+                                <p className="text-gray-400">Target</p>
+                                <p className="text-gray-100">
+                                  {project.target}{" "}
+                                  {project.acceptableTokenSymbol}
+                                </p>
+                              </div>
+                            </div>
+                          )}
                           <div className="flex items-center space-x-2">
                             <Users className="w-4 h-4 text-blue-400" />
                             <div>
@@ -457,10 +524,8 @@ export default function Dashboard() {
                             const displayProject = allProjects.find(
                               (proj) => proj.key === project.key
                             );
-                            console.log({ displayProject });
                             setProjectDetail(displayProject);
                             setRoute("project-detail");
-                            console.log(project.key);
                           }}
                           className="w-full self-end bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 group-hover:shadow-lg group-hover:shadow-purple-500/25 cursor-pointer"
                         >
@@ -471,8 +536,9 @@ export default function Dashboard() {
                     </Card>
                   ))}
                 </div>
-              ) : (
-                // empty state
+              )}
+
+              {!isLoading && allProjects.length === 0 && (
                 <div className="text-center py-12 mx-0 my-0">
                   <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Search className="w-8 h-8 text-gray-400" />

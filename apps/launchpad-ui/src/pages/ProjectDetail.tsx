@@ -237,14 +237,12 @@ const ProjectDetail = () => {
       if (!api) {
         return;
       }
-      console.log("Withdrawing...");
       await LaunchPadAPI.withdrawFromSale(
         api.deployedContract,
         sale_type,
         sale_id,
         BigInt(withdrawalAmount)
       );
-      console.log("Withdrawal completed");
     } catch (error) {
       handleError(error);
     } finally {
@@ -273,7 +271,6 @@ const ProjectDetail = () => {
 
   useEffect(() => {
     if (!api) {
-      console.log("no api");
       return;
     }
     setIsLoading(true);
@@ -380,10 +377,15 @@ const ProjectDetail = () => {
 
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">SP</span>
+                <span className="text-white font-bold text-sm">
+                  {projectDetail.projectName
+                    .split(" ")
+                    .map((word) => word.charAt(0))
+                    .join("")}
+                </span>
               </div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Sample Project
+                {projectDetail.projectName}
               </h1>
             </div>
           </div>
@@ -466,15 +468,19 @@ const ProjectDetail = () => {
             <div className="flex flex-col md:flex-row md:items-end md:justify-between">
               <div className="mb-4 md:mb-0">
                 <h2 className="text-3xl md:text-4xl font-bold mb-2">
-                  Statera Sample Project
+                  {projectDetail.projectName}
                 </h2>
                 <p className="text-gray-300 text-lg max-w-2xl">
                   Statera Midnight Launchpad: The Launchpad for Statera on
-                  Midnight is a crypto launchpad specifically designed for the
-                  Midnight blockchain. It provides a secure and efficient
-                  platform for projects to launch their tokens and raise
-                  capital, empowering developers and investors within the
-                  Midnight ecosystem.
+                  Midnight is a privacy-first crypto launchpad built
+                  specifically for the Midnight blockchain. It offers a secure,
+                  private, and efficient platform for projects to launch their
+                  tokens and raise capital while safeguarding sensitive data at
+                  every step. By prioritizing privacy for both developers and
+                  investors, the launchpad ensures that projects can build and
+                  grow with confidence, and participants can engage in
+                  fundraising activities without compromising their personal or
+                  financial information.
                 </p>
               </div>
               <div className="flex space-x-3">
@@ -517,7 +523,7 @@ const ProjectDetail = () => {
           {/* Main Content */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-5 bg-gray-800 border-gray-700">
+              <TabsList className="grid w-full grid-cols-2 bg-gray-800 border-gray-700">
                 <TabsTrigger
                   value="overview"
                   className="data-[state=active]:bg-gray-700 text-white"
@@ -536,17 +542,21 @@ const ProjectDetail = () => {
                 <Card className="bg-gray-800/50 border-gray-700">
                   <CardHeader>
                     <CardTitle className="text-gray-100">
-                      About Statera Midnight Launchpad
+                      About {projectDetail.projectName}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-gray-300 leading-relaxed">
                       Statera Midnight Launchpad: The Launchpad for Statera on
-                      Midnight is a crypto launchpad specifically designed for
-                      the Midnight blockchain. It provides a secure and
-                      efficient platform for projects to launch their tokens and
-                      raise capital, empowering developers and investors within
-                      the Midnight ecosystem.
+                      Midnight is a privacy-first crypto launchpad built
+                      specifically for the Midnight blockchain. It offers a
+                      secure, private, and efficient platform for projects to
+                      launch their tokens and raise capital while safeguarding
+                      sensitive data at every step. By prioritizing privacy for
+                      both developers and investors, the launchpad ensures that
+                      projects can build and grow with confidence, and
+                      participants can engage in fundraising activities without
+                      compromising their personal or financial information.
                     </p>
 
                     <div className="space-y-3">
@@ -634,7 +644,8 @@ const ProjectDetail = () => {
                         <div className="flex justify-between">
                           <span className="text-gray-400">Price:</span>
                           <span className="text-gray-100 font-semibold">
-                            {projectDetail.tokenSaleRatio} TEST
+                            {projectDetail.tokenSaleRatio}{" "}
+                            {projectDetail.acceptableTokenSymbol}
                           </span>
                         </div>
                       )}
@@ -642,7 +653,8 @@ const ProjectDetail = () => {
                         <div className="flex justify-between">
                           <span className="text-gray-400">Total Tokens:</span>
                           <span className="text-gray-100 font-semibold">
-                            {projectDetail.contribution} TEST
+                            {projectDetail.contribution}{" "}
+                            {projectDetail.acceptableTokenSymbol}
                           </span>
                         </div>
                       )}
@@ -650,7 +662,8 @@ const ProjectDetail = () => {
                         <div className="flex justify-between">
                           <span className="text-gray-400">Sale Target:</span>
                           <span className="text-gray-100 font-semibold">
-                            {projectDetail.target} TEST
+                            {projectDetail.target}{" "}
+                            {projectDetail.acceptableTokenSymbol}
                           </span>
                         </div>
                       )}
@@ -661,7 +674,8 @@ const ProjectDetail = () => {
                         <div className="flex justify-between">
                           <span className="text-gray-400">Amount Sold:</span>
                           <span className="text-gray-400">
-                            {projectDetail.totalAmountSold} TEST
+                            {projectDetail.totalAmountSold}{" "}
+                            {projectDetail.tokenSymbol}
                           </span>
                         </div>
 
@@ -670,7 +684,7 @@ const ProjectDetail = () => {
                           <span className="text-gray-400">
                             {projectDetail.totalAmountSold *
                               Number(projectDetail.tokenSaleRatio)}{" "}
-                            TEST
+                            {projectDetail.acceptableTokenSymbol}
                           </span>
                         </div>
                       </div>
@@ -708,18 +722,21 @@ const ProjectDetail = () => {
                         {isFixedSale(projectDetail) && (
                           <span className="text-gray-100">
                             {projectDetail.totalAmountSold} /{" "}
-                            {projectDetail.totalAmountForSale} TEST
+                            {projectDetail.totalAmountForSale}{" "}
+                            {projectDetail.tokenSymbol}
                           </span>
                         )}
                         {isBatchSale(projectDetail) && (
                           <span className="text-gray-100">
-                            {projectDetail.contribution} TEST
+                            {projectDetail.contribution}{" "}
+                            {projectDetail.acceptableTokenSymbol}
                           </span>
                         )}
                         {isOverflowSale(projectDetail) && (
                           <span className="text-gray-100">
                             {projectDetail.contribution} /{" "}
-                            {projectDetail.target} TEST
+                            {projectDetail.target}{" "}
+                            {projectDetail.acceptableTokenSymbol}
                           </span>
                         )}
                       </div>
@@ -748,7 +765,8 @@ const ProjectDetail = () => {
                     <div className="space-y-3 pt-4 border-t border-gray-700">
                       <div className="space-y-2">
                         <label className="text-sm text-gray-300">
-                          Contribution Amount (TEST)
+                          Contribution Amount (
+                          {projectDetail.acceptableTokenSymbol})
                         </label>
                         <Input
                           type="number"
@@ -783,7 +801,8 @@ const ProjectDetail = () => {
                       <div className="space-y-3 pt-4 border-t border-gray-700">
                         <div className="space-y-2">
                           <label className="text-sm text-gray-300">
-                            Withdrawal Amount (TEST)
+                            Enter Contributed Amount (
+                            {projectDetail.acceptableTokenSymbol})
                           </label>
                           <Input
                             type="number"
@@ -888,7 +907,8 @@ const ProjectDetail = () => {
                       <span className="text-gray-400 text-sm">Soft Cap</span>
                     </div>
                     <span className="text-gray-100 font-semibold">
-                      {projectDetail.totalAmountForSale} TEST
+                      {projectDetail.totalAmountForSale}{" "}
+                      {projectDetail.tokenSymbol}
                     </span>
                   </div>
                 )}

@@ -111,26 +111,6 @@ export function Footer() {
             </div>
           </div>
         </div>
-
-        <div className="border-t border-gray-800 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center px-12">
-          <p className="text-gray-400 text-sm">
-            © 2024 Midnight Launchpad. All rights reserved.
-          </p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <a
-              href="#"
-              className="text-gray-400 hover:text-gray-200 text-sm transition-colors"
-            >
-              Privacy Policy
-            </a>
-            <a
-              href="#"
-              className="text-gray-400 hover:text-gray-200 text-sm transition-colors"
-            >
-              Terms of Service
-            </a>
-          </div>
-        </div>
       </div>
     </footer>
   );

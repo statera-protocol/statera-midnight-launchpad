@@ -22,6 +22,9 @@ struct BuyerData {
 };
 
 struct FixedSalesData{
+    projectName: Opaque<"string">;
+    tokenSymbol: Opaque<"string">;
+    acceptableTokenSymbol: Opaque<"string">;
     organizer: Bytes<32>;
     totalAmountForSale: Uint<128>;
     totalAmountSold: Uint<128>;
@@ -39,6 +42,9 @@ struct FixedSalesData{
 }
 
 struct BatchSalesData{
+    projectName: Opaque<"string">;
+    tokenSymbol: Opaque<"string">;
+    acceptableTokenSymbol: Opaque<"string">;
     organizer: Bytes<32>;
     totalAmountForSale: Uint<128>;
     contribution: Uint<128>;
@@ -54,6 +60,9 @@ struct BatchSalesData{
 }
 
 struct OverflowSalesData{
+    projectName: Opaque<"string">;
+    tokenSymbol: Opaque<"string">;
+    acceptableTokenSymbol: Opaque<"string">;
     organizer: Bytes<32>;
     totalAmountForSale: Uint<128>;
     contribution: Uint<128>;
@@ -114,6 +123,9 @@ export circuit openFixedSale(
     sale_duration: Uint<8>,
     min: Uint<64>,
     max: Uint<64>,
+    project_name: Opaque<"string">,
+    token_symbol: Opaque<"string">,
+    acceptable_token_symbol: Opaque<"string">
     ) :[] {
     assert(sale_ratio > 0, "Sale ratio must be greater than 0!");
     assert(coin.value > 0, "Sale amount must be greater than 0!");
@@ -124,6 +136,9 @@ export circuit openFixedSale(
     saleBank.insertCoin(disclose(sale_id), disclose(coin), right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
 
     openFixedTokenSales.insert(sale_id, FixedSalesData {
+        disclose(project_name),
+        disclose(token_symbol),
+        disclose(acceptable_token_symbol),
         organizer,
         disclose(coin.value),
         0,
@@ -137,7 +152,7 @@ export circuit openFixedSale(
         disclose(min),
         disclose(max),
         false,
-        false
+        false,
     });
 }
 
@@ -194,7 +209,10 @@ export circuit openBatchSale(
     creation_time: Uint<64>,
     sale_duration: Uint<8>,
     min: Uint<64>,
-    max: Uint<64>
+    max: Uint<64>,
+    project_name: Opaque<"string">,
+    token_symbol: Opaque<"string">,
+    acceptable_token_symbol: Opaque<"string">
  ): [] {
     receive(disclose(coin));
     const organizer = disclose(public_key(disclose(local_secret_key())));
@@ -203,6 +221,9 @@ export circuit openBatchSale(
     saleBank.insertCoin(disclose(sale_id), disclose(coin), right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
 
     openBatchTokenSales.insert(sale_id, BatchSalesData {
+        disclose(project_name),
+        disclose(token_symbol),
+        disclose(acceptable_token_symbol),
         organizer,
         disclose(coin.value),
         0,
@@ -272,7 +293,10 @@ export circuit openOverflowSale(
     sale_duration: Uint<8>,
     target: Uint<128>,
     min: Uint<64>,
-    max: Uint<64>
+    max: Uint<64>,
+    project_name: Opaque<"string">,
+    token_symbol: Opaque<"string">,
+    acceptable_token_symbol: Opaque<"string">
  ): [] {
     receive(disclose(coin));
     const organizer = disclose(public_key(disclose(local_secret_key())));
@@ -281,6 +305,9 @@ export circuit openOverflowSale(
     saleBank.insertCoin(disclose(sale_id), disclose(coin), right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
 
     openOverflowTokenSales.insert(sale_id, OverflowSalesData {
+        disclose(project_name),
+        disclose(token_symbol),
+        disclose(acceptable_token_symbol),
         organizer,
         disclose(coin.value),
         0,

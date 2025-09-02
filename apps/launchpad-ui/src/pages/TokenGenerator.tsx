@@ -52,7 +52,7 @@ export default function TokenGenerator() {
 
     setIsGenerating(true);
     try {
-      const txData = await LaunchPadAPI.createToken(
+      await LaunchPadAPI.createToken(
         api.deployedContract,
         await stringToBytes(tokenData.name),
         BigInt(tokenData.totalSupply),
@@ -62,7 +62,6 @@ export default function TokenGenerator() {
 
       setGenerationComplete(true);
       handleSuccess("Token generated successfully");
-      console.log("Token creation transaction:", txData);
     } catch (error) {
       handleError("Failed to generate token");
       handleError(

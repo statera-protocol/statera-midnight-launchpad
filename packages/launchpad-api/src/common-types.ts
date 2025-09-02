@@ -64,6 +64,9 @@ export type FixedSaleData = {
   saleType: string;
   isWithdrawn: boolean;
   timeUp: boolean;
+  projectName: string;
+  tokenSymbol: string;
+  acceptableTokenSymbol: string;
 };
 
 export type BatchSaleData = {
@@ -82,6 +85,9 @@ export type BatchSaleData = {
   saleType: string;
   isWithdrawn: boolean;
   timeUp: boolean;
+  projectName: string;
+  tokenSymbol: string;
+  acceptableTokenSymbol: string;
 };
 
 export type OverflowSaleData = {
@@ -101,6 +107,9 @@ export type OverflowSaleData = {
   saleType: string;
   isWithdrawn: boolean;
   timeUp: boolean;
+  projectName: string;
+  tokenSymbol: string;
+  acceptableTokenSymbol: string;
 };
 
 export type FixedTokenSaleType = {
@@ -108,6 +117,9 @@ export type FixedTokenSaleType = {
   size(): bigint;
   member(key_0: Uint8Array): boolean;
   lookup(key_0: Uint8Array): {
+    projectName: string;
+    tokenSymbol: string;
+    acceptableTokenSymbol: string;
     organizer: Uint8Array;
     totalAmountForSale: bigint;
     totalAmountSold: bigint;
@@ -127,6 +139,9 @@ export type FixedTokenSaleType = {
     [
       Uint8Array,
       {
+        projectName: string;
+        tokenSymbol: string;
+        acceptableTokenSymbol: string;
         organizer: Uint8Array;
         totalAmountForSale: bigint;
         totalAmountSold: bigint;
@@ -151,6 +166,9 @@ export type BatchTokenSaleType = {
   size(): bigint;
   member(key_0: Uint8Array): boolean;
   lookup(key_0: Uint8Array): {
+    projectName: string;
+    tokenSymbol: string;
+    acceptableTokenSymbol: string;
     organizer: Uint8Array;
     totalAmountForSale: bigint;
     contribution: bigint;
@@ -168,6 +186,9 @@ export type BatchTokenSaleType = {
     [
       Uint8Array,
       {
+        projectName: string;
+        tokenSymbol: string;
+        acceptableTokenSymbol: string;
         organizer: Uint8Array;
         totalAmountForSale: bigint;
         contribution: bigint;
@@ -190,6 +211,9 @@ export type OverflowTokenSaleType = {
   size(): bigint;
   member(key_0: Uint8Array): boolean;
   lookup(key_0: Uint8Array): {
+    projectName: string;
+    tokenSymbol: string;
+    acceptableTokenSymbol: string;
     organizer: Uint8Array;
     totalAmountForSale: bigint;
     contribution: bigint;
@@ -208,6 +232,9 @@ export type OverflowTokenSaleType = {
     [
       Uint8Array,
       {
+        projectName: string;
+        tokenSymbol: string;
+        acceptableTokenSymbol: string;
         organizer: Uint8Array;
         totalAmountForSale: bigint;
         contribution: bigint;

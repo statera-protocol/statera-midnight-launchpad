@@ -114,6 +114,27 @@
             "type-name": "Uint",
             "maxval": 18446744073709551615
           }
+        },
+        {
+          "name": "project_name",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "token_symbol",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "acceptable_token_symbol",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
         }
       ],
       "result-type": {
@@ -244,6 +265,27 @@
           "type": {
             "type-name": "Uint",
             "maxval": 18446744073709551615
+          }
+        },
+        {
+          "name": "project_name",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "token_symbol",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "acceptable_token_symbol",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
           }
         }
       ],
@@ -382,6 +424,27 @@
           "type": {
             "type-name": "Uint",
             "maxval": 18446744073709551615
+          }
+        },
+        {
+          "name": "project_name",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "token_symbol",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "acceptable_token_symbol",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
           }
         }
       ],

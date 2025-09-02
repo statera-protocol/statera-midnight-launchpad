@@ -70,9 +70,7 @@ export default function CreateSale() {
     }
     setLaunching(true);
     try {
-      console.log(saleData.saleType);
       if (saleData.saleType === "fixed") {
-        console.log("fixed start");
         await LaunchPadAPI.openFixedSale(
           api.deployedContract,
           BigInt(saleData.softCap),
@@ -81,11 +79,12 @@ export default function CreateSale() {
           BigInt(saleData.exchangeRatio),
           BigInt(saleData.duration),
           BigInt(saleData.minContribution),
-          BigInt(saleData.maxContribution)
+          BigInt(saleData.maxContribution),
+          saleData.projectName,
+          saleData.tokenTicker,
+          saleData.exchangeTokenSymbol
         );
-        console.log("fixed done");
       } else if (saleData.saleType === "batch") {
-        console.log("batched start");
         await LaunchPadAPI.openBatchSale(
           api.deployedContract,
           BigInt(saleData.softCap),
@@ -93,11 +92,12 @@ export default function CreateSale() {
           saleData.exchangeTokenId,
           BigInt(saleData.duration),
           BigInt(saleData.minContribution),
-          BigInt(saleData.maxContribution)
+          BigInt(saleData.maxContribution),
+          saleData.projectName,
+          saleData.tokenTicker,
+          saleData.exchangeTokenSymbol
         );
-        console.log("batched done");
       } else if (saleData.saleType === "overflow") {
-        console.log("overflowed start");
         await LaunchPadAPI.openOverflowSale(
           api.deployedContract,
           BigInt(saleData.softCap),
@@ -106,9 +106,11 @@ export default function CreateSale() {
           BigInt(saleData.duration),
           BigInt(saleData.minContribution),
           BigInt(saleData.maxContribution),
-          BigInt(saleData.target)
+          BigInt(saleData.target),
+          saleData.projectName,
+          saleData.tokenTicker,
+          saleData.exchangeTokenSymbol
         );
-        console.log("overflowed done");
       }
 
       //CLEAR SALE DATA TO INITIAL
@@ -117,7 +119,6 @@ export default function CreateSale() {
       setLogoFile(null);
       setCurrentStep(1);
       setSuccess("Sale Uploaded Successfully");
-
       setLaunching(false);
     } catch (error) {}
   };
@@ -729,13 +730,32 @@ export default function CreateSale() {
                         Sale Parameters
                       </h4>
                       <div className="space-y-2 text-sm">
-                        <div className="flex justify-between uppercase">
-                          <span className="text-gray-400">Price:</span>
-                          <span className="text-gray-100">
-                            {saleData.exchangeRatio || "0"}{" "}
-                            {saleData.exchangeTokenSymbol}
-                          </span>
-                        </div>
+                        {saleData.saleType === "fixed" && (
+                          <div className="flex justify-between uppercase">
+                            <span className="text-gray-400">Price:</span>
+                            <span className="text-gray-100">
+                              {saleData.exchangeRatio || "0"}{" "}
+                              {saleData.exchangeTokenSymbol}
+                            </span>
+                          </div>
+                        )}
+                        {saleData.saleType === "batch" && (
+                          <div className="flex justify-between uppercase">
+                            <span className="text-gray-400">Total Pool</span>
+                            <span className="text-gray-100">
+                              {saleData.softCap || "0"} {saleData.tokenTicker}
+                            </span>
+                          </div>
+                        )}
+                        {saleData.saleType === "overflow" && (
+                          <div className="flex justify-between uppercase">
+                            <span className="text-gray-400">Target:</span>
+                            <span className="text-gray-100">
+                              {saleData.target || "0"}{" "}
+                              {saleData.exchangeTokenSymbol}
+                            </span>
+                          </div>
+                        )}
                         <div className="flex justify-between">
                           <span className="text-gray-400">Soft Cap:</span>
                           <span className="text-gray-100">
@@ -812,13 +832,31 @@ export default function CreateSale() {
                 </div>
 
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Price:</span>
-                    <span className="text-gray-100 uppercase">
-                      {saleData.exchangeRatio || "0"}{" "}
-                      {saleData.exchangeTokenSymbol}
-                    </span>
-                  </div>
+                  {saleData.saleType === "fixed" && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Price:</span>
+                      <span className="text-gray-100 uppercase">
+                        {saleData.exchangeRatio || "0"}{" "}
+                        {saleData.exchangeTokenSymbol}
+                      </span>
+                    </div>
+                  )}
+                  {saleData.saleType === "batch" && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Total Pool:</span>
+                      <span className="text-gray-100 uppercase">
+                        {saleData.softCap || "0"} {saleData.tokenTicker}
+                      </span>
+                    </div>
+                  )}
+                  {saleData.saleType === "overflow" && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Target:</span>
+                      <span className="text-gray-100 uppercase">
+                        {saleData.target || "0"} {saleData.exchangeTokenSymbol}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-gray-400">Hard Cap:</span>
                     <span className="text-gray-100">

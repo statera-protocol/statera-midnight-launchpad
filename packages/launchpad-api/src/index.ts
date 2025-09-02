@@ -83,8 +83,6 @@ export class LaunchPadAPI {
     let deployedLaunchPadContract;
     if (!contractAddress) {
       try {
-        console.log("deploying a new contract...");
-
         deployedLaunchPadContract = await deployContract<LaunchPadContract>(
           providers,
           {
@@ -94,15 +92,12 @@ export class LaunchPadAPI {
             args: [randomNonceBytes(32)],
           }
         );
-        console.log("Contract deployed succesfully!");
         return new LaunchPadAPI(deployedLaunchPadContract, providers);
       } catch (error) {
         throw new Error(`${error}`);
       }
     } else {
       try {
-        console.log("Joining a new contract...");
-
         deployedLaunchPadContract =
           await findDeployedContract<LaunchPadContract>(providers, {
             contractAddress,
@@ -110,8 +105,6 @@ export class LaunchPadAPI {
             privateStateId: LaunchPadPrivateStateKey,
             initialPrivateState: await this.getPrivateState(providers),
           });
-        console.log("Contract found successfully");
-        console.log("Contract joined succesfully!");
         return new this(deployedLaunchPadContract, providers);
       } catch (error: any) {
         throw error;
@@ -148,9 +141,7 @@ export class LaunchPadAPI {
     icon: string
   ) => {
     try {
-      console.log("creating token...");
       await deployedContract.callTx.create_token(name, amount, ticker, icon);
-      console.log("Token created succesfully");
     } catch (error: any) {
       throw error;
     }
@@ -164,7 +155,10 @@ export class LaunchPadAPI {
     ratio: bigint,
     duration: bigint,
     min: bigint,
-    max: bigint
+    max: bigint,
+    project_name: string,
+    token_symbol: string,
+    acceptable_token_symbol: string
   ) => {
     const coin: CoinInfo = {
       nonce: randomNonceBytes(32),
@@ -179,7 +173,10 @@ export class LaunchPadAPI {
         BigInt(Date.now()),
         duration,
         min,
-        max
+        max,
+        project_name,
+        token_symbol,
+        acceptable_token_symbol
       );
     } catch (error: any) {
       throw error;
@@ -193,7 +190,10 @@ export class LaunchPadAPI {
     acceptable_color: string,
     duration: bigint,
     min: bigint,
-    max: bigint
+    max: bigint,
+    project_name: string,
+    token_symbol: string,
+    acceptable_token_symbol: string
   ) => {
     const coin: CoinInfo = {
       nonce: randomNonceBytes(32),
@@ -207,9 +207,11 @@ export class LaunchPadAPI {
         BigInt(Date.now()),
         duration,
         min,
-        max
+        max,
+        project_name,
+        token_symbol,
+        acceptable_token_symbol
       );
-      console.log("Batch Sale createdd Successfully");
     } catch (error) {
       throw error;
     }
@@ -223,13 +225,17 @@ export class LaunchPadAPI {
     duration: bigint,
     min: bigint,
     max: bigint,
-    target: bigint
+    target: bigint,
+    project_name: string,
+    token_symbol: string,
+    acceptable_token_symbol: string
   ) => {
     const coin: CoinInfo = {
       nonce: randomNonceBytes(32),
       color: encodeTokenType(color),
       value: amount,
     };
+
     try {
       await deployedContract.callTx.openOverflowSale(
         coin,
@@ -238,7 +244,10 @@ export class LaunchPadAPI {
         duration,
         target,
         min,
-        max
+        max,
+        project_name,
+        token_symbol,
+        acceptable_token_symbol
       );
     } catch (error) {
       throw error;
@@ -261,8 +270,6 @@ export class LaunchPadAPI {
       if (sale_type === "fixed") {
         await deployedContract.callTx.buyFromFixedSale(coin, sale_id, amount);
       } else if (sale_type === "batch") {
-        console.log({ coin });
-        console.log("Got here");
         await deployedContract.callTx.buyFromBatchSale(coin, sale_id, amount);
       } else if (sale_type === "overflow") {
         await deployedContract.callTx.buyFromOverflowSale(
@@ -282,19 +289,13 @@ export class LaunchPadAPI {
     sale_type: string
   ) => {
     try {
-      console.log("closing sale...");
-
       if (sale_type === "fixed") {
-        console.log("closing fixed sale");
         await deployedContract.callTx.closeFixedSale(sale_id);
       } else if (sale_type === "batch") {
-        console.log("closing batch sale");
         await deployedContract.callTx.closeBatchSale(sale_id);
       } else if (sale_type === "overflow") {
-        console.log("closing overflow sale");
         await deployedContract.callTx.closeOverflowSale(sale_id);
       }
-      console.log("Sale closed successfully!");
     } catch (error: any) {
       throw error;
     }

@@ -51,7 +51,10 @@ export type ImpureCircuits<T> = {
                 creation_time_0: bigint,
                 sale_duration_0: bigint,
                 min_0: bigint,
-                max_0: bigint): __compactRuntime.CircuitResults<T, []>;
+                max_0: bigint,
+                project_name_0: string,
+                token_symbol_0: string,
+                acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
   buyFromFixedSale(context: __compactRuntime.CircuitContext<T>,
                    coin_0: CoinInfo,
                    sale_id_0: Uint8Array,
@@ -62,7 +65,10 @@ export type ImpureCircuits<T> = {
                 creation_time_0: bigint,
                 sale_duration_0: bigint,
                 min_0: bigint,
-                max_0: bigint): __compactRuntime.CircuitResults<T, []>;
+                max_0: bigint,
+                project_name_0: string,
+                token_symbol_0: string,
+                acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
   buyFromBatchSale(context: __compactRuntime.CircuitContext<T>,
                    coin_0: CoinInfo,
                    sale_id_0: Uint8Array,
@@ -74,7 +80,10 @@ export type ImpureCircuits<T> = {
                    sale_duration_0: bigint,
                    target_0: bigint,
                    min_0: bigint,
-                   max_0: bigint): __compactRuntime.CircuitResults<T, []>;
+                   max_0: bigint,
+                   project_name_0: string,
+                   token_symbol_0: string,
+                   acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
   buyFromOverflowSale(context: __compactRuntime.CircuitContext<T>,
                       coin_0: CoinInfo,
                       sale_id_0: Uint8Array,
@@ -116,7 +125,10 @@ export type Circuits<T> = {
                 creation_time_0: bigint,
                 sale_duration_0: bigint,
                 min_0: bigint,
-                max_0: bigint): __compactRuntime.CircuitResults<T, []>;
+                max_0: bigint,
+                project_name_0: string,
+                token_symbol_0: string,
+                acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
   buyFromFixedSale(context: __compactRuntime.CircuitContext<T>,
                    coin_0: CoinInfo,
                    sale_id_0: Uint8Array,
@@ -127,7 +139,10 @@ export type Circuits<T> = {
                 creation_time_0: bigint,
                 sale_duration_0: bigint,
                 min_0: bigint,
-                max_0: bigint): __compactRuntime.CircuitResults<T, []>;
+                max_0: bigint,
+                project_name_0: string,
+                token_symbol_0: string,
+                acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
   buyFromBatchSale(context: __compactRuntime.CircuitContext<T>,
                    coin_0: CoinInfo,
                    sale_id_0: Uint8Array,
@@ -139,7 +154,10 @@ export type Circuits<T> = {
                    sale_duration_0: bigint,
                    target_0: bigint,
                    min_0: bigint,
-                   max_0: bigint): __compactRuntime.CircuitResults<T, []>;
+                   max_0: bigint,
+                   project_name_0: string,
+                   token_symbol_0: string,
+                   acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
   buyFromOverflowSale(context: __compactRuntime.CircuitContext<T>,
                       coin_0: CoinInfo,
                       sale_id_0: Uint8Array,
@@ -194,7 +212,10 @@ export type Ledger = {
     isEmpty(): boolean;
     size(): bigint;
     member(key_0: Uint8Array): boolean;
-    lookup(key_0: Uint8Array): { organizer: Uint8Array,
+    lookup(key_0: Uint8Array): { projectName: string,
+                                 tokenSymbol: string,
+                                 acceptableTokenSymbol: string,
+                                 organizer: Uint8Array,
                                  totalAmountForSale: bigint,
                                  totalAmountSold: bigint,
                                  totalAmountLeft: bigint,
@@ -209,7 +230,10 @@ export type Ledger = {
                                  withdrawn: boolean,
                                  timeUp: boolean
                                };
-    [Symbol.iterator](): Iterator<[Uint8Array, { organizer: Uint8Array,
+    [Symbol.iterator](): Iterator<[Uint8Array, { projectName: string,
+  tokenSymbol: string,
+  acceptableTokenSymbol: string,
+  organizer: Uint8Array,
   totalAmountForSale: bigint,
   totalAmountSold: bigint,
   totalAmountLeft: bigint,
@@ -229,7 +253,10 @@ export type Ledger = {
     isEmpty(): boolean;
     size(): bigint;
     member(key_0: Uint8Array): boolean;
-    lookup(key_0: Uint8Array): { organizer: Uint8Array,
+    lookup(key_0: Uint8Array): { projectName: string,
+                                 tokenSymbol: string,
+                                 acceptableTokenSymbol: string,
+                                 organizer: Uint8Array,
                                  totalAmountForSale: bigint,
                                  contribution: bigint,
                                  acceptableExchangeToken: Uint8Array,
@@ -242,7 +269,10 @@ export type Ledger = {
                                  min: bigint,
                                  max: bigint
                                };
-    [Symbol.iterator](): Iterator<[Uint8Array, { organizer: Uint8Array,
+    [Symbol.iterator](): Iterator<[Uint8Array, { projectName: string,
+  tokenSymbol: string,
+  acceptableTokenSymbol: string,
+  organizer: Uint8Array,
   totalAmountForSale: bigint,
   contribution: bigint,
   acceptableExchangeToken: Uint8Array,
@@ -260,7 +290,10 @@ export type Ledger = {
     isEmpty(): boolean;
     size(): bigint;
     member(key_0: Uint8Array): boolean;
-    lookup(key_0: Uint8Array): { organizer: Uint8Array,
+    lookup(key_0: Uint8Array): { projectName: string,
+                                 tokenSymbol: string,
+                                 acceptableTokenSymbol: string,
+                                 organizer: Uint8Array,
                                  totalAmountForSale: bigint,
                                  contribution: bigint,
                                  acceptableExchangeToken: Uint8Array,
@@ -274,7 +307,10 @@ export type Ledger = {
                                  min: bigint,
                                  max: bigint
                                };
-    [Symbol.iterator](): Iterator<[Uint8Array, { organizer: Uint8Array,
+    [Symbol.iterator](): Iterator<[Uint8Array, { projectName: string,
+  tokenSymbol: string,
+  acceptableTokenSymbol: string,
+  organizer: Uint8Array,
   totalAmountForSale: bigint,
   contribution: bigint,
   acceptableExchangeToken: Uint8Array,

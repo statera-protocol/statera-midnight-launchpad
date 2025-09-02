@@ -17,11 +17,9 @@ export const randomNonceBytes = (length: number): Uint8Array => {
 };
 
 export const stringToBytes = async (name: string) => {
-  // Generate 16 random bytes (like a UUID)
   const randomBytes = new Uint8Array(16);
   crypto.getRandomValues(randomBytes);
 
-  // Convert to hex string (32 characters, same as UUID without dashes)
   const random_string = Array.from(randomBytes)
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
@@ -73,6 +71,9 @@ export const getFixedSales = (
       saleType: "fixed",
       isWithdrawn: sale.withdrawn,
       timeUp: sale.timeUp,
+      projectName: sale.projectName,
+      tokenSymbol: sale.tokenSymbol,
+      acceptableTokenSymbol: sale.acceptableTokenSymbol,
     });
   }
 
@@ -101,6 +102,9 @@ export const getBatchSales = (
       saleType: "batch",
       isWithdrawn: sale.withdrawn,
       timeUp: sale.timeUp,
+      projectName: sale.projectName,
+      tokenSymbol: sale.tokenSymbol,
+      acceptableTokenSymbol: sale.acceptableTokenSymbol,
     });
   }
 
@@ -130,6 +134,9 @@ export const getOverflowSales = (
       saleType: "overflow",
       isWithdrawn: sale.withdrawn,
       timeUp: sale.timeUp,
+      projectName: sale.projectName,
+      tokenSymbol: sale.tokenSymbol,
+      acceptableTokenSymbol: sale.acceptableTokenSymbol,
     });
   }
 
