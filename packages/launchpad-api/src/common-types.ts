@@ -39,80 +39,215 @@ export type DeployedLaunchpadContract =
   | DeployedContract<LaunchPadContract>
   | FoundContract<LaunchPadContract>;
 
-export type derivedState = {
-  receival_bank: sale_bank_type;
-  sale_bank: sale_bank_type;
+export type DerivedState = {
   fixed_sales: FixedSaleData[];
+  batch_sales: BatchSaleData[];
+  overflow_sales: OverflowSaleData[];
   user_pk: string;
 };
 
 export type FixedSaleData = {
-  key_uint: Uint8Array;
+  keyUint: Uint8Array;
   key: string;
   organizer: string;
-  total_amount_for_sale: number;
-  total_amount_sold: number;
-  total_amount_left: number;
-  token_sale_ratio: string;
-  hard_cap: number;
-  acceptable_exchange_token: Uint8Array;
+  totalAmountForSale: number;
+  totalAmountSold: number;
+  totalAmountLeft: number;
+  tokenSaleRatio: string;
+  acceptableExchangeToken: Uint8Array;
   status: string;
   participants: string;
-  start_time: string;
+  startTime: string;
   duration: string;
-  token_symbol: string;
-  acceptable_token_symbol: string;
   min: number;
   max: number;
-  sale_type: string;
+  saleType: string;
   isWithdrawn: boolean;
-  time_up: boolean;
+  timeUp: boolean;
+  projectName: string;
+  tokenSymbol: string;
+  acceptableTokenSymbol: string;
 };
 
-export type YourOriginalType = {
+export type BatchSaleData = {
+  keyUint: Uint8Array;
+  key: string;
+  organizer: string;
+  totalAmountForSale: number;
+  contribution: number;
+  acceptableExchangeToken: Uint8Array;
+  status: string;
+  participants: string;
+  startTime: string;
+  duration: string;
+  min: number;
+  max: number;
+  saleType: string;
+  isWithdrawn: boolean;
+  timeUp: boolean;
+  projectName: string;
+  tokenSymbol: string;
+  acceptableTokenSymbol: string;
+};
+
+export type OverflowSaleData = {
+  keyUint: Uint8Array;
+  key: string;
+  organizer: string;
+  totalAmountForSale: number;
+  contribution: number;
+  acceptableExchangeToken: Uint8Array;
+  target: number;
+  status: string;
+  participants: string;
+  startTime: string;
+  duration: string;
+  min: number;
+  max: number;
+  saleType: string;
+  isWithdrawn: boolean;
+  timeUp: boolean;
+  projectName: string;
+  tokenSymbol: string;
+  acceptableTokenSymbol: string;
+};
+
+export type FixedTokenSaleType = {
   isEmpty(): boolean;
   size(): bigint;
   member(key_0: Uint8Array): boolean;
   lookup(key_0: Uint8Array): {
+    projectName: string;
+    tokenSymbol: string;
+    acceptableTokenSymbol: string;
     organizer: Uint8Array;
-    total_amount_for_sale: bigint;
-    total_amount_sold: bigint;
-    total_amount_left: bigint;
-    token_sale_ratio: bigint;
-    hard_cap: bigint;
-    acceptable_exchange_token: Uint8Array;
+    totalAmountForSale: bigint;
+    totalAmountSold: bigint;
+    totalAmountLeft: bigint;
+    tokenSaleRatio: bigint;
+    acceptableExchangeToken: Uint8Array;
     status: number;
     participant: bigint;
-    start_time: bigint;
+    startTime: bigint;
     duration: bigint;
-    token_symbol: string;
-    acceptable_token_symbol: string;
     min: bigint;
     max: bigint;
     withdrawn: boolean;
-    time_up: boolean;
+    timeUp: boolean;
   };
   [Symbol.iterator](): Iterator<
     [
       Uint8Array,
       {
+        projectName: string;
+        tokenSymbol: string;
+        acceptableTokenSymbol: string;
         organizer: Uint8Array;
-        total_amount_for_sale: bigint;
-        total_amount_sold: bigint;
-        total_amount_left: bigint;
-        token_sale_ratio: bigint;
-        hard_cap: bigint;
-        acceptable_exchange_token: Uint8Array;
+        totalAmountForSale: bigint;
+        totalAmountSold: bigint;
+        totalAmountLeft: bigint;
+        tokenSaleRatio: bigint;
+        acceptableExchangeToken: Uint8Array;
         status: number;
         participant: bigint;
-        start_time: bigint;
+        startTime: bigint;
         duration: bigint;
-        token_symbol: string;
-        acceptable_token_symbol: string;
         min: bigint;
         max: bigint;
         withdrawn: boolean;
-        time_up: boolean;
+        timeUp: boolean;
+      },
+    ]
+  >;
+};
+
+export type BatchTokenSaleType = {
+  isEmpty(): boolean;
+  size(): bigint;
+  member(key_0: Uint8Array): boolean;
+  lookup(key_0: Uint8Array): {
+    projectName: string;
+    tokenSymbol: string;
+    acceptableTokenSymbol: string;
+    organizer: Uint8Array;
+    totalAmountForSale: bigint;
+    contribution: bigint;
+    acceptableExchangeToken: Uint8Array;
+    status: number;
+    participant: bigint;
+    startTime: bigint;
+    duration: bigint;
+    withdrawn: boolean;
+    timeUp: boolean;
+    min: bigint;
+    max: bigint;
+  };
+  [Symbol.iterator](): Iterator<
+    [
+      Uint8Array,
+      {
+        projectName: string;
+        tokenSymbol: string;
+        acceptableTokenSymbol: string;
+        organizer: Uint8Array;
+        totalAmountForSale: bigint;
+        contribution: bigint;
+        acceptableExchangeToken: Uint8Array;
+        status: number;
+        participant: bigint;
+        startTime: bigint;
+        duration: bigint;
+        withdrawn: boolean;
+        timeUp: boolean;
+        min: bigint;
+        max: bigint;
+      },
+    ]
+  >;
+};
+
+export type OverflowTokenSaleType = {
+  isEmpty(): boolean;
+  size(): bigint;
+  member(key_0: Uint8Array): boolean;
+  lookup(key_0: Uint8Array): {
+    projectName: string;
+    tokenSymbol: string;
+    acceptableTokenSymbol: string;
+    organizer: Uint8Array;
+    totalAmountForSale: bigint;
+    contribution: bigint;
+    acceptableExchangeToken: Uint8Array;
+    target: bigint;
+    status: number;
+    participant: bigint;
+    startTime: bigint;
+    duration: bigint;
+    withdrawn: boolean;
+    timeUp: boolean;
+    min: bigint;
+    max: bigint;
+  };
+  [Symbol.iterator](): Iterator<
+    [
+      Uint8Array,
+      {
+        projectName: string;
+        tokenSymbol: string;
+        acceptableTokenSymbol: string;
+        organizer: Uint8Array;
+        totalAmountForSale: bigint;
+        contribution: bigint;
+        acceptableExchangeToken: Uint8Array;
+        target: bigint;
+        status: number;
+        participant: bigint;
+        startTime: bigint;
+        duration: bigint;
+        withdrawn: boolean;
+        timeUp: boolean;
+        min: bigint;
+        max: bigint;
       },
     ]
   >;

@@ -1,5 +1,9 @@
 import { Ledger } from "./managed/launchpad/contract/index.cjs";
-import { WitnessContext } from "@midnight-ntwrk/compact-runtime";
+import {
+  MerkleTreePath,
+  WitnessContext,
+} from "@midnight-ntwrk/compact-runtime";
+import { sha256 } from "@noble/hashes/sha2.js";
 
 export type LaunchPadPrivateState = {
   readonly secretKey: Uint8Array;
@@ -49,5 +53,89 @@ export const witnesses = {
     const isDurationOver = currentTimestamp > expiryTimestamp;
 
     return [privateState, isDurationOver];
+  },
+  confirmContribution: (
+    context: WitnessContext<Ledger, LaunchPadPrivateState>,
+    item: Uint8Array
+  ): [LaunchPadPrivateState, MerkleTreePath<Uint8Array>] => {
+    return [
+      context.privateState,
+      context.ledger.contributors.findPathForLeaf(item)!,
+    ];
+  },
+  calcAmountToWtihdrawFromBatch: (
+    { privateState }: WitnessContext<Ledger, LaunchPadPrivateState>,
+    amount: bigint,
+    totalReceived: bigint,
+    totalSold: bigint
+  ): [LaunchPadPrivateState, bigint] => {
+    let returnValue = (amount / totalReceived) * totalSold;
+
+    return [privateState, returnValue];
+  },
+  calcAmountToWtihdrawFromOverflow: (
+    { privateState }: WitnessContext<Ledger, LaunchPadPrivateState>,
+    amount: bigint,
+    totalReceived: bigint, // sum of all contributions
+    amountForSale: bigint, // total tokens available
+    targetAmount: bigint // total raise target
+  ): [LaunchPadPrivateState, bigint] => {
+    const price = targetAmount / amountForSale;
+    let spent: bigint;
+    let tokens: bigint;
+    let refund: bigint;
+
+    if (totalReceived <= targetAmount) {
+      // Not oversubscribed: full allocation
+      spent = amount;
+      tokens = amount / price;
+      refund = 0n;
+    } else {
+      // Overflow case: scale down
+      spent = (amount * targetAmount) / totalReceived;
+      tokens = spent / price;
+      refund = amount - spent;
+    }
+    return [privateState, tokens];
+  },
+  calcAmountToRefundFromOverflow: (
+    { privateState }: WitnessContext<Ledger, LaunchPadPrivateState>,
+    amount: bigint,
+    totalReceived: bigint, // sum of all contributions
+    amountForSale: bigint, // total tokens available
+    targetAmount: bigint // total raise target
+  ): [LaunchPadPrivateState, bigint] => {
+    const price = targetAmount / amountForSale;
+    let spent: bigint;
+    let tokens: bigint;
+    let refund: bigint;
+
+    if (totalReceived <= targetAmount) {
+      // Not oversubscribed: full allocation
+      spent = amount;
+      tokens = amount / price;
+      refund = 0n;
+    } else {
+      // Overflow case: scale down
+      spent = (amount * targetAmount) / totalReceived;
+      tokens = spent / price;
+      refund = amount - spent;
+    }
+    return [privateState, refund];
+  },
+  calculateLeftover: (
+    { privateState }: WitnessContext<Ledger, LaunchPadPrivateState>,
+    totalReceived: bigint, // sum of all contributions
+    amountForSale: bigint, // total tokens available
+    targetAmount: bigint // total raise target
+  ): [LaunchPadPrivateState, bigint] => {
+    if (totalReceived >= targetAmount) {
+      return [privateState, 0n];
+    }
+
+    const price = targetAmount / amountForSale;
+    let leftover = totalReceived * price;
+
+    return [privateState, leftover];
   },
 };

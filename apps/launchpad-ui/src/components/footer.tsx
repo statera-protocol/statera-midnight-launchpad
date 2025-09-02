@@ -1,8 +1,8 @@
 import { Github, Twitter, MessageCircle, Globe } from "lucide-react";
-import { useApp } from "../hooks/useApp";
+import { useAppDeployment } from "../hooks/useAppDeployment";
 
 export function Footer() {
-  const { setRoute } = useApp();
+  const { setRoute } = useAppDeployment();
 
   return (
     <footer className="border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm mt-auto">
@@ -109,26 +109,6 @@ export function Footer() {
                 <Globe className="w-5 h-5" />
               </a>
             </div>
-          </div>
-        </div>
-
-        <div className="border-t border-gray-800 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center px-12">
-          <p className="text-gray-400 text-sm">
-            © 2024 Midnight Launchpad. All rights reserved.
-          </p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <a
-              href="#"
-              className="text-gray-400 hover:text-gray-200 text-sm transition-colors"
-            >
-              Privacy Policy
-            </a>
-            <a
-              href="#"
-              className="text-gray-400 hover:text-gray-200 text-sm transition-colors"
-            >
-              Terms of Service
-            </a>
           </div>
         </div>
       </div>

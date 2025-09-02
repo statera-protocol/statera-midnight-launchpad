@@ -40,7 +40,7 @@
       }
     },
     {
-      "name": "open_a_fixed_price_token_sale",
+      "name": "openFixedSale",
       "pure": false,
       "arguments": [
         {
@@ -81,7 +81,7 @@
           }
         },
         {
-          "name": "acceptable_exchange_token",
+          "name": "acceptableExchangeToken",
           "type": {
             "type-name": "Bytes",
             "length": 32
@@ -102,20 +102,6 @@
           }
         },
         {
-          "name": "token_symbol",
-          "type": {
-            "type-name": "Opaque",
-            "tsType": "string"
-          }
-        },
-        {
-          "name": "acceptable_token_symbol",
-          "type": {
-            "type-name": "Opaque",
-            "tsType": "string"
-          }
-        },
-        {
           "name": "min",
           "type": {
             "type-name": "Uint",
@@ -130,10 +116,24 @@
           }
         },
         {
-          "name": "token_hard_cap",
+          "name": "project_name",
           "type": {
-            "type-name": "Uint",
-            "maxval": 18446744073709551615
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "token_symbol",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "acceptable_token_symbol",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
           }
         }
       ],
@@ -144,7 +144,7 @@
       }
     },
     {
-      "name": "buy_token_at_fixed_price",
+      "name": "buyFromFixedSale",
       "pure": false,
       "arguments": [
         {
@@ -199,7 +199,368 @@
       }
     },
     {
-      "name": "closeSale",
+      "name": "openBatchSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "coin",
+          "type": {
+            "type-name": "Struct",
+            "name": "CoinInfo",
+            "elements": [
+              {
+                "name": "nonce",
+                "type": {
+                  "type-name": "Bytes",
+                  "length": 32
+                }
+              },
+              {
+                "name": "color",
+                "type": {
+                  "type-name": "Bytes",
+                  "length": 32
+                }
+              },
+              {
+                "name": "value",
+                "type": {
+                  "type-name": "Uint",
+                  "maxval": 340282366920938463463374607431768211455
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "acceptableExchangeToken",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "creation_time",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        },
+        {
+          "name": "sale_duration",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 255
+          }
+        },
+        {
+          "name": "min",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        },
+        {
+          "name": "max",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        },
+        {
+          "name": "project_name",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "token_symbol",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "acceptable_token_symbol",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "buyFromBatchSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "coin",
+          "type": {
+            "type-name": "Struct",
+            "name": "CoinInfo",
+            "elements": [
+              {
+                "name": "nonce",
+                "type": {
+                  "type-name": "Bytes",
+                  "length": 32
+                }
+              },
+              {
+                "name": "color",
+                "type": {
+                  "type-name": "Bytes",
+                  "length": 32
+                }
+              },
+              {
+                "name": "value",
+                "type": {
+                  "type-name": "Uint",
+                  "maxval": 340282366920938463463374607431768211455
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "amount",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "openOverflowSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "coin",
+          "type": {
+            "type-name": "Struct",
+            "name": "CoinInfo",
+            "elements": [
+              {
+                "name": "nonce",
+                "type": {
+                  "type-name": "Bytes",
+                  "length": 32
+                }
+              },
+              {
+                "name": "color",
+                "type": {
+                  "type-name": "Bytes",
+                  "length": 32
+                }
+              },
+              {
+                "name": "value",
+                "type": {
+                  "type-name": "Uint",
+                  "maxval": 340282366920938463463374607431768211455
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "acceptableExchangeToken",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "creation_time",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        },
+        {
+          "name": "sale_duration",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 255
+          }
+        },
+        {
+          "name": "target",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 340282366920938463463374607431768211455
+          }
+        },
+        {
+          "name": "min",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        },
+        {
+          "name": "max",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        },
+        {
+          "name": "project_name",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "token_symbol",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        },
+        {
+          "name": "acceptable_token_symbol",
+          "type": {
+            "type-name": "Opaque",
+            "tsType": "string"
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "buyFromOverflowSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "coin",
+          "type": {
+            "type-name": "Struct",
+            "name": "CoinInfo",
+            "elements": [
+              {
+                "name": "nonce",
+                "type": {
+                  "type-name": "Bytes",
+                  "length": 32
+                }
+              },
+              {
+                "name": "color",
+                "type": {
+                  "type-name": "Bytes",
+                  "length": 32
+                }
+              },
+              {
+                "name": "value",
+                "type": {
+                  "type-name": "Uint",
+                  "maxval": 340282366920938463463374607431768211455
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "amount",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "withdrawalFromBatchSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "amountContributed",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "withdrawFromOverflowSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "amountContributed",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "closeFixedSale",
       "pure": false,
       "arguments": [
         {
@@ -217,7 +578,79 @@
       }
     },
     {
-      "name": "withdraw_token",
+      "name": "closeBatchSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "closeOverflowSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "organizerWIthdrawalFromFixedSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "organizerWIthdrawalFromBatchSale",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "sale_id",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "organizerWIthdrawalFromOverflowSale",
       "pure": false,
       "arguments": [
         {

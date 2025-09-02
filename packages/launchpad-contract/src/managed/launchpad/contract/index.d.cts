@@ -9,8 +9,33 @@ export type Witnesses<T> = {
                           received_amount_0: bigint,
                           sale_ratio_0: bigint): [T, bigint];
   calculate_time(context: __compactRuntime.WitnessContext<Ledger, T>,
-                 start_time_0: bigint,
+                 startTime_0: bigint,
                  duration_0: bigint): [T, boolean];
+  confirmContribution(context: __compactRuntime.WitnessContext<Ledger, T>,
+                      buyerCommitment_0: Uint8Array): [T, { leaf: Uint8Array,
+                                                            path: { sibling: { field: bigint
+                                                                             },
+                                                                    goes_left: boolean
+                                                                  }[]
+                                                          }];
+  calcAmountToWtihdrawFromBatch(context: __compactRuntime.WitnessContext<Ledger, T>,
+                                amountContributed_0: bigint,
+                                totalReceived_0: bigint,
+                                totalForSale_0: bigint): [T, bigint];
+  calcAmountToWtihdrawFromOverflow(context: __compactRuntime.WitnessContext<Ledger, T>,
+                                   amount_0: bigint,
+                                   totalReceived_0: bigint,
+                                   totalForSale_0: bigint,
+                                   targetAmount_0: bigint): [T, bigint];
+  calcAmountToRefundFromOverflow(context: __compactRuntime.WitnessContext<Ledger, T>,
+                                 amount_0: bigint,
+                                 totalReceived_0: bigint,
+                                 totalForSale_0: bigint,
+                                 targetAmount_0: bigint): [T, bigint];
+  calculateLeftover(context: __compactRuntime.WitnessContext<Ledger, T>,
+                    totalReceived_0: bigint,
+                    totalForSale_0: bigint,
+                    targetAmount_0: bigint): [T, bigint];
 }
 
 export type ImpureCircuits<T> = {
@@ -19,24 +44,68 @@ export type ImpureCircuits<T> = {
                total_amount_0: bigint,
                token_ticker_0: string,
                token_icon_0: string): __compactRuntime.CircuitResults<T, []>;
-  open_a_fixed_price_token_sale(context: __compactRuntime.CircuitContext<T>,
-                                coin_0: CoinInfo,
-                                sale_ratio_0: bigint,
-                                acceptable_exchange_token_0: Uint8Array,
-                                creation_time_0: bigint,
-                                sale_duration_0: bigint,
-                                token_symbol_0: string,
-                                acceptable_token_symbol_0: string,
-                                min_0: bigint,
-                                max_0: bigint,
-                                token_hard_cap_0: bigint): __compactRuntime.CircuitResults<T, []>;
-  buy_token_at_fixed_price(context: __compactRuntime.CircuitContext<T>,
-                           coin_0: CoinInfo,
+  openFixedSale(context: __compactRuntime.CircuitContext<T>,
+                coin_0: CoinInfo,
+                sale_ratio_0: bigint,
+                acceptableExchangeToken_0: Uint8Array,
+                creation_time_0: bigint,
+                sale_duration_0: bigint,
+                min_0: bigint,
+                max_0: bigint,
+                project_name_0: string,
+                token_symbol_0: string,
+                acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
+  buyFromFixedSale(context: __compactRuntime.CircuitContext<T>,
+                   coin_0: CoinInfo,
+                   sale_id_0: Uint8Array,
+                   sale_amount_0: bigint): __compactRuntime.CircuitResults<T, []>;
+  openBatchSale(context: __compactRuntime.CircuitContext<T>,
+                coin_0: CoinInfo,
+                acceptableExchangeToken_0: Uint8Array,
+                creation_time_0: bigint,
+                sale_duration_0: bigint,
+                min_0: bigint,
+                max_0: bigint,
+                project_name_0: string,
+                token_symbol_0: string,
+                acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
+  buyFromBatchSale(context: __compactRuntime.CircuitContext<T>,
+                   coin_0: CoinInfo,
+                   sale_id_0: Uint8Array,
+                   amount_0: bigint): __compactRuntime.CircuitResults<T, []>;
+  openOverflowSale(context: __compactRuntime.CircuitContext<T>,
+                   coin_0: CoinInfo,
+                   acceptableExchangeToken_0: Uint8Array,
+                   creation_time_0: bigint,
+                   sale_duration_0: bigint,
+                   target_0: bigint,
+                   min_0: bigint,
+                   max_0: bigint,
+                   project_name_0: string,
+                   token_symbol_0: string,
+                   acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
+  buyFromOverflowSale(context: __compactRuntime.CircuitContext<T>,
+                      coin_0: CoinInfo,
+                      sale_id_0: Uint8Array,
+                      amount_0: bigint): __compactRuntime.CircuitResults<T, []>;
+  withdrawalFromBatchSale(context: __compactRuntime.CircuitContext<T>,
+                          sale_id_0: Uint8Array,
+                          amountContributed_0: bigint): __compactRuntime.CircuitResults<T, []>;
+  withdrawFromOverflowSale(context: __compactRuntime.CircuitContext<T>,
                            sale_id_0: Uint8Array,
-                           sale_amount_0: bigint): __compactRuntime.CircuitResults<T, []>;
-  closeSale(context: __compactRuntime.CircuitContext<T>, sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
-  withdraw_token(context: __compactRuntime.CircuitContext<T>,
+                           amountContributed_0: bigint): __compactRuntime.CircuitResults<T, []>;
+  closeFixedSale(context: __compactRuntime.CircuitContext<T>,
                  sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  closeBatchSale(context: __compactRuntime.CircuitContext<T>,
+                 sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  closeOverflowSale(context: __compactRuntime.CircuitContext<T>,
+                    sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  organizerWIthdrawalFromFixedSale(context: __compactRuntime.CircuitContext<T>,
+                                   sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  organizerWIthdrawalFromBatchSale(context: __compactRuntime.CircuitContext<T>,
+                                   sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  organizerWIthdrawalFromOverflowSale(context: __compactRuntime.CircuitContext<T>,
+                                      sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
 }
 
 export type PureCircuits = {
@@ -49,92 +118,220 @@ export type Circuits<T> = {
                total_amount_0: bigint,
                token_ticker_0: string,
                token_icon_0: string): __compactRuntime.CircuitResults<T, []>;
-  open_a_fixed_price_token_sale(context: __compactRuntime.CircuitContext<T>,
-                                coin_0: CoinInfo,
-                                sale_ratio_0: bigint,
-                                acceptable_exchange_token_0: Uint8Array,
-                                creation_time_0: bigint,
-                                sale_duration_0: bigint,
-                                token_symbol_0: string,
-                                acceptable_token_symbol_0: string,
-                                min_0: bigint,
-                                max_0: bigint,
-                                token_hard_cap_0: bigint): __compactRuntime.CircuitResults<T, []>;
-  buy_token_at_fixed_price(context: __compactRuntime.CircuitContext<T>,
-                           coin_0: CoinInfo,
+  openFixedSale(context: __compactRuntime.CircuitContext<T>,
+                coin_0: CoinInfo,
+                sale_ratio_0: bigint,
+                acceptableExchangeToken_0: Uint8Array,
+                creation_time_0: bigint,
+                sale_duration_0: bigint,
+                min_0: bigint,
+                max_0: bigint,
+                project_name_0: string,
+                token_symbol_0: string,
+                acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
+  buyFromFixedSale(context: __compactRuntime.CircuitContext<T>,
+                   coin_0: CoinInfo,
+                   sale_id_0: Uint8Array,
+                   sale_amount_0: bigint): __compactRuntime.CircuitResults<T, []>;
+  openBatchSale(context: __compactRuntime.CircuitContext<T>,
+                coin_0: CoinInfo,
+                acceptableExchangeToken_0: Uint8Array,
+                creation_time_0: bigint,
+                sale_duration_0: bigint,
+                min_0: bigint,
+                max_0: bigint,
+                project_name_0: string,
+                token_symbol_0: string,
+                acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
+  buyFromBatchSale(context: __compactRuntime.CircuitContext<T>,
+                   coin_0: CoinInfo,
+                   sale_id_0: Uint8Array,
+                   amount_0: bigint): __compactRuntime.CircuitResults<T, []>;
+  openOverflowSale(context: __compactRuntime.CircuitContext<T>,
+                   coin_0: CoinInfo,
+                   acceptableExchangeToken_0: Uint8Array,
+                   creation_time_0: bigint,
+                   sale_duration_0: bigint,
+                   target_0: bigint,
+                   min_0: bigint,
+                   max_0: bigint,
+                   project_name_0: string,
+                   token_symbol_0: string,
+                   acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
+  buyFromOverflowSale(context: __compactRuntime.CircuitContext<T>,
+                      coin_0: CoinInfo,
+                      sale_id_0: Uint8Array,
+                      amount_0: bigint): __compactRuntime.CircuitResults<T, []>;
+  withdrawalFromBatchSale(context: __compactRuntime.CircuitContext<T>,
+                          sale_id_0: Uint8Array,
+                          amountContributed_0: bigint): __compactRuntime.CircuitResults<T, []>;
+  withdrawFromOverflowSale(context: __compactRuntime.CircuitContext<T>,
                            sale_id_0: Uint8Array,
-                           sale_amount_0: bigint): __compactRuntime.CircuitResults<T, []>;
-  closeSale(context: __compactRuntime.CircuitContext<T>, sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
-  withdraw_token(context: __compactRuntime.CircuitContext<T>,
+                           amountContributed_0: bigint): __compactRuntime.CircuitResults<T, []>;
+  closeFixedSale(context: __compactRuntime.CircuitContext<T>,
                  sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  closeBatchSale(context: __compactRuntime.CircuitContext<T>,
+                 sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  closeOverflowSale(context: __compactRuntime.CircuitContext<T>,
+                    sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  organizerWIthdrawalFromFixedSale(context: __compactRuntime.CircuitContext<T>,
+                                   sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  organizerWIthdrawalFromBatchSale(context: __compactRuntime.CircuitContext<T>,
+                                   sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  organizerWIthdrawalFromOverflowSale(context: __compactRuntime.CircuitContext<T>,
+                                      sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
   public_key(context: __compactRuntime.CircuitContext<T>, sk_0: Uint8Array): __compactRuntime.CircuitResults<T, Uint8Array>;
 }
 
 export type Ledger = {
   readonly unique_index: bigint;
   readonly nonce: Uint8Array;
-  open_fixed_token_sales: {
+  saleBank: {
     isEmpty(): boolean;
     size(): bigint;
     member(key_0: Uint8Array): boolean;
-    lookup(key_0: Uint8Array): { organizer: Uint8Array,
-                                 total_amount_for_sale: bigint,
-                                 total_amount_sold: bigint,
-                                 total_amount_left: bigint,
-                                 token_sale_ratio: bigint,
-                                 hard_cap: bigint,
-                                 acceptable_exchange_token: Uint8Array,
+    lookup(key_0: Uint8Array): { nonce: Uint8Array,
+                                 color: Uint8Array,
+                                 value: bigint,
+                                 mt_index: bigint
+                               };
+    [Symbol.iterator](): Iterator<[Uint8Array, { nonce: Uint8Array, color: Uint8Array, value: bigint, mt_index: bigint }]>
+  };
+  receivedBank: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(key_0: Uint8Array): boolean;
+    lookup(key_0: Uint8Array): { nonce: Uint8Array,
+                                 color: Uint8Array,
+                                 value: bigint,
+                                 mt_index: bigint
+                               };
+    [Symbol.iterator](): Iterator<[Uint8Array, { nonce: Uint8Array, color: Uint8Array, value: bigint, mt_index: bigint }]>
+  };
+  openFixedTokenSales: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(key_0: Uint8Array): boolean;
+    lookup(key_0: Uint8Array): { projectName: string,
+                                 tokenSymbol: string,
+                                 acceptableTokenSymbol: string,
+                                 organizer: Uint8Array,
+                                 totalAmountForSale: bigint,
+                                 totalAmountSold: bigint,
+                                 totalAmountLeft: bigint,
+                                 tokenSaleRatio: bigint,
+                                 acceptableExchangeToken: Uint8Array,
                                  status: number,
                                  participant: bigint,
-                                 start_time: bigint,
+                                 startTime: bigint,
                                  duration: bigint,
-                                 token_symbol: string,
-                                 acceptable_token_symbol: string,
                                  min: bigint,
                                  max: bigint,
                                  withdrawn: boolean,
-                                 time_up: boolean
+                                 timeUp: boolean
                                };
-    [Symbol.iterator](): Iterator<[Uint8Array, { organizer: Uint8Array,
-  total_amount_for_sale: bigint,
-  total_amount_sold: bigint,
-  total_amount_left: bigint,
-  token_sale_ratio: bigint,
-  hard_cap: bigint,
-  acceptable_exchange_token: Uint8Array,
+    [Symbol.iterator](): Iterator<[Uint8Array, { projectName: string,
+  tokenSymbol: string,
+  acceptableTokenSymbol: string,
+  organizer: Uint8Array,
+  totalAmountForSale: bigint,
+  totalAmountSold: bigint,
+  totalAmountLeft: bigint,
+  tokenSaleRatio: bigint,
+  acceptableExchangeToken: Uint8Array,
   status: number,
   participant: bigint,
-  start_time: bigint,
+  startTime: bigint,
   duration: bigint,
-  token_symbol: string,
-  acceptable_token_symbol: string,
   min: bigint,
   max: bigint,
   withdrawn: boolean,
-  time_up: boolean
+  timeUp: boolean
 }]>
   };
-  fixed_sales_bank: {
+  openBatchTokenSales: {
     isEmpty(): boolean;
     size(): bigint;
     member(key_0: Uint8Array): boolean;
-    lookup(key_0: Uint8Array): { nonce: Uint8Array,
-                                 color: Uint8Array,
-                                 value: bigint,
-                                 mt_index: bigint
+    lookup(key_0: Uint8Array): { projectName: string,
+                                 tokenSymbol: string,
+                                 acceptableTokenSymbol: string,
+                                 organizer: Uint8Array,
+                                 totalAmountForSale: bigint,
+                                 contribution: bigint,
+                                 acceptableExchangeToken: Uint8Array,
+                                 status: number,
+                                 participant: bigint,
+                                 startTime: bigint,
+                                 duration: bigint,
+                                 withdrawn: boolean,
+                                 timeUp: boolean,
+                                 min: bigint,
+                                 max: bigint
                                };
-    [Symbol.iterator](): Iterator<[Uint8Array, { nonce: Uint8Array, color: Uint8Array, value: bigint, mt_index: bigint }]>
+    [Symbol.iterator](): Iterator<[Uint8Array, { projectName: string,
+  tokenSymbol: string,
+  acceptableTokenSymbol: string,
+  organizer: Uint8Array,
+  totalAmountForSale: bigint,
+  contribution: bigint,
+  acceptableExchangeToken: Uint8Array,
+  status: number,
+  participant: bigint,
+  startTime: bigint,
+  duration: bigint,
+  withdrawn: boolean,
+  timeUp: boolean,
+  min: bigint,
+  max: bigint
+}]>
   };
-  fixed_sales_received_bank: {
+  openOverflowTokenSales: {
     isEmpty(): boolean;
     size(): bigint;
     member(key_0: Uint8Array): boolean;
-    lookup(key_0: Uint8Array): { nonce: Uint8Array,
-                                 color: Uint8Array,
-                                 value: bigint,
-                                 mt_index: bigint
+    lookup(key_0: Uint8Array): { projectName: string,
+                                 tokenSymbol: string,
+                                 acceptableTokenSymbol: string,
+                                 organizer: Uint8Array,
+                                 totalAmountForSale: bigint,
+                                 contribution: bigint,
+                                 acceptableExchangeToken: Uint8Array,
+                                 target: bigint,
+                                 status: number,
+                                 participant: bigint,
+                                 startTime: bigint,
+                                 duration: bigint,
+                                 withdrawn: boolean,
+                                 timeUp: boolean,
+                                 min: bigint,
+                                 max: bigint
                                };
-    [Symbol.iterator](): Iterator<[Uint8Array, { nonce: Uint8Array, color: Uint8Array, value: bigint, mt_index: bigint }]>
+    [Symbol.iterator](): Iterator<[Uint8Array, { projectName: string,
+  tokenSymbol: string,
+  acceptableTokenSymbol: string,
+  organizer: Uint8Array,
+  totalAmountForSale: bigint,
+  contribution: bigint,
+  acceptableExchangeToken: Uint8Array,
+  target: bigint,
+  status: number,
+  participant: bigint,
+  startTime: bigint,
+  duration: bigint,
+  withdrawn: boolean,
+  timeUp: boolean,
+  min: bigint,
+  max: bigint
+}]>
+  };
+  contributors: {
+    isFull(): boolean;
+    checkRoot(rt_0: { field: bigint }): boolean;
+    root(): __compactRuntime.MerkleTreeDigest;
+    firstFree(): bigint;
+    pathForLeaf(index_0: bigint, leaf_0: Uint8Array): __compactRuntime.MerkleTreePath<Uint8Array>;
+    findPathForLeaf(leaf_0: Uint8Array): __compactRuntime.MerkleTreePath<Uint8Array> | undefined
   };
 }
 

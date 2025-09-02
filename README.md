@@ -1,196 +1,113 @@
-# SSED
+STATERA MIDNIGHT LAUNCHPAD
 
-a3a9170fe532c3724c979121324e74dbf3e004af8ab59a1517573cb2aa90ff9a
+# Overview
 
-# CONTRACT ADDRESS
+Statera Midnight Launchpad is a decentralized application (dApp) built on the Midnight blockchain, designed to make token generation and token sales seamless, secure, and private.
 
-# token balance
+Unlike traditional launchpads, Statera Midnight Launchpad is engineered with privacy at its core, ensuring that both project teams (token generators) and community members (investors) can participate in fundraising activities without exposing sensitive information.
 
-# TODO
+Our mission is to empower developers to launch their projects with confidence while giving investors the peace of mind that their identity, financial details, and on-chain activity remain private and protected.
 
-> implement projects page @DONE
-> implement projects details page @DONE
-> debug create fixed token sale @DONE
-> implement fixed sale participation @DONE
-> implement fixed sale closure by organizer @DONE
-> implement sale token withdrawal by generator @DONE
-> change token seperator generation format to make it unique @DONE
-> fix UI width overflow @DONE
-> fixed build and compile action to make easier for others to use @DONE
-> understand and fix http-server error on load @DONE
-> implement check expiry action @DONE
-> state persistence on reload 
-> fix reload caused by RxJS subscription 
-> error handling @DONE
+# Key Features
 
-# STORE
+🔒 Privacy by Design
 
-api,
+- All interactions leverage Midnight’s privacy-preserving smart contracts.
 
-> save state on local storage to avoid clearance on reload
-> handling float ratio
+- User and generator data are shielded, ensuring confidential participation without compromising blockchain transparency.
 
-# Turborepo starter
+- On-chain transactions reveal only what is necessary, preserving financial and personal privacy.
 
-This Turborepo starter is maintained by the Turborepo core team.
+⚡ Secure Token Generation
 
-## Using this example
+- Create and deploy custom tokens directly from the launchpad.
 
-Run the following command:
+- Smart contract templates are optimized for security, compliance, and confidentiality.
 
-````sh
-npx create-turbo@latest
-```w
+- Token generators maintain full ownership and control, with sensitive project data protected from public exposure.
 
-## What's inside?
+💠 Private Token Sales
 
-This Turborepo includes the following packages/apps:
+- Conduct token sales that protect participant privacy.
 
-### Apps and Packages
+- Investor contributions are validated and recorded on-chain without revealing wallet balances, purchase history, or personal identity.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- Fair distribution mechanisms ensure equal opportunity while preserving anonymity.
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+🌍 Empowering Developers and Investors
 
-### Utilities
+- Developers can launch projects without fear of leaking sensitive details.
 
-This Turborepo has some additional tools already setup for you:
+- Investors gain confidence knowing their financial privacy and identity remain safe while still supporting innovative projects.
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+# How It Works
 
-### Build
+- Generate Token: Projects can deploy their token using the launchpad’s secure generator.
 
-To build all apps and packages, run the following command:
+- Launch Sale: Configure a private token sale event with flexible parameters (supply, pricing, duration).
 
-````
+- Participate Privately: Investors join the sale while keeping their personal and financial data protected.
 
-cd my-turborepo
+- Build & Grow: Projects raise funds confidently, and investors hold their tokens securely — all with privacy intact.
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+# How to interact with project locally
 
-turbo build
+Pre-requisite
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+- Install compactc compiler (Guide): [https://docs.midnight.network/develop/tutorial/building/]#midnight-compact-compiler
 
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+- Install proof server from midnight: [https://docs.midnight.network/develop/tutorial/using/proof-server]
+
+- Install prebaked proof server version (RECOMMENDED): [https://github.com/bricktowers/midnight-proof-server]
+
+- Token Aquisation: [https://docs.midnight.network/develop/tutorial/using/proof-server]
+
+- Lace wallet setup: [https://docs.midnight.network/develop/tutorial/using/chrome-ext]
+
+- Contract Documentation: [https://github.com/codeBigInt/fundagoal/blob/main/packages/contract/README.md]
+
+NB: This project is a monorepo that utilizes turborepo.
 
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+    /* Running the DApp locally*/
+
+    // Clone the repository locally
+    git clone "https://github.com/statera-protocol/statera-midnight-launchpad.git"
+    // Ensure your have the latest version or node version >=22
+    node -v
+
+    // Install dependencies from the root folder
+    yarn install
+
+    // Create a .env file in the launchpad-ui folder
+    cd app/launchpad-ui //from the root folder
+
+    // Add the content below
+    VITE_NETWORK_ID=TestNet
+    VITE_CONTRACT_ADDRESS=02008ef0d13efc0c4417b7a70fda5fa2c2b4590903107228f9ff572751a99637807b
+    VITE_INDEXER_URL=https://indexer.testnet-02.midnight.network/api/v1/graphql
+    VITE_INDEXER_WS_URL=wss://indexer.testnet-02.midnight.network/api/v1/graphql/ws
+    VITE_PROOF_SERVER_URI=http://13.53.62.251:6300/
+
+    // Go back to the root folder and compile the compact contract before building the entire package
+    yarn build:start
+
+    // Build all workspaces from the root folder
+    yarn build
+
+    // Move back into the UI folder to start the app
+    cd apps/launchpad-ui
+
+    // Start the app
+    yarn start // runs on PORT:8080
 
 ```
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+💡 The instruction above will surely get the app running on your local machine 🙂
 
-turbo build --filter=docs
+# Conclusion
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+Statera Midnight Launchpad is not just another token launch platform — it is a privacy-first gateway to innovation in the Midnight blockchain ecosystem. By protecting both sides of the fundraising process, we are setting a new standard for how blockchain projects launch, grow, and thrive.
 
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
-```
-
-<!-- WALLET SEED SPARE -->
-
-a3a9170fe532c3724c979121324e74dbf3e004af8ab59a1517573cb2aa90ff9a
+⚡ With Statera Midnight Launchpad, token generation and fundraising are secure, efficient, and private — the way blockchain was meant to be.

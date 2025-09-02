@@ -3,7 +3,11 @@ import {
   FixedSaleData,
   sale_bank_type,
   SaleStatus,
-  YourOriginalType,
+  FixedTokenSaleType,
+  BatchSaleData,
+  BatchTokenSaleType,
+  OverflowSaleData,
+  OverflowTokenSaleType,
 } from "./common-types.js";
 
 export const randomNonceBytes = (length: number): Uint8Array => {
@@ -13,9 +17,19 @@ export const randomNonceBytes = (length: number): Uint8Array => {
 };
 
 export const stringToBytes = async (name: string) => {
-  const random_string = crypto.randomUUID().replace(/-/g, "");
-  const combine = Array.from(random_string + name);
-  const bytes = new Uint8Array(combine.map((byte) => parseInt(byte, 16)));
+  const randomBytes = new Uint8Array(16);
+  crypto.getRandomValues(randomBytes);
+
+  const random_string = Array.from(randomBytes)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  const combine = random_string + name;
+
+  // Convert string to bytes properly
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(combine);
+
   const hashBuffer = await crypto.subtle.digest("SHA-256", bytes);
   const hashArray = new Uint8Array(hashBuffer);
   return hashArray;
@@ -33,33 +47,96 @@ export function stringTo32ByteArray(input: string): Uint8Array {
   return result;
 }
 
-export const get_open_fixed_token_sales = (
-  open_fixed_token_sales: YourOriginalType
+export const getFixedSales = (
+  open_fixed_token_sales: FixedTokenSaleType
 ): FixedSaleData[] => {
   const sales: FixedSaleData[] = [];
 
   for (const [key, sale] of open_fixed_token_sales) {
     sales.push({
-      key_uint: key,
+      keyUint: key,
       key: toHex(key),
       organizer: toHex(sale.organizer),
-      total_amount_for_sale: Number(sale.total_amount_for_sale),
-      total_amount_sold: Number(sale.total_amount_sold),
-      total_amount_left: Number(sale.total_amount_left),
-      token_sale_ratio: sale.token_sale_ratio.toString(),
-      hard_cap: Number(sale.hard_cap),
-      acceptable_exchange_token: sale.acceptable_exchange_token,
+      totalAmountForSale: Number(sale.totalAmountForSale),
+      totalAmountSold: Number(sale.totalAmountSold),
+      totalAmountLeft: Number(sale.totalAmountLeft),
+      tokenSaleRatio: sale.tokenSaleRatio.toString(),
+      acceptableExchangeToken: sale.acceptableExchangeToken,
       status: SaleStatus[sale.status],
       participants: sale.participant.toString(),
-      start_time: sale.start_time.toString(),
+      startTime: sale.startTime.toString(),
       duration: sale.duration.toString(),
-      token_symbol: sale.token_symbol,
-      acceptable_token_symbol: sale.acceptable_token_symbol,
       min: Number(sale.min),
       max: Number(sale.max),
-      sale_type: "Fixed",
+      saleType: "fixed",
       isWithdrawn: sale.withdrawn,
-      time_up: sale.time_up,
+      timeUp: sale.timeUp,
+      projectName: sale.projectName,
+      tokenSymbol: sale.tokenSymbol,
+      acceptableTokenSymbol: sale.acceptableTokenSymbol,
+    });
+  }
+
+  return sales;
+};
+
+export const getBatchSales = (
+  open_fixed_token_sales: BatchTokenSaleType
+): BatchSaleData[] => {
+  const sales: BatchSaleData[] = [];
+
+  for (const [key, sale] of open_fixed_token_sales) {
+    sales.push({
+      keyUint: key,
+      key: toHex(key),
+      organizer: toHex(sale.organizer),
+      totalAmountForSale: Number(sale.totalAmountForSale),
+      contribution: Number(sale.contribution),
+      acceptableExchangeToken: sale.acceptableExchangeToken,
+      status: SaleStatus[sale.status],
+      participants: sale.participant.toString(),
+      startTime: sale.startTime.toString(),
+      duration: sale.duration.toString(),
+      min: Number(sale.min),
+      max: Number(sale.max),
+      saleType: "batch",
+      isWithdrawn: sale.withdrawn,
+      timeUp: sale.timeUp,
+      projectName: sale.projectName,
+      tokenSymbol: sale.tokenSymbol,
+      acceptableTokenSymbol: sale.acceptableTokenSymbol,
+    });
+  }
+
+  return sales;
+};
+
+export const getOverflowSales = (
+  open_fixed_token_sales: OverflowTokenSaleType
+): OverflowSaleData[] => {
+  const sales: OverflowSaleData[] = [];
+
+  for (const [key, sale] of open_fixed_token_sales) {
+    sales.push({
+      keyUint: key,
+      key: toHex(key),
+      organizer: toHex(sale.organizer),
+      totalAmountForSale: Number(sale.totalAmountForSale),
+      contribution: Number(sale.contribution),
+      acceptableExchangeToken: sale.acceptableExchangeToken,
+      target: Number(sale.target),
+      status: SaleStatus[sale.status],
+      participants: sale.participant.toString(),
+      startTime: sale.startTime.toString(),
+      duration: sale.duration.toString(),
+      min: Number(sale.min),
+      max: Number(sale.max),
+      saleType: "overflow",
+      isWithdrawn: sale.withdrawn,
+      timeUp: sale.timeUp,
+      projectName: sale.projectName,
+      tokenSymbol: sale.tokenSymbol,
+      acceptableTokenSymbol: sale.acceptableTokenSymbol,
     });
   }
 
@@ -68,7 +145,7 @@ export const get_open_fixed_token_sales = (
 
 // Helper to make Uint8Array into a hex string
 
-export const get_fixed_sale_bank = (fixed_sales_bank: {
+export const get_sales_bank = (fixed_sales_bank: {
   isEmpty(): boolean;
   size(): bigint;
   member(key_0: Uint8Array): boolean;
@@ -94,7 +171,7 @@ export const get_fixed_sale_bank = (fixed_sales_bank: {
   return sale_bank;
 };
 
-export const get_fixed_sales_received_bank = (fixed_sales_received_bank: {
+export const get_received_bank = (fixed_sales_received_bank: {
   isEmpty(): boolean;
   size(): bigint;
   member(key_0: Uint8Array): boolean;

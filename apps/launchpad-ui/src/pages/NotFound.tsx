@@ -1,9 +1,11 @@
+import React from "react";
+
 import { Button } from "../components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useApp } from "../hooks/useApp";
+import { useAppDeployment } from "../hooks/useAppDeployment";
 
 export default function NotFound() {
-  const { setRoute } = useApp();
+  const { setRoute } = useAppDeployment();
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">
