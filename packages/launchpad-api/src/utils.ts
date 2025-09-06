@@ -10,30 +10,14 @@ import {
   OverflowTokenSaleType,
 } from "./common-types.js";
 
+import { OracleKycToken } from "@repo/launchpad-contract";
+
 export const randomNonceBytes = (length: number): Uint8Array => {
   const newBytes = new Uint8Array(length);
   crypto.getRandomValues(newBytes);
   return newBytes;
 };
 
-export const stringToBytes = async (name: string) => {
-  const randomBytes = new Uint8Array(16);
-  crypto.getRandomValues(randomBytes);
-
-  const random_string = Array.from(randomBytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-
-  const combine = random_string + name;
-
-  // Convert string to bytes properly
-  const encoder = new TextEncoder();
-  const bytes = encoder.encode(combine);
-
-  const hashBuffer = await crypto.subtle.digest("SHA-256", bytes);
-  const hashArray = new Uint8Array(hashBuffer);
-  return hashArray;
-};
 
 export function stringTo32ByteArray(input: string): Uint8Array {
   // Create a new 32-byte array filled with zeros
@@ -46,6 +30,37 @@ export function stringTo32ByteArray(input: string): Uint8Array {
 
   return result;
 }
+
+export const getVerifiedMembers = (KYCedMembers: {
+  isEmpty(): boolean;
+  size(): bigint;
+  member(elem_0: Uint8Array): boolean;
+  [Symbol.iterator](): Iterator<Uint8Array>;
+}) => {
+  let verifiedMembersPks: string[] = [];
+  for (const pk of KYCedMembers) {
+    verifiedMembersPks.push(toHex(pk));
+  }
+  return verifiedMembersPks;
+};
+
+// KYC Token just for testing
+export const getTestKycToken = (): OracleKycToken => {
+  return {
+    oracleSignature: stringTo32ByteArray(
+      "165c55a1-55dd-47af-b4cf-19091045ac1b"
+    ),
+    tokenData: {
+      did: stringTo32ByteArray("b80a1cef-cd22-4114-a40b-ff952f557652"),
+      oraclePk: stringTo32ByteArray("66c31cd2-d251-4315-8980-68f5b0005ba1"),
+      userPk: stringTo32ByteArray("c12f9a9b-302a-4ace-b854-489b9679a018"),
+      validityRange: {
+        duration: BigInt(3),
+        creationDate: BigInt(Date.now()),
+      },
+    },
+  };
+};
 
 export const getFixedSales = (
   open_fixed_token_sales: FixedTokenSaleType

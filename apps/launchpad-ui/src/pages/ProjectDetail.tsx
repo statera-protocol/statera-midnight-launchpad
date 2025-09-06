@@ -159,7 +159,8 @@ const project = {
 };
 
 const ProjectDetail = () => {
-  const { api, handleError, setRoute, projectDetail } = useAppDeployment();
+  const { api, handleError, setRoute, projectDetail, setSuccess } =
+    useAppDeployment();
 
   const [isContributing, setIsContributing] = useState<boolean>(false);
   const [isWithdrawing, setIsWithdrawing] = useState<boolean>(false);
@@ -195,6 +196,7 @@ const ProjectDetail = () => {
       const sale_id = projectDetail.keyUint;
       setIsClosing(true);
       await LaunchPadAPI.closeSale(api.deployedContract, sale_id, saleType);
+      setSuccess("Sale successfully closed");
     } catch (error) {
       console.log("Error while closing " + error);
     } finally {
@@ -221,6 +223,8 @@ const ProjectDetail = () => {
         sale_id,
         details.saleType
       );
+
+      setSuccess("Contribution was successfully");
     } catch (error) {
       console.error("Error in handleContribute:", error); // Add more detailed error logging
       handleError(error);
@@ -243,6 +247,8 @@ const ProjectDetail = () => {
         sale_id,
         BigInt(withdrawalAmount)
       );
+
+      setSuccess("Sale withdrawal was successfully");
     } catch (error) {
       handleError(error);
     } finally {
@@ -262,6 +268,7 @@ const ProjectDetail = () => {
         details.saleType,
         details.keyUint
       );
+      setSuccess("Sale withdrawal was successfully");
     } catch (error) {
       handleError(error);
     } finally {

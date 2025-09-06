@@ -2,6 +2,18 @@ import type * as __compactRuntime from '@midnight-ntwrk/compact-runtime';
 
 export type CoinInfo = { nonce: Uint8Array; color: Uint8Array; value: bigint };
 
+export type OracleKycToken = { tokenData: KYCTokenData;
+                               oracleSignature: Uint8Array
+                             };
+
+export type ValidityRange = { duration: bigint; creationDate: bigint };
+
+export type KYCTokenData = { did: Uint8Array;
+                             userPk: Uint8Array;
+                             oraclePk: Uint8Array;
+                             validityRange: ValidityRange
+                           };
+
 export type Witnesses<T> = {
   local_secret_key(context: __compactRuntime.WitnessContext<Ledger, T>): [T, Uint8Array];
   generate_sale_id(context: __compactRuntime.WitnessContext<Ledger, T>): [T, Uint8Array];
@@ -43,7 +55,8 @@ export type ImpureCircuits<T> = {
                token_name_0: Uint8Array,
                total_amount_0: bigint,
                token_ticker_0: string,
-               token_icon_0: string): __compactRuntime.CircuitResults<T, []>;
+               token_icon_0: string,
+               kyc_token_0: OracleKycToken): __compactRuntime.CircuitResults<T, []>;
   openFixedSale(context: __compactRuntime.CircuitContext<T>,
                 coin_0: CoinInfo,
                 sale_ratio_0: bigint,
@@ -54,7 +67,8 @@ export type ImpureCircuits<T> = {
                 max_0: bigint,
                 project_name_0: string,
                 token_symbol_0: string,
-                acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
+                acceptable_token_symbol_0: string,
+                kyc_token_0: OracleKycToken): __compactRuntime.CircuitResults<T, []>;
   buyFromFixedSale(context: __compactRuntime.CircuitContext<T>,
                    coin_0: CoinInfo,
                    sale_id_0: Uint8Array,
@@ -68,7 +82,8 @@ export type ImpureCircuits<T> = {
                 max_0: bigint,
                 project_name_0: string,
                 token_symbol_0: string,
-                acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
+                acceptable_token_symbol_0: string,
+                kyc_token_0: OracleKycToken): __compactRuntime.CircuitResults<T, []>;
   buyFromBatchSale(context: __compactRuntime.CircuitContext<T>,
                    coin_0: CoinInfo,
                    sale_id_0: Uint8Array,
@@ -83,7 +98,8 @@ export type ImpureCircuits<T> = {
                    max_0: bigint,
                    project_name_0: string,
                    token_symbol_0: string,
-                   acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
+                   acceptable_token_symbol_0: string,
+                   kyc_token_0: OracleKycToken): __compactRuntime.CircuitResults<T, []>;
   buyFromOverflowSale(context: __compactRuntime.CircuitContext<T>,
                       coin_0: CoinInfo,
                       sale_id_0: Uint8Array,
@@ -106,6 +122,10 @@ export type ImpureCircuits<T> = {
                                    sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
   organizerWIthdrawalFromOverflowSale(context: __compactRuntime.CircuitContext<T>,
                                       sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  addNewKycedMember(context: __compactRuntime.CircuitContext<T>,
+                    oracle_public_key_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  removeNewKycedMember(context: __compactRuntime.CircuitContext<T>,
+                       oracle_public_key_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
 }
 
 export type PureCircuits = {
@@ -117,7 +137,8 @@ export type Circuits<T> = {
                token_name_0: Uint8Array,
                total_amount_0: bigint,
                token_ticker_0: string,
-               token_icon_0: string): __compactRuntime.CircuitResults<T, []>;
+               token_icon_0: string,
+               kyc_token_0: OracleKycToken): __compactRuntime.CircuitResults<T, []>;
   openFixedSale(context: __compactRuntime.CircuitContext<T>,
                 coin_0: CoinInfo,
                 sale_ratio_0: bigint,
@@ -128,7 +149,8 @@ export type Circuits<T> = {
                 max_0: bigint,
                 project_name_0: string,
                 token_symbol_0: string,
-                acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
+                acceptable_token_symbol_0: string,
+                kyc_token_0: OracleKycToken): __compactRuntime.CircuitResults<T, []>;
   buyFromFixedSale(context: __compactRuntime.CircuitContext<T>,
                    coin_0: CoinInfo,
                    sale_id_0: Uint8Array,
@@ -142,7 +164,8 @@ export type Circuits<T> = {
                 max_0: bigint,
                 project_name_0: string,
                 token_symbol_0: string,
-                acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
+                acceptable_token_symbol_0: string,
+                kyc_token_0: OracleKycToken): __compactRuntime.CircuitResults<T, []>;
   buyFromBatchSale(context: __compactRuntime.CircuitContext<T>,
                    coin_0: CoinInfo,
                    sale_id_0: Uint8Array,
@@ -157,7 +180,8 @@ export type Circuits<T> = {
                    max_0: bigint,
                    project_name_0: string,
                    token_symbol_0: string,
-                   acceptable_token_symbol_0: string): __compactRuntime.CircuitResults<T, []>;
+                   acceptable_token_symbol_0: string,
+                   kyc_token_0: OracleKycToken): __compactRuntime.CircuitResults<T, []>;
   buyFromOverflowSale(context: __compactRuntime.CircuitContext<T>,
                       coin_0: CoinInfo,
                       sale_id_0: Uint8Array,
@@ -180,6 +204,10 @@ export type Circuits<T> = {
                                    sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
   organizerWIthdrawalFromOverflowSale(context: __compactRuntime.CircuitContext<T>,
                                       sale_id_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  addNewKycedMember(context: __compactRuntime.CircuitContext<T>,
+                    oracle_public_key_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  removeNewKycedMember(context: __compactRuntime.CircuitContext<T>,
+                       oracle_public_key_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
   public_key(context: __compactRuntime.CircuitContext<T>, sk_0: Uint8Array): __compactRuntime.CircuitResults<T, Uint8Array>;
 }
 
@@ -332,6 +360,12 @@ export type Ledger = {
     firstFree(): bigint;
     pathForLeaf(index_0: bigint, leaf_0: Uint8Array): __compactRuntime.MerkleTreePath<Uint8Array>;
     findPathForLeaf(leaf_0: Uint8Array): __compactRuntime.MerkleTreePath<Uint8Array> | undefined
+  };
+  KYCedMembers: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(elem_0: Uint8Array): boolean;
+    [Symbol.iterator](): Iterator<Uint8Array>
   };
 }
 

@@ -44,6 +44,7 @@ export type DerivedState = {
   batch_sales: BatchSaleData[];
   overflow_sales: OverflowSaleData[];
   user_pk: string;
+  verifiedPks: string[];
 };
 
 export type FixedSaleData = {

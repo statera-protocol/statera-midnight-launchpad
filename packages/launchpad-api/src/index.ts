@@ -6,6 +6,7 @@ import {
   Ledger,
   pureCircuits,
   CoinInfo,
+  OracleKycToken,
 } from "@repo/launchpad-contract";
 import { witnesses } from "@repo/launchpad-contract";
 import {
@@ -26,6 +27,8 @@ import {
   getBatchSales,
   getFixedSales,
   getOverflowSales,
+  getTestKycToken,
+  getVerifiedMembers,
   randomNonceBytes,
 } from "./utils.js";
 import { encodeTokenType } from "@midnight-ntwrk/ledger";
@@ -65,12 +68,14 @@ export class LaunchPadAPI {
         const overflow_sales = getOverflowSales(
           ledgerState.openOverflowTokenSales
         );
+        const verifiedPks = getVerifiedMembers(ledgerState.KYCedMembers);
 
         return {
           fixed_sales,
           batch_sales,
           overflow_sales,
           user_pk: toHex(user_pk),
+          verifiedPks,
         };
       }
     );
@@ -133,15 +138,36 @@ export class LaunchPadAPI {
         contractState != null ? ledger(contractState.data) : null
       );
 
+  static kycVerification = async (
+    deployedContract: DeployedLaunchpadContract
+  ) => {
+    try {
+      const kycData = getTestKycToken();
+      await deployedContract.callTx.addNewKycedMember(
+        kycData.tokenData.oraclePk
+      );
+      return kycData;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   static createToken = async (
     deployedContract: DeployedLaunchpadContract,
     name: Uint8Array,
     amount: bigint,
     ticker: string,
-    icon: string
+    icon: string,
+    kycTokenData: OracleKycToken
   ) => {
     try {
-      await deployedContract.callTx.create_token(name, amount, ticker, icon);
+      await deployedContract.callTx.create_token(
+        name,
+        amount,
+        ticker,
+        icon,
+        kycTokenData
+      );
     } catch (error: any) {
       throw error;
     }
@@ -158,7 +184,8 @@ export class LaunchPadAPI {
     max: bigint,
     project_name: string,
     token_symbol: string,
-    acceptable_token_symbol: string
+    acceptable_token_symbol: string,
+    kycTokenData: OracleKycToken
   ) => {
     const coin: CoinInfo = {
       nonce: randomNonceBytes(32),
@@ -176,7 +203,8 @@ export class LaunchPadAPI {
         max,
         project_name,
         token_symbol,
-        acceptable_token_symbol
+        acceptable_token_symbol,
+        kycTokenData
       );
     } catch (error: any) {
       throw error;
@@ -193,7 +221,8 @@ export class LaunchPadAPI {
     max: bigint,
     project_name: string,
     token_symbol: string,
-    acceptable_token_symbol: string
+    acceptable_token_symbol: string,
+    kycTokenData: OracleKycToken
   ) => {
     const coin: CoinInfo = {
       nonce: randomNonceBytes(32),
@@ -210,7 +239,8 @@ export class LaunchPadAPI {
         max,
         project_name,
         token_symbol,
-        acceptable_token_symbol
+        acceptable_token_symbol,
+        kycTokenData
       );
     } catch (error) {
       throw error;
@@ -228,7 +258,8 @@ export class LaunchPadAPI {
     target: bigint,
     project_name: string,
     token_symbol: string,
-    acceptable_token_symbol: string
+    acceptable_token_symbol: string,
+    kycTokenData: OracleKycToken
   ) => {
     const coin: CoinInfo = {
       nonce: randomNonceBytes(32),
@@ -247,7 +278,8 @@ export class LaunchPadAPI {
         max,
         project_name,
         token_symbol,
-        acceptable_token_symbol
+        acceptable_token_symbol,
+        kycTokenData
       );
     } catch (error) {
       throw error;

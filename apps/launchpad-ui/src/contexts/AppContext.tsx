@@ -10,6 +10,7 @@ import { type status } from "../lib/actions";
 import { LaunchPadAPI } from "@repo/launchpad-api";
 import { CompactError } from "@midnight-ntwrk/compact-runtime";
 import type { SaleData } from "../pages/ProjectDetail";
+import type { OracleKycToken } from "@repo/launchpad-contract";
 
 export type AppContextType = {
   deploymentState: status;
@@ -28,6 +29,8 @@ export type AppContextType = {
   projectDetail: SaleData | undefined;
   setProjectDetail: (s: SaleData | undefined) => void;
   handleError: (e: any) => void;
+  kycToken: OracleKycToken | undefined;
+  setKycToken: (data: OracleKycToken) => void;
 };
 
 export const AppContext = createContext<AppContextType | null>(null);
@@ -71,11 +74,13 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
   const [error, setError] = useState<string | null>(null); // shared
   const [success, setSuccess] = useState<string | null>(null); // shared
   const [walletAddress, setWalletAddress] = useState("");
-  const [route, setRoute] = useState("dashboard"); //to be saved
+  const [route, setRoute] = useState("dashboard");
   const [projectDetail, setProjectDetail] = useState<SaleData | undefined>(
     undefined
-  ); //to be saved
-
+  );
+  const [kycToken, setKycToken] = useState<OracleKycToken | undefined>(
+    undefined
+  );
   useEffect(() => {
     console.log(route);
   }, [route]);
@@ -187,6 +192,8 @@ export const AppContextProvider: React.FC<Readonly<PropsWithChildren>> = ({
     setRoute,
     projectDetail,
     setProjectDetail,
+    kycToken,
+    setKycToken,
   };
 
   return (

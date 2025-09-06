@@ -1,18 +1,36 @@
 pragma language_version >= 0.16.0;
 
-export { CoinInfo };
+export { CoinInfo, OracleKycToken, ValidityRange, KYCTokenData };
 
 import CompactStandardLibrary;
 
 export ledger unique_index: Counter;
 export ledger nonce: Bytes<32>;
-export ledger saleBank: Map<Bytes<32>, QualifiedCoinInfo>;
-export ledger receivedBank: Map<Bytes<32>, QualifiedCoinInfo>;
-export ledger openFixedTokenSales: Map<Bytes<32>, FixedSalesData>;
-export ledger openBatchTokenSales: Map<Bytes<32>, BatchSalesData>;
-export ledger openOverflowTokenSales: Map<Bytes<32>, OverflowSalesData>;
-export ledger contributors: MerkleTree<100, Bytes<32>>; // keep track of the list of contributors
-// export ledger batch_buyers_info: Map<Bytes<32>, BatchBuyersData>; // keep track of contributors information
+export ledger saleBank: Map<Bytes<32>, QualifiedCoinInfo>; // pool that holds tokens to be sold by all sale
+export ledger receivedBank: Map<Bytes<32>, QualifiedCoinInfo>; // pool that holds tokens received from all sale
+export ledger openFixedTokenSales: Map<Bytes<32>, FixedSalesData>; // keeps track of all open fixed sale data
+export ledger openBatchTokenSales: Map<Bytes<32>, BatchSalesData>; // keeps track of all open batch sale data
+export ledger openOverflowTokenSales: Map<Bytes<32>, OverflowSalesData>; // keeps track of all open overflow sale data
+export ledger contributors: MerkleTree<100, Bytes<32>>; // keeps track of the list of contributors for batch and overflow sale
+export ledger KYCedMembers: Set<Bytes<32>>; // keeps track of kyced members - test
+
+
+struct KYCTokenData {
+    did: Bytes<32>; // user's DID identifier
+    userPk: Bytes<32>; // user's PublicKey
+    oraclePk: Bytes<32>; // oracle public key
+    validityRange: ValidityRange; // validity range for the token
+}
+
+struct ValidityRange {
+    duration: Uint<64>;
+    creationDate: Uint<64>;
+}
+
+struct OracleKycToken {
+    tokenData: KYCTokenData;
+    oracleSignature: Bytes<32>; // signature from oracle to verify authenticity of the token
+}
 
 enum SaleStatus { live, completed, closed };
 
@@ -100,7 +118,11 @@ export circuit create_token(
     total_amount: Uint<64>,
     token_ticker: Opaque<"string">,
     token_icon: Opaque<"string">,
+    kyc_token: OracleKycToken,
     ) :[] {
+    const disclosedKycToken = disclose(kyc_token);
+    assert (KYCedMembers.member(disclosedKycToken.tokenData.oraclePk), "Can not create sale: Unauthorized KYC token");
+
     assert (total_amount >= 10, "token must be atleast 10");
 
     const new_nonce = evolveNonce(unique_index, nonce);
@@ -125,8 +147,12 @@ export circuit openFixedSale(
     max: Uint<64>,
     project_name: Opaque<"string">,
     token_symbol: Opaque<"string">,
-    acceptable_token_symbol: Opaque<"string">
+    acceptable_token_symbol: Opaque<"string">,
+    kyc_token: OracleKycToken,
     ) :[] {
+    const disclosedKycToken = disclose(kyc_token);
+    assert (KYCedMembers.member(disclosedKycToken.tokenData.oraclePk), "Can not create sale: Unauthorized KYC token");
+
     assert(sale_ratio > 0, "Sale ratio must be greater than 0!");
     assert(coin.value > 0, "Sale amount must be greater than 0!");
     receive(disclose(coin));
@@ -212,8 +238,12 @@ export circuit openBatchSale(
     max: Uint<64>,
     project_name: Opaque<"string">,
     token_symbol: Opaque<"string">,
-    acceptable_token_symbol: Opaque<"string">
+    acceptable_token_symbol: Opaque<"string">,
+    kyc_token: OracleKycToken,
  ): [] {
+    const disclosedKycToken = disclose(kyc_token);
+    assert (KYCedMembers.member(disclosedKycToken.tokenData.oraclePk), "Can not create sale: Unauthorized KYC token");
+
     receive(disclose(coin));
     const organizer = disclose(public_key(disclose(local_secret_key())));
     const sale_id = disclose(generate_sale_id());
@@ -296,8 +326,11 @@ export circuit openOverflowSale(
     max: Uint<64>,
     project_name: Opaque<"string">,
     token_symbol: Opaque<"string">,
-    acceptable_token_symbol: Opaque<"string">
+    acceptable_token_symbol: Opaque<"string">,
+    kyc_token: OracleKycToken,
  ): [] {
+    const disclosedKycToken = disclose(kyc_token);
+    assert (KYCedMembers.member(disclosedKycToken.tokenData.oraclePk), "Can not create sale: Unauthorized KYC token");
     receive(disclose(coin));
     const organizer = disclose(public_key(disclose(local_secret_key())));
     const sale_id = disclose(generate_sale_id());
@@ -571,6 +604,18 @@ export circuit organizerWIthdrawalFromOverflowSale(sale_id: Bytes<32>):[] {
         withdrawn: true
     });
     
+}
+
+export circuit addNewKycedMember(oracle_public_key: Bytes<32>): []{
+    assert (!KYCedMembers.member(disclose(oracle_public_key)), "Can not add oracle pk: Already exist");
+
+    KYCedMembers.insert(disclose(oracle_public_key));
+}
+
+export circuit removeNewKycedMember(oracle_public_key: Bytes<32>): []{
+    assert (KYCedMembers.member(disclose(oracle_public_key)), "Can not add oracle public key: Does not exist");
+
+    KYCedMembers.remove(disclose(oracle_public_key));
 }
 
 export circuit public_key(sk: Bytes<32>): Bytes<32> {

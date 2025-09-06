@@ -39,11 +39,13 @@ import { Footer } from "../components/footer";
 import { useAppDeployment } from "../hooks/useAppDeployment";
 import { useEffect, useState } from "react";
 import { IMAGE, saleTypesList, statuses } from "../lib/assets";
-import type {
-  BatchSaleData,
-  DerivedState,
-  FixedSaleData,
-  OverflowSaleData,
+import {
+  getTestKycToken,
+  LaunchPadAPI,
+  type BatchSaleData,
+  type DerivedState,
+  type FixedSaleData,
+  type OverflowSaleData,
 } from "@repo/launchpad-api";
 import type { SaleData } from "./ProjectDetail";
 
@@ -56,6 +58,10 @@ export default function Dashboard() {
     setRoute,
     setProjectDetail,
     api,
+    handleError,
+    handleSuccess,
+    setKycToken,
+    kycToken,
   } = useAppDeployment();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -63,6 +69,7 @@ export default function Dashboard() {
   const [selectedSaleType, setSelectedSaleType] = useState("All");
   const [isLoading, setIsLoading] = useState(true);
   const [allProjects, setAllProjects] = useState<SaleData[]>([]);
+  const [isSubmitingKyc, setIsSubmitingKyc] = useState(false);
 
   useEffect(() => {
     if (!api) return;
@@ -121,6 +128,28 @@ export default function Dashboard() {
     }
   };
 
+  const submitKyc = async () => {
+    if (!api) {
+      return;
+    }
+    console.log("KYC has started");
+
+    setIsSubmitingKyc(true);
+    try {
+      // const _kycToken = await LaunchPadAPI.kycVerification(
+      //   api.deployedContract
+      // );
+      const _kycToken = getTestKycToken();
+      console.log(_kycToken);
+      setKycToken(_kycToken);
+      handleSuccess("KYC Successfully Submitted");
+    } catch (error) {
+      handleError("Unable to generate KYC" + error);
+    } finally {
+      setIsSubmitingKyc(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 text-left">
       {/* Header */}
@@ -134,8 +163,30 @@ export default function Dashboard() {
               Midnight Launchpad
             </h1>
           </div>
-
           <div className="flex items-center space-x-4">
+            {deploymentState === "deployed" && kycToken !== undefined ? (
+              <Badge className="bg-green-500/10 text-green-400 border-green-500/20">
+                Verified
+              </Badge>
+            ) : deploymentState === "deployed" && kycToken === undefined ? (
+              <Button
+                onClick={submitKyc}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                disabled={isSubmitingKyc}
+                aria-label={
+                  isSubmitingKyc ? "Submitting KYC, please wait" : "Submit KYC"
+                }
+              >
+                {isSubmitingKyc ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    Please wait...
+                  </>
+                ) : (
+                  "Submit KYC"
+                )}
+              </Button>
+            ) : null}
             {deploymentState === "deployed" && (
               <Button
                 onClick={() => setRoute("create-sale")}
@@ -174,10 +225,11 @@ export default function Dashboard() {
                     Connecting...
                   </>
                 ) : (
-                  "Connect Wallet"
+                  <p>Connect Wallet</p>
                 )}
               </Button>
             )}
+
             {deploymentState === "deployed" && (
               <div className="flex items-center space-x-3">
                 <Badge

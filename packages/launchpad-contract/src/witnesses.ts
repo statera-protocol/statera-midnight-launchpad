@@ -3,7 +3,6 @@ import {
   MerkleTreePath,
   WitnessContext,
 } from "@midnight-ntwrk/compact-runtime";
-import { sha256 } from "@noble/hashes/sha2.js";
 
 export type LaunchPadPrivateState = {
   readonly secretKey: Uint8Array;
@@ -34,9 +33,9 @@ export const witnesses = {
     LaunchPadPrivateState,
     Uint8Array,
   ] => {
-    const random_string = crypto.randomUUID().replace(/-/g, "");
-    const bytes_id = Uint8Array.from(random_string);
-    return [privateState, bytes_id];
+    const newBytes = new Uint8Array(32);
+    crypto.getRandomValues(newBytes);
+    return [privateState, newBytes];
   },
   calculate_time: (
     { privateState }: WitnessContext<Ledger, LaunchPadPrivateState>,
