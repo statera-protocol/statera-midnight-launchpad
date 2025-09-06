@@ -55,7 +55,8 @@ const INITIAL_SALE_DATA: formData = {
 };
 
 export default function CreateSale() {
-  const { setRoute, api, setError, setSuccess } = useAppDeployment();
+  const { setRoute, api, setError, setSuccess, kycToken, handleError } =
+    useAppDeployment();
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -68,6 +69,12 @@ export default function CreateSale() {
       setError("Please Connect your wallet to perform this action!.");
       return;
     }
+
+    if (!kycToken) {
+      handleError("Please submit your kyc");
+      return;
+    }
+
     setLaunching(true);
     try {
       if (saleData.saleType === "fixed") {
@@ -82,7 +89,8 @@ export default function CreateSale() {
           BigInt(saleData.maxContribution),
           saleData.projectName,
           saleData.tokenTicker,
-          saleData.exchangeTokenSymbol
+          saleData.exchangeTokenSymbol,
+          kycToken
         );
       } else if (saleData.saleType === "batch") {
         await LaunchPadAPI.openBatchSale(
@@ -95,7 +103,8 @@ export default function CreateSale() {
           BigInt(saleData.maxContribution),
           saleData.projectName,
           saleData.tokenTicker,
-          saleData.exchangeTokenSymbol
+          saleData.exchangeTokenSymbol,
+          kycToken
         );
       } else if (saleData.saleType === "overflow") {
         await LaunchPadAPI.openOverflowSale(
@@ -109,7 +118,8 @@ export default function CreateSale() {
           BigInt(saleData.target),
           saleData.projectName,
           saleData.tokenTicker,
-          saleData.exchangeTokenSymbol
+          saleData.exchangeTokenSymbol,
+          kycToken
         );
       }
 
@@ -118,7 +128,7 @@ export default function CreateSale() {
       setBannerFile(null);
       setLogoFile(null);
       setCurrentStep(1);
-      setSuccess("Sale Uploaded Successfully");
+      setSuccess("Sale successfully created");
       setLaunching(false);
     } catch (error) {}
   };

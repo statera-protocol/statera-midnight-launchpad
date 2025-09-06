@@ -23,7 +23,7 @@ import { Alert, AlertDescription } from "../components/ui/alert";
 import { Footer } from "../components/footer";
 import { useAppDeployment } from "../hooks/useAppDeployment";
 import type { TokenData } from "../lib/assets";
-import { LaunchPadAPI, stringToBytes } from "@repo/launchpad-api";
+import { LaunchPadAPI, stringTo32ByteArray } from "@repo/launchpad-api";
 
 const INITIAL_TOKEN_DATA: TokenData = {
   name: "",
@@ -38,8 +38,14 @@ export default function TokenGenerator() {
   const [generationComplete, setGenerationComplete] = useState(false);
   const [tokenData, setTokenData] = useState<TokenData>(INITIAL_TOKEN_DATA);
 
-  const { deploymentState, setRoute, api, handleError, handleSuccess } =
-    useAppDeployment();
+  const {
+    deploymentState,
+    setRoute,
+    api,
+    handleError,
+    handleSuccess,
+    kycToken,
+  } = useAppDeployment();
 
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -50,14 +56,20 @@ export default function TokenGenerator() {
       return;
     }
 
+    if (!kycToken) {
+      handleError("Please submit your kyc");
+      return;
+    }
+
     setIsGenerating(true);
     try {
       await LaunchPadAPI.createToken(
         api.deployedContract,
-        await stringToBytes(tokenData.name),
+        stringTo32ByteArray(tokenData.name),
         BigInt(tokenData.totalSupply),
         tokenData.ticker,
-        tokenData.description
+        tokenData.description,
+        kycToken
       );
 
       setGenerationComplete(true);

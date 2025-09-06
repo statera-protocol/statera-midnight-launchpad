@@ -1,7 +1,7 @@
 import { levelPrivateStateProvider } from "@midnight-ntwrk/midnight-js-level-private-state-provider";
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface, Interface } from "node:readline/promises";
-import { DerivedState, LaunchPadAPI, stringToBytes } from "@repo/launchpad-api";
+import { DerivedState, LaunchPadAPI } from "@repo/launchpad-api";
 import { toHex } from "@midnight-ntwrk/midnight-js-utils";
 import { type Config } from "./config.js";
 import {
@@ -133,13 +133,14 @@ const circuit_main_loop = async (
         switch (choice) {
           case "1": {
             try {
-              LaunchPadAPI.createToken(
-                deployedAPI.deployedContract,
-                await stringToBytes(await rli.question("Enter a name ")),
-                BigInt(await rli.question("Enter token amount ")),
-                await rli.question("Enter token ticker "),
-                await rli.question("Enter token icon ")
-              );
+              // LaunchPadAPI.createToken(
+              //   deployedAPI.deployedContract,
+              //   await stringToBytes(await rli.question("Enter a name ")),
+              //   BigInt(await rli.question("Enter token amount ")),
+              //   await rli.question("Enter token ticker "),
+              //   await rli.question("Enter token icon "),
+
+              // );
               wallet.transferTransaction([]);
             } catch (error) {
               console.log(error);

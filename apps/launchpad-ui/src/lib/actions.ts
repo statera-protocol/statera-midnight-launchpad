@@ -83,6 +83,9 @@ export class BrowserDeployedLaunchpadManager
     let api;
     try {
       const { providers, wallet } = await initializeProviders();
+
+      console.log({ providers, wallet });
+
       this.wallet_address = (await wallet.state()).address;
 
       api = await LaunchPadAPI.joinOrDeployLaunchPadContract(
@@ -118,6 +121,10 @@ type WalletAndProviders = {
 const initializeProviders = async (): Promise<WalletAndProviders> => {
   const { wallet } = await connectToWallet();
   const walletState = await wallet.state();
+
+  console.log(import.meta.env.VITE_PROOF_SERVER_URI as string);
+  console.log(import.meta.env.VITE_INDEXER_URL as string);
+  console.log(import.meta.env.VITE_INDEXER_WS_URL as string);
 
   return {
     providers: {
