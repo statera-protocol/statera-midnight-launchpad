@@ -64,7 +64,7 @@ Pre-requisite
 
 - Lace wallet setup: [https://docs.midnight.network/develop/tutorial/using/chrome-ext]
 
-- Contract Documentation: [https://github.com/codeBigInt/fundagoal/blob/main/packages/contract/README.md]
+- Contract Documentation: [https://github.com/statera-protocol/statera-midnight-launchpad/blob/89d78f39362bbc42f8d675d17d3cb2ce9f30ca95/README.md]
 
 NB: This project is a monorepo that utilizes turborepo.
 
